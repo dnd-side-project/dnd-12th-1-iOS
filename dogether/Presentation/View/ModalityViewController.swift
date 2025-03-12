@@ -13,44 +13,53 @@ final class ModalityViewController: BaseViewController {
     var viewModel = ModalityViewModel()
     
     // TODO: 현재는 TodoExamination 단일 종류만 존재하지만 추후 확장
-    private let backgroundView = {
-        let view = UIView()
-        view.backgroundColor = .grey900.withAlphaComponent(0.8)
-        return view
-    }()
+    private let backgroundView = UIView()
+        .setOf {
+            $0.backgroundColor = .grey900.withAlphaComponent(0.8)
+        }
     
-    private let titlaLabel = {
-        let label = UILabel()
-        label.text = "투두를 검사해주세요!"
-        label.textColor = .grey0
-        label.font = Fonts.head1B
-        return label
-    }()
+    private let titlaLabel = UILabel()
+        .setOf {
+            $0.text = "투두를 검사해주세요!"
+            $0.textColor = .grey0
+            $0.font = Fonts.head1B
+        }
     
     private var todoExaminationModalityView = UIView()
     
-    private var closeButton = DogetherButton(action: { }, title: "보내기", status: .disabled)
+    private var closeButton = DogetherButton(title: "보내기", status: .disabled)
     
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
     override func configureView() {
-        closeButton.setAction(didTapCloseButton)
-        todoExaminationModalityView = ExaminationModalityView(buttonAction: { type in
+//        closeButton.action = didTapCloseButton
+        
+        closeButton.buttonTapped = { [weak self] in
+            self?.didTapCloseButton()
+        }
+        
+        todoExaminationModalityView = ExaminationModalityView(buttonAction: { [weak self] type in
+            guard let weakSelf = self else { return }
             switch type {
             case .reject:
-                self.viewModel.setResult(.reject)
-                self.viewModel.setRejectReason()
-                self.closeButton.setButtonStatus(status: .disabled)
-                PopupManager.shared.showPopup(type: .rejectReason, completeAction: { rejectReason in
-                    self.viewModel.setRejectReason(rejectReason)
-                    self.closeButton.setButtonStatus(status: .enabled)
+                weakSelf.viewModel.setResult(.reject)
+                weakSelf.viewModel.setRejectReason()
+                weakSelf.closeButton.setButtonStatus(status: .disabled)
+                
+                weakSelf.showPopup(type: .rejectReason, completeAction:  { rejectReason in
+                    weakSelf.viewModel.setRejectReason(rejectReason)
+                    weakSelf.closeButton.setButtonStatus(status: .enabled)
                 })
+//                PopupManager.shared.showPopup(type: .rejectReason, completeAction: { rejectReason in
+//                    self.viewModel.setRejectReason(rejectReason)
+//                    self.closeButton.setButtonStatus(status: .enabled)
+//                })
                 
             case .approve:
-                self.viewModel.setResult(.approve)
-                self.closeButton.setButtonStatus(status: .enabled)
+                weakSelf.viewModel.setResult(.approve)
+                weakSelf.closeButton.setButtonStatus(status: .enabled)
                 
             default:
                 return

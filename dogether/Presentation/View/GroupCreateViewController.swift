@@ -46,8 +46,9 @@ final class GroupCreateViewController: BaseViewController {
         label.font = Fonts.head1B
         return label
     }()
-    
-    private let completeButton = DogetherButton(action: { }, title: "다음", status: .disabled)
+    // private var stepDescriptionLabel = UILabel()
+
+    private let completeButton = DogetherButton(title: "다음", status: .disabled)
     
     private func stepView(step: CreateGroupSteps) -> UIView {
         let view = UIView()
@@ -55,6 +56,7 @@ final class GroupCreateViewController: BaseViewController {
         view.tag = step.rawValue
         return view
     }
+
     private var stepOneView = UIView()
     private var stepTwoView = UIView()
     private var stepThreeView = UIView()
@@ -166,9 +168,22 @@ final class GroupCreateViewController: BaseViewController {
         stepThreeView = stepView(step: .three)
         stepFourView = stepView(step: .four)
         
-        completeButton.setAction {
-            self.viewModel.completeAction {
-                self.updateStep()
+//        completeButton.action = { @MainActor in
+//            if self.viewModel.currentStep == .four {
+//                let completeViewController = CompleteViewController(type: .create)
+//                completeViewController.viewModel.joinCode = await self.viewModel.getJoinCode()
+//                NavigationManager.shared.setNavigationController(completeViewController)
+//            } else {
+//                await self.viewModel.completeAction()
+//                self.updateStep()
+//            }
+//        }
+    
+        // 약한참조를 하는 버릇이 필요합니다. 내부에서 액션을 (weak var) 와 같이 객체가 가지지 않는 이상....
+        completeButton.buttonTapped = { [weak self] in
+            guard let weakSelf = self else { return }
+            weakSelf.viewModel.completeAction {
+                weakSelf.updateStep()
             }
         }
         

@@ -9,6 +9,15 @@ import Foundation
 import UIKit
 import SnapKit
 
+protocol CertificationPopupDelegate: NSObject {
+    /// CertificationTextViewText 를 전달받습니다.
+    /// - Parameter text: CertificationTextViewText
+    func tossCertificationTextViewText(with text: String)
+    
+    /// 뒤로가기 이벤트를 전달받습니다.
+    func dismissAction()
+}
+
 final class CertificationPopupView: UIView {
     var cameraManager: CameraManager!
     var galleryManager: GalleryManager!
@@ -17,12 +26,16 @@ final class CertificationPopupView: UIView {
     
     // TODO: 추후 수정
     private var todoInfo: TodoInfo
-    private var completeAction: (String) -> Void
+//    private var completeAction: (String) -> Void
     
-    init(todoInfo: TodoInfo, completeAction: @escaping (String) -> Void) {
+    // MARK: Delegate
+    private weak var delegate: CertificationPopupDelegate?
+    
+    init(todoInfo: TodoInfo, delegate: any CertificationPopupDelegate) {
         self.todoInfo = todoInfo
-        self.completeAction = completeAction
+        self.delegate = delegate
         super.init(frame: .zero)
+        
         setUI()
         setupKeyboardHandling()
     }
@@ -198,7 +211,8 @@ final class CertificationPopupView: UIView {
         shootButton = certificationButton(certificationMethod: .shoot)
         certificationStackView = certificationStackView(views: [selectButton, shootButton])
         
-        nextButton = DogetherButton(action: updatePopup, title: "다음", status: .enabled)
+        let _nextButton = DogetherButton(title: "다음", status: .enabled, buttonTapped: updatePopup)
+        self.nextButton = _nextButton
         
         [titleLabel, closeButton, todoContentLabel, certificationStackView].forEach { addSubview($0) }
         
@@ -232,7 +246,7 @@ final class CertificationPopupView: UIView {
     }
     
     @objc private func didTapCloseButton() {
-        PopupManager.shared.hidePopup()
+        delegate?.dismissAction()
     }
     
     @objc private func didTapCertificationButton(_ sender: UIButton) {
@@ -290,9 +304,16 @@ final class CertificationPopupView: UIView {
         certificationTextView = certificationTextView()
         certificationTextView.becomeFirstResponder()
         certificationMaxLengthLabel.text = "/\(certificationMaxLength)"
-        certificationButton = DogetherButton(action: {
-            self.completeAction(self.certificationTextView.text)
-        }, title: "인증하기", status: .enabled)
+        
+        let _dogetherButton = DogetherButton(
+            title: "인증하기",
+            status: .enabled
+        ) { [weak self] in
+            guard let self else { return }
+            delegate?.tossCertificationTextViewText(with: certificationTextView.text)
+        }
+        
+        self.certificationButton = _dogetherButton
         
         [
             descriptionLabel, descriptionView,
@@ -386,13 +407,20 @@ extension CertificationPopupView: UITextViewDelegate {
     // MARK: - UITextFieldDelegate
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        let keyboardHeight = keyboardFrame.height
-        self.snp.updateConstraints { $0.centerY.equalToSuperview().offset(-keyboardHeight / 2) }
-        UIView.animate(withDuration: 0.3) { self.layoutIfNeeded() }
+        let keyboardHeight = keyboardFrame.height / 2.2
+        let transform = CGAffineTransform(translationX: 0, y: -keyboardHeight)
+        
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let weakSelf = self else { return }
+            weakSelf.transform = transform
+        }
+        
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
-        self.snp.updateConstraints { $0.centerY.equalToSuperview() }
-        UIView.animate(withDuration: 0.3) { self.layoutIfNeeded() }
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let weakSelf = self else { return }
+            weakSelf.transform = .identity
+        }
     }
 }

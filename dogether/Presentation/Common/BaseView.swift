@@ -7,7 +7,20 @@
 
 import UIKit
 
-class BaseView: UIView {
+protocol BaseViewProtocol {
+    
+    /// 뷰 계층을 구현하세요
+    func configureHierarchy()
+    
+    /// 제약조건을 구현하세요
+    func configureConstraints()
+    
+    /// UI를 정의하세요
+    func configureView()
+    
+}
+
+class BaseView: UIView, BaseViewProtocol {
     
     override init(frame: CGRect) {
         super .init(frame: frame)

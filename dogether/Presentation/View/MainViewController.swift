@@ -212,7 +212,7 @@ final class MainViewController: BaseViewController {
         label.font = Fonts.body2R
         return label
     }()
-    private let todoButton = DogetherButton(action: { }, title: "투두 작성하기", status: .enabled)
+    private let todoButton = DogetherButton(title: "투두 작성하기", status: .enabled)
     
     private var allButton = FilterButton(action: { _ in }, type: .all)
     private var waitButton = FilterButton(action: { _ in }, type: .wait)
@@ -353,7 +353,8 @@ final class MainViewController: BaseViewController {
         
         timerLabel.text = viewModel.time
         
-        todoButton.setAction {
+        todoButton.buttonTapped = { [weak self] in
+            guard let self else { return }
             let todoWriteViewController = TodoWriteViewController()
             todoWriteViewController.maximumTodoCount = self.viewModel.groupInfo.maximumTodoCount
             NavigationManager.shared.pushViewController(todoWriteViewController)
@@ -362,30 +363,54 @@ final class MainViewController: BaseViewController {
         allButton = FilterButton(action: {
             self.updateTodoList(type: $0)
         }, type: .all, isColorful: viewModel.currentFilter == .all)
+        
         waitButton = FilterButton(action: {
             self.updateTodoList(type: $0)
         }, type: .wait, isColorful: viewModel.currentFilter == .wait)
+        
         rejectButton = FilterButton(action: {
             self.updateTodoList(type: $0)
         }, type: .reject, isColorful: viewModel.currentFilter == .reject)
+        
         approveButton = FilterButton(action: {
             self.updateTodoList(type: $0)
         }, type: .approve, isColorful: viewModel.currentFilter == .approve)
         
         filterStackView = filterButtonStackView(buttons: [allButton, waitButton, rejectButton, approveButton])
-        todoListStackView = todoItemStackView(
-            items: viewModel.todoList.map { todo in
-                DogetherTodoItem(action: {
-                    if TodoStatus(rawValue: todo.status) == .waitCertificattion {
-                        PopupManager.shared.showPopup(type: .certification, completion: {
-                            // TODO: 추후에 인증을 성공했을 때 UI 업데이트 등 추가
-                        }, todoInfo: todo)
-                    } else {
-                        PopupManager.shared.showPopup(type: .certificationInfo, todoInfo: todo)
+        
+        
+//        todoListStackView = todoItemStackView(
+//            items: viewModel.todoList.map { todo in
+//                DogetherTodoItem(action: {
+//                    if TodoStatus(rawValue: todo.status) == .waitCertificattion {
+//                        PopupManager.shared.showPopup(type: .certification, completion: {
+//                            // TODO: 추후에 인증을 성공했을 때 UI 업데이트 등 추가
+//                        }, todoInfo: todo)
+//                    } else {
+//                        PopupManager.shared.showPopup(type: .certificationInfo, todoInfo: todo)
+//                    }
+//                }, todo: todo)
+//            }
+//        )
+        
+        let mapTodoList = viewModel.todoList.map { todo in
+            DogetherTodoItem(action: { [weak self] in
+                guard let self else { return }
+                if TodoStatus(rawValue: todo.status) == .waitCertificattion {
+                    showPopup(type: .certification, todoInfo: todo) {
+                        // TODO: 추후에 인증을 성공했을 때 UI 업데이트 등 추가
+                        
                     }
-                }, todo: todo)
-            }
-        )
+                }
+                else {
+                    showPopup(type: .certificationInfo, todoInfo: todo)
+                }
+            }, todo: todo)
+        }
+        
+        let _todoItemStackView = todoItemStackView(items: mapTodoList)
+        self.todoListStackView = _todoItemStackView
+        
         filterStackView.isHidden = viewModel.mainViewStatus != .todoList
         
         emptyDescriptionView = emptyDescriptionView(type: viewModel.currentFilter)

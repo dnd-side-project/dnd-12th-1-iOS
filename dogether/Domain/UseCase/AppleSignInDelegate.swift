@@ -52,7 +52,6 @@ final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
             print("사용자 Token: \(identityTokenString)")
             print("사용자 authorizationCode: \(authorizationCodeString)")
             print("===========================================")
-            
             // 비동기 결과 반환
             continuation?.resume(returning: (identityTokenString, fullUserName, authorizationCodeString))
             

@@ -26,9 +26,16 @@ final class CompleteViewController: BaseViewController {
         label.numberOfLines = 0
         return label
     }()
-    private let completeButton = DogetherButton(action: {
-        NavigationManager.shared.setNavigationController(MainViewController())
-    }, title: "홈으로 가기", status: .enabled)
+    
+    private let completeButton = DogetherButton(
+        title: "홈으로 가기",
+        status: .enabled) {
+            NavigationManager.shared
+                .setNavigationController(
+                    MainViewController()
+                )
+        }
+    
     private var groupInfoView = UIView()
     private let joinCodeShareButton = {
         let button = UIButton()
