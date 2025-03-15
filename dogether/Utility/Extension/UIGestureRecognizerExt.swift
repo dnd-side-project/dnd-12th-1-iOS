@@ -42,6 +42,7 @@ fileprivate class GestureActionWrapper {
     init(
         action: @escaping () -> Void
     ) {
+        logger.info("SETTINGS ACTION")
         self.action = action
     }
 

@@ -8,14 +8,27 @@
 import Foundation
 import os.log
 
+/// 로거를 사용하는 객체입니다.
+///
+///     Example)
+///
+///     logger.info("TEST")
+///     logger.debug(a,b,c,d,e,f)
+///     ... etc
+///
+///     결과값
+///        📗 INFO - SETTINGS ACTION
+///     - from file: .../DND/dnd-12th-1-iOS/dogether/Utility/Extension/UIGestureRecognizerExt.swift
+///     - function: init(action:)
+///     - line: 45
 let logger = LoggerManager.self
 
+/// 해당 객체로 접근 하지 마시오
 final class LoggerManager: Sendable {
     private init() {}
 }
 
 extension LoggerManager {
-    
     enum Level {
         /// 디버깅
         case debug
@@ -26,80 +39,62 @@ extension LoggerManager {
         
         fileprivate var category: String {
             switch self {
-            case .debug:
-                return " 👀 DEBUG 👀 "
-            case .info:
-                return " 📗 INFO 📗 "
-            case .error:
-                return " 👿 ERROR 👿 "
+            case .debug: return "👀 DEBUG"
+            case .info: return "📗 INFO"
+            case .error: return "👿 ERROR"
             }
         }
         
         fileprivate var osLog: OSLog {
             switch self {
-            case .debug:
-                return OSLog.debug
-            case .info:
-                return OSLog.info
-            case .error:
-                return OSLog.error
+            case .debug: return OSLog.debug
+            case .info: return OSLog.info
+            case .error: return OSLog.error
             }
         }
         
         fileprivate var osLogType: OSLogType {
             switch self {
-            case .debug:
-                return .debug
-            case .info:
-                return .info
-            case .error:
-                return .error
+            case .debug: return .debug
+            case .info: return .info
+            case .error: return .error
             }
         }
     }
     
-    static private func log(_ message: Any, _ arguments: [Any], level: Level) {
-        
-        let extraMessage = arguments
-            .map{
-                String(describing: $0)
-            }
-            .joined(separator: " ")
-        
-        let logger = Logger(subsystem: OSLog.subsystem, category: level.category)
-        let logMessage = "\(message) \(extraMessage)"
-        switch level {
-        case .debug:
-#if DEBUG
-            logger.debug("\(logMessage, privacy: .public)")
-#endif
-        case .info:
-#if DEBUG || Release
-            logger.info("\(logMessage, privacy: .public)")
-#endif
-        case .error:
-#if DEBUG || Release
-            logger.error("\(logMessage, privacy: .public)")
-#endif
-        }
+    static private func log(_ logMessage: String, level: Level) {
+        os_log("%{public}@", log: level.osLog, type: level.osLogType, logMessage)
     }
-    
 }
 
 extension LoggerManager {
-    static func debug(_ message: Any, _ arguments: Any...) {
-        log(message, arguments, level: .debug)
+    static func debug(_ message: Any, _ arguments: Any..., file: StaticString = #file, function: StaticString = #function, line: UInt = #line) {
+        let message = makeMessage(message, arguments, file: file, function: function, line: line, level: .debug)
+        log(message, level: .debug)
     }
     
-    static func info(_ message: Any, _ arguments: Any...) {
-        log(message, arguments, level: .info)
+    static func info(_ message: Any, _ arguments: Any..., file: StaticString = #file, function: StaticString = #function, line: UInt = #line) {
+        let message = makeMessage(message, arguments, file: file, function: function, line: line, level: .info)
+        log(message, level: .info)
     }
   
-    static func error(_ message: Any, _ arguments: Any...) {
-        log(message, arguments, level: .error)
+    static func error(_ message: Any, _ arguments: Any..., file: StaticString = #file, function: StaticString = #function, line: UInt = #line) {
+        let message = makeMessage(message, arguments, file: file, function: function, line: line, level: .error)
+        log(message, level: .error)
     }
 }
 
+extension LoggerManager {
+    static private func makeMessage(_ message: Any, _ arguments: [Any], file: StaticString, function: StaticString, line: UInt, level: Level) -> String {
+        let extraMessage = arguments.map { String(describing: $0) }.joined(separator: " ")
+        return """
+        \(level.category) - \(message) \(extraMessage)
+        - from file: \(file)
+        - function: \(function)
+        - line: \(line)
+        """
+    }
+}
 
 extension OSLog {
     static let subsystem = Bundle.main.bundleIdentifier ?? "site.dogether"
