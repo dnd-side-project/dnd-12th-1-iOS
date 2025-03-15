@@ -40,7 +40,7 @@ extension UIViewController {
     ///   - type: 팝업 뷰 타입
     ///   - horizontalPadding: 좌우 패딩값
     ///   - configuration: 뷰 설정
-    func showPopUp<V: UIView>(
+    func showPopUp<V: BasePopUpView>(
         type: V.Type,
         horizontalPadding: CGFloat = 20,
         backgroundDismissOption: Bool = true,
@@ -60,7 +60,7 @@ extension UIViewController {
     ///   - type: 팝업 뷰 인스턴스
     ///   - horizontalPadding: 좌우 패딩값
     ///   - configuration: 뷰 설정
-    func showPopUp<V: UIView>(
+    func showPopUp<V: BasePopUpView>(
         view: V,
         horizontalPadding: CGFloat = 20,
         backgroundDismissOption: Bool = true,

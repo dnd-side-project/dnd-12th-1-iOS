@@ -22,7 +22,7 @@ import SnapKit
 ///
 ///     혹은 self.showPopup을 참고해주세요 ( 대리 함수 구성 완료 )
 ///
-class BasePopUpViewController<V: UIView>: NotNeedModelBaseViewController {
+class BasePopUpViewController<V: BasePopUpView>: NotNeedModelBaseViewController {
     
     let popUpView: V
     
@@ -81,8 +81,8 @@ class BasePopUpViewController<V: UIView>: NotNeedModelBaseViewController {
     }
     
     override func configureView() {
-        
         disMissCheckToAddAction()
+        setPopUpDismissAction()
     }
 }
 
@@ -145,6 +145,18 @@ extension BasePopUpViewController {
     }
 }
 
+// MARK: SET ACTION
+extension BasePopUpViewController {
+    
+    private func setPopUpDismissAction() {
+        self.popUpView
+            .dismiss = { [weak self] in
+                guard let self else { return }
+                dismissAct()
+            }
+    }
+}
+
 #if DEBUG
 final class ExamplePopupViewController: UIViewController {
     
@@ -152,20 +164,20 @@ final class ExamplePopupViewController: UIViewController {
         super.viewDidLoad()
         
         // 버튼 눌렀다 가정
-        let popUpView = CertificationInfoPopupView(todoInfo: TodoInfo(
-            id: 0,
-            content: "CENTER",
-            status: "STATUS"
-        )) {
-            logger.debug("무언가 함.")
-        }
-        
-        // 혹은
-        self.showPopUp(view: popUpView) { view in
-            view.backgroundColor = .red
-            view.dismissButtonTapped()
-            // ..Etc
-        }
+//        let popUpView = CertificationInfoPopupView(todoInfo: TodoInfo(
+//            id: 0,
+//            content: "CENTER",
+//            status: "STATUS"
+//        )) {
+//            logger.debug("무언가 함.")
+//        }
+//        
+//        // 혹은
+//        self.showPopUp(view: popUpView) { view in
+//            view.backgroundColor = .red
+//            view.dismissButtonTapped()
+//            // ..Etc
+//        }
         
 //        // 다음과 같이 단 init() 전용 매개변수가 필요시 위 방식으로 대체 하시오
 //        self.showPopUp(type: CertificationInfoPopupView.self) { view in
