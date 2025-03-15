@@ -12,79 +12,84 @@ import SnapKit
 final class RejectReasonPopupView: UIView {
     private let rejectReasonMaxLength = 60
     
-    private var completeAction: (String) -> Void
+    /// 완료된 텍스트뷰 텍스트
+    private let completeAction: (String) -> Void
     
-    init(completeAction: @escaping (String) -> Void) {
+    /// 뒤로가기 액션
+    private let dismissAction: () -> Void
+    
+    init(
+        completeAction: @escaping (String) -> Void,
+        dismissAction: @escaping () -> Void
+    ) {
         self.completeAction = completeAction
+        self.dismissAction = dismissAction
         super.init(frame: .zero)
         setUI()
         setupKeyboardHandling()
     }
-    required init?(coder: NSCoder) { fatalError() }
     
-    private let closeButton = {
-        let button = UIButton()
-        button.setImage(.close.withRenderingMode(.alwaysTemplate), for: .normal)
-        button.tintColor = .grey0
-        return button
-    }()
-    
-    private let descriptionLabel = {
-        let label = UILabel()
-        label.text = "이유를 들려주세요 !"
-        label.textColor = .grey0
-        label.textAlignment = .center
-        label.font = Fonts.head1B
-        return label
-    }()
-    
-    private func descriptionView(tempParameter: Bool = false) -> UIView {
-        let view = UIView()
-        view.layer.cornerRadius = 8
-        view.layer.borderColor = UIColor.grey600.cgColor
-        view.layer.borderWidth = 1
-        
-        let imageView = UIImageView(image: .notice)
-        
-        let label = UILabel()
-        label.text = "한번 등록한 피드백은 바꿀 수 없어요"
-        label.textColor = .grey400
-        label.font = Fonts.body2S
-        
-        let stackView = UIStackView(arrangedSubviews: [imageView, label])
-        stackView.axis = .horizontal
-        stackView.spacing = 8
-        
-        [stackView].forEach { view.addSubview($0) }
-        
-        stackView.snp.makeConstraints {
-            $0.center.equalToSuperview()
-        }
-        
-        imageView.snp.makeConstraints {
-            $0.width.height.equalTo(24)
-        }
-        
-        return view
+    required init?(coder: NSCoder) {
+        logger.error("\(#file) can not init(coder:)")
+        fatalError()
     }
-    private var descriptionView = UIView()
     
-    private let rejectReasonView = {
-        let view = UIView()
-        view.backgroundColor = .grey800
-        view.layer.cornerRadius = 12
-        view.layer.borderColor = UIColor.blue300.cgColor
-        view.layer.borderWidth = 1
-        return view
-    }()
+    private let closeButton = UIButton()
+        .setOf {
+            $0.setImage(.close.withRenderingMode(.alwaysTemplate), for: .normal)
+            $0.tintColor = .grey0
+        }
     
-    private let rejectReasonPlaceHolder = {
-        let label = UILabel()
-        label.textColor = .grey300
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        return label
-    }()
+    private let descriptionLabel = UILabel()
+        .setOf {
+            $0.text = "이유를 들려주세요 !"
+            $0.textColor = .grey0
+            $0.textAlignment = .center
+            $0.font = Fonts.head1B
+        }
+    
+    private let descriptionView = UIView()
+        .setOf { descriptionView in
+            descriptionView.layer.cornerRadius = 8
+            descriptionView.layer.borderColor = UIColor.grey600.cgColor
+            descriptionView.layer.borderWidth = 1
+            
+            let imageView = UIImageView(image: .notice)
+            
+            let label = UILabel()
+            label.text = "한번 등록한 피드백은 바꿀 수 없어요"
+            label.textColor = .grey400
+            label.font = Fonts.body2S
+            
+            let stackView = UIStackView(arrangedSubviews: [imageView, label])
+            stackView.axis = .horizontal
+            stackView.spacing = 8
+            
+            descriptionView.addSubview(stackView)
+            
+            stackView.snp.makeConstraints {
+                $0.center.equalToSuperview()
+            }
+            
+            imageView.snp.makeConstraints {
+                $0.width.height.equalTo(24)
+            }
+        }
+    
+    private let rejectReasonView = UIView()
+        .setOf {
+            $0.backgroundColor = .grey800
+            $0.layer.cornerRadius = 12
+            $0.layer.borderColor = UIColor.blue300.cgColor
+            $0.layer.borderWidth = 1
+        }
+    
+    private let rejectReasonPlaceHolderLabel = UILabel()
+        .setOf {
+            $0.textColor = .grey300
+            $0.numberOfLines = 0
+            $0.lineBreakMode = .byWordWrapping
+        }
     
     private func rejectReasonTextView(tempParameter: Bool = false) -> UITextView {
         let textView = UITextView()
@@ -98,6 +103,7 @@ final class RejectReasonPopupView: UIView {
         textView.delegate = self
         return textView
     }
+    
     private var rejectReasonTextView = UITextView()
     
     private let rejectReasonTextCountLabel = {
@@ -118,28 +124,48 @@ final class RejectReasonPopupView: UIView {
     private var rejectReasonButton = DogetherButton(title: "등록하기", status: .disabled)
     
     private func setUI() {
-        backgroundColor = .grey700
-        layer.cornerRadius = 12
         
-        closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
+        let _rejectAction = UIAction { [weak self] _ in
+            guard let self else { return }
+            didTapRejectReasonButton()
+        }
+        let _rejectButton = DogetherButton(title: "등록하기", status: .disabled)
         
-        descriptionView = descriptionView()
-        rejectReasonPlaceHolder.attributedText = NSAttributedString(
+        _rejectButton.addAction(_rejectAction, for: .touchUpInside)
+        
+        self.rejectReasonPlaceHolderLabel.attributedText = NSAttributedString(
             string: "팀원이 이해하기 쉽도록 인증에 대한 설명을 입력하세요.",
             attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .left)
         )
         rejectReasonTextView = rejectReasonTextView()
         rejectReasonTextView.becomeFirstResponder()
         rejectReasonMaxLengthLabel.text = "/\(rejectReasonMaxLength)"
-        rejectReasonButton.addTarget(self, action: #selector(didTapRejectReasonButton), for: .touchUpInside)
+//        rejectReasonButton.addTarget(self, action: #selector(didTapRejectReasonButton), for: .touchUpInside)
         
         [
             closeButton, descriptionLabel, descriptionView,
-            rejectReasonView, rejectReasonPlaceHolder, rejectReasonTextView,
+            rejectReasonView, rejectReasonPlaceHolderLabel, rejectReasonTextView,
             rejectReasonTextCountLabel, rejectReasonMaxLengthLabel,
             rejectReasonButton
         ].forEach { addSubview($0) }
         
+        configureHierarchy()
+        configureConstraints()
+        configureView()
+    }
+    
+    
+    func configureHierarchy() {
+        [ closeButton, descriptionLabel, descriptionView,
+          rejectReasonView, rejectReasonPlaceHolderLabel, rejectReasonTextView,
+          rejectReasonTextCountLabel, rejectReasonMaxLengthLabel,
+          rejectReasonButton
+        ].forEach {
+            addSubview($0)
+        }
+    }
+    
+    func configureConstraints() {
         self.snp.updateConstraints {
             $0.height.equalTo(422)
         }
@@ -168,7 +194,7 @@ final class RejectReasonPopupView: UIView {
             $0.height.equalTo(160)
         }
         
-        rejectReasonPlaceHolder.snp.makeConstraints {
+        rejectReasonPlaceHolderLabel.snp.makeConstraints {
             $0.top.equalTo(rejectReasonView).offset(16)
             $0.horizontalEdges.equalTo(rejectReasonView).inset(16)
             $0.width.equalTo(271)
@@ -200,14 +226,37 @@ final class RejectReasonPopupView: UIView {
         }
     }
     
-    @objc private func didTapCloseButton() {
-        PopupManager.shared.hidePopup()
+    func configureView() {
+        backgroundColor = .grey700
+        layer.cornerRadius = 12
+        
+        rejectReasonPlaceHolderLabel.attributedText = NSAttributedString(
+            string: "팀원이 이해하기 쉽도록 인증에 대한 설명을 입력하세요.",
+            attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .left)
+        )
+        rejectReasonTextView = rejectReasonTextView()
+        rejectReasonTextView.becomeFirstResponder()
+        rejectReasonMaxLengthLabel.text = "/\(rejectReasonMaxLength)"
     }
     
-    @objc private func didTapRejectReasonButton() {
+    func didTapRejectReasonButton() {
         self.completeAction(self.rejectReasonTextView.text)
-        PopupManager.shared.hidePopup()
+        closeButtonActionSetting()
+//        PopupManager.shared.hidePopup()
     }
+}
+
+// MARK: ActionSettings
+extension RejectReasonPopupView {
+    
+    /// 닫기 버튼을 세팅합니다.
+    private func closeButtonActionSetting() {
+        let action = UIAction { [weak self] _ in
+            self?.dismissAction()
+        }
+        closeButton.addAction(action, for: .touchUpInside)
+    }
+    
 }
 
 // MARK: - abount keyboard
@@ -217,7 +266,7 @@ extension RejectReasonPopupView: UITextViewDelegate {
             if text.count > rejectReasonMaxLength {
                 textView.text = String(text.prefix(rejectReasonMaxLength))
             }
-            rejectReasonPlaceHolder.isHidden = text.count > 0
+            rejectReasonPlaceHolderLabel.isHidden = text.count > 0
             rejectReasonTextCountLabel.text = String(textView.text.count)
             rejectReasonButton.setButtonStatus(status: text.count > 0 ? .enabled : .disabled)
         }

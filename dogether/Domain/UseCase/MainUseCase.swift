@@ -59,7 +59,7 @@ final class MainUseCase {
         }
     }
     
-    func showPopup(type: PopupTypes, todoInfo: TodoInfo) {
-        PopupManager.shared.showPopup(type: type, todoInfo: todoInfo)
-    }
+//    func showPopup(type: PopupTypes, todoInfo: TodoInfo) {
+//        PopupManager.shared.showPopup(type: type, todoInfo: todoInfo)
+//    }
 }

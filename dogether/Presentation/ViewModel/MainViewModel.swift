@@ -92,10 +92,10 @@ extension MainViewModel {
     
 // MARK: - todoList
 extension MainViewModel {
-    func didTapTodoItem(todo: TodoInfo) {
-        let popupType: PopupTypes = TodoStatus(rawValue: todo.status) == .waitCertificattion ? .certification : .certificationInfo
-        mainUseCase.showPopup(type: popupType, todoInfo: todo)
-    }
+//    func didTapTodoItem(todo: TodoInfo) {
+//        let popupType: PopupTypes = TodoStatus(rawValue: todo.status) == .waitCertificattion ? .certification : .certificationInfo
+//        mainUseCase.showPopup(type: popupType, todoInfo: todo)
+//    }
     
     func updateFilter(filter: FilterTypes, completeAction: @escaping () -> Void) {
         self.currentFilter = filter

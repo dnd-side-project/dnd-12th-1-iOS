@@ -10,17 +10,33 @@ import UIKit
 import SnapKit
 
 final class CertificationInfoPopupView: UIView {
+    
     private var todoInfo: TodoInfo
     
-    init(todoInfo: TodoInfo) {
+    let dismissButtonTapped: () -> Void
+    
+    init(
+        todoInfo: TodoInfo,
+        dismissButtonTapped: @escaping () -> Void
+    ) {
         self.todoInfo = todoInfo
+        self.dismissButtonTapped = dismissButtonTapped
         super.init(frame: .zero)
         setUI()
         
-        Task { @MainActor in
-            guard let mediaUrl = self.todoInfo.certificationMediaUrl, let url = URL(string: mediaUrl) else { return }
+        Task.detached(priority: .medium) { [weak self] in
+            guard let weakSelf = self else { return }
+            
+            guard let mediaUrl = todoInfo.certificationMediaUrl,
+                  let url = URL(string: mediaUrl) else {
+                return
+            }
+            
             let (data, _) = try await URLSession.shared.data(from: url)
-            imageView.image = UIImage(data: data)
+            
+            await MainActor.run {
+                weakSelf.imageView.image = UIImage(data: data)
+            }
         }
     }
     required init?(coder: NSCoder) { fatalError() }
@@ -149,6 +165,7 @@ final class CertificationInfoPopupView: UIView {
     }
     
     @objc private func didTapCloseButton() {
-        PopupManager.shared.hidePopup()
+//        PopupManager.shared.hidePopup()
+        dismissButtonTapped()
     }
 }

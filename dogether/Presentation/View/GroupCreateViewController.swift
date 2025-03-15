@@ -55,6 +55,7 @@ final class GroupCreateViewController: BaseViewController {
         view.tag = step.rawValue
         return view
     }
+
     private var stepOneView = UIView()
     private var stepTwoView = UIView()
     private var stepThreeView = UIView()

@@ -477,8 +477,29 @@ extension MainViewController {
         
         todoListStackView.isHidden = viewModel.todoList.isEmpty
         todoListStackView.subviews.forEach { todoListStackView.removeArrangedSubview($0) }
+        
+        // MARK: ❤️‍🔥 자꾸... 이러시면....!
+        /// 흠 이부분은 음.. ViewModel과 View를 결국 소통은 해야하는데
+        /// 싱글톤으로 하지마시구... ( 예를 들어 다른 뷰모델이랑 이벤트가 동시에 발생 된다고 생각해 보시면 문제가 커집니다....
+        /// 뷰 모델에서 명령을 하는건 좋은것 같아요.
+        /// 결국 뷰가 뷰를 볼러와야 하니까 뷰에게 명령해야지 다른 대리자가 윈도우, 뷰컨을 막 순회해서 뷰를 띄운다고 하면
+        /// 매번... 호출할때마다 뷰컨을 순회하게 됩니다... 한번 고민 부탁드려요..
+        ///
+//        viewModel.todoList
+//            .map { todo in TodoListItemButton(todo: todo) { self.viewModel.didTapTodoItem(todo: $0) } }
+//            .forEach { todoListStackView.addArrangedSubview($0) }
+//        
+        // MARK: - FIXME
         viewModel.todoList
-            .map { todo in TodoListItemButton(todo: todo) { self.viewModel.didTapTodoItem(todo: $0) } }
+            .map { todoInfo in
+                TodoListItemButton(todo: todoInfo) { [weak self] todo in
+                    guard let weakSelf = self else { return }
+                    
+                    let popupType: PopupTypes = TodoStatus(rawValue: todo.status) == .waitCertificattion ? .certification : .certificationInfo
+                    
+                    weakSelf.showPopup(type: popupType, todoInfo: todo)
+                }
+            }
             .forEach { todoListStackView.addArrangedSubview($0) }
         
         emptyDescriptionView.isHidden = !(viewModel.mainViewStatus == .todoList && viewModel.todoList.isEmpty)

@@ -9,6 +9,15 @@ import Foundation
 import UIKit
 import SnapKit
 
+protocol CertificationPopupDelegate: NSObject {
+    /// CertificationTextViewText 를 전달받습니다.
+    /// - Parameter text: CertificationTextViewText
+    func tossCertificationTextViewText(with text: String)
+    
+    /// 뒤로가기 이벤트를 전달받습니다.
+    func dismissAction()
+}
+
 final class CertificationPopupView: UIView {
     var cameraManager: CameraManager!
     var galleryManager: GalleryManager!
@@ -17,12 +26,16 @@ final class CertificationPopupView: UIView {
     
     // TODO: 추후 수정
     private var todoInfo: TodoInfo
-    private var completeAction: (String) -> Void
+//    private var completeAction: (String) -> Void
     
-    init(todoInfo: TodoInfo, completeAction: @escaping (String) -> Void) {
+    // MARK: Delegate
+    private weak var delegate: CertificationPopupDelegate?
+    
+    init(todoInfo: TodoInfo, delegate: any CertificationPopupDelegate) {
         self.todoInfo = todoInfo
-        self.completeAction = completeAction
+        self.delegate = delegate
         super.init(frame: .zero)
+        
         setUI()
         setupKeyboardHandling()
     }
@@ -198,8 +211,8 @@ final class CertificationPopupView: UIView {
         shootButton = certificationButton(certificationMethod: .shoot)
         certificationStackView = certificationStackView(views: [selectButton, shootButton])
         
-        nextButton = DogetherButton(title: "다음", status: .enabled)
-        nextButton.addTarget(self, action: #selector(didTapNextButton), for: .touchUpInside)
+        // NEXT BUTTON SETTING
+        setNextButton()
         
         [titleLabel, closeButton, todoContentLabel, certificationStackView].forEach { addSubview($0) }
         
@@ -233,11 +246,7 @@ final class CertificationPopupView: UIView {
     }
     
     @objc private func didTapCloseButton() {
-        PopupManager.shared.hidePopup()
-    }
-    
-    @objc private func didTapNextButton() {
-        updatePopup()
+        delegate?.dismissAction()
     }
     
     @objc private func didTapCertificationButton(_ sender: UIButton) {
@@ -248,10 +257,6 @@ final class CertificationPopupView: UIView {
         case .shoot:
             cameraManager.openCamera()
         }
-    }
-    
-    @objc private func didTapCompleteButton() {
-        completeAction(self.certificationTextView.text)
     }
     
     func uploadImage(image: UIImage) {
@@ -299,8 +304,9 @@ final class CertificationPopupView: UIView {
         certificationTextView = certificationTextView()
         certificationTextView.becomeFirstResponder()
         certificationMaxLengthLabel.text = "/\(certificationMaxLength)"
-        certificationButton = DogetherButton(title: "인증하기", status: .enabled)
-        certificationButton.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
+        
+        // MARK: certificationButton SETTING
+        certificationButtonSetting()
         
         [
             descriptionLabel, descriptionView,
@@ -364,6 +370,37 @@ final class CertificationPopupView: UIView {
     }
 }
 
+// MARK: SetConfigure
+extension CertificationPopupView {
+    
+    /// 다음 버튼을 정의합니다.
+    ///
+    /// Objc Func 은 Objc - C 를 호출하는 코드입니다. Swift 로 해결이 충분이 가능하다면 안쓰는것도 괜찮을 것 같아요
+    private func setNextButton() {
+        self.nextButton = DogetherButton(title: "다음", status: .enabled)
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            updatePopup()
+        }
+        self.nextButton.addAction(action, for: .touchUpInside)
+    }
+    
+    private func certificationButtonSetting() {
+        
+        let _certificationButton = DogetherButton(title:  "인증하기", status: .enabled)
+        
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            delegate?.tossCertificationTextViewText(with: certificationTextView.text)
+        }
+        
+        _certificationButton.addAction(action, for: .touchUpInside)
+        
+        self.certificationButton = _certificationButton
+    }
+    
+}
+
 // MARK: - abount keyboard
 extension CertificationPopupView: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
@@ -394,13 +431,20 @@ extension CertificationPopupView: UITextViewDelegate {
     // MARK: - UITextFieldDelegate
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        let keyboardHeight = keyboardFrame.height
-        self.snp.updateConstraints { $0.centerY.equalToSuperview().offset(-keyboardHeight / 2) }
-        UIView.animate(withDuration: 0.3) { self.layoutIfNeeded() }
+        let keyboardHeight = keyboardFrame.height / 2.2
+        let transform = CGAffineTransform(translationX: 0, y: -keyboardHeight)
+        
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let weakSelf = self else { return }
+            weakSelf.transform = transform
+        }
+        
     }
     
     @objc private func keyboardWillHide(_ notification: Notification) {
-        self.snp.updateConstraints { $0.centerY.equalToSuperview() }
-        UIView.animate(withDuration: 0.3) { self.layoutIfNeeded() }
+        UIView.animate(withDuration: 0.3) { [weak self] in
+            guard let weakSelf = self else { return }
+            weakSelf.transform = .identity
+        }
     }
 }
