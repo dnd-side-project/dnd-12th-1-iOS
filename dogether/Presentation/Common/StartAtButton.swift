@@ -9,14 +9,14 @@ import Foundation
 import UIKit
 
 final class StartAtButton: UIButton {
-    private(set) var action: (GroupStartAts) -> Void
     private(set) var startAt: GroupStartAts
     private(set) var isColorful: Bool
+    private(set) var action: (GroupStartAts) -> Void
     
-    init(action: @escaping (GroupStartAts) -> Void, startAt: GroupStartAts, isColorful: Bool = false) {
-        self.action = action
+    init(startAt: GroupStartAts, isColorful: Bool = false, action: @escaping (GroupStartAts) -> Void = { _ in }) {
         self.startAt = startAt
         self.isColorful = isColorful
+        self.action = action
         
         super.init(frame: .zero)
         setUI()
@@ -31,7 +31,7 @@ final class StartAtButton: UIButton {
     private let descriptionLabel = UILabel()
     
     private func updateUI() {
-        self.layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
+        layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
         
         icon.tintColor = isColorful ? .blue300 : .grey0
         
@@ -43,10 +43,10 @@ final class StartAtButton: UIButton {
     private func setUI() {
         updateUI()
         
-        self.backgroundColor = .grey800
-        self.layer.cornerRadius = 12
-        self.layer.borderWidth = 1.5
-        self.addTarget(self, action: #selector(didTapStartAtButton), for: .touchUpInside)
+        backgroundColor = .grey800
+        layer.cornerRadius = 12
+        layer.borderWidth = 1.5
+        addTarget(self, action: #selector(didTapStartAtButton), for: .touchUpInside)
         
         icon.image = startAt.image.withRenderingMode(.alwaysTemplate)
         

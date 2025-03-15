@@ -9,17 +9,18 @@ import Foundation
 import UIKit
 
 final class MainViewModel {
-    private(set) var mainViewStatus: MainViewStatus = .emptyList
-    private(set) var isBlockPanGesture: Bool = true
+    private let mainUseCase: MainUseCase
     
-    // TODO: 추후 수정
+    private(set) var mainViewStatus: MainViewStatus = .emptyList
+    
     private(set) var groupInfo: GroupInfo = GroupInfo()
     
     private(set) var sheetStatus: SheetStatus = .normal
+    private(set) var isBlockPanGesture: Bool = true
     
-    // TODO: 추후 구현
-    private(set) var time: String = "14:59:59"
-    private(set) var timeProgress: CGFloat = 0.8
+    private(set) var timer: Timer?
+    private(set) var time: String = "23:59:59"
+    private(set) var timeProgress: CGFloat = 0.0
     
     private(set) var dateOffset: Int = 0
     private(set) var currentFilter: FilterTypes = .all
@@ -28,59 +29,126 @@ final class MainViewModel {
     // MARK: - Computed
     var todoListHeight: Int { todoList.isEmpty ? 0 : 64 * todoList.count + 8 * (todoList.count - 1) }
     
+    init() {
+        let mainRepository = MainRepository()
+        self.mainUseCase = MainUseCase(repository: mainRepository)
+    }
+}
+
+// MARK: - load view
+extension MainViewModel {
+    func loadMainView(updateView: @escaping () -> Void, updateTimer: @escaping () -> Void, updateList: @escaping () -> Void) {
+        Task {
+            mainViewStatus = try await mainUseCase.getMainViewStatus()
+            groupInfo = try await mainUseCase.getGroupInfo()
+            await MainActor.run { updateView() }
+            loadMainViewDetail(updateTimer: updateTimer, updateList: updateList)
+        }
+    }
+    
+    func loadMainViewDetail(updateTimer: @escaping () -> Void, updateList: @escaping () -> Void) {
+        if mainViewStatus == .beforeStart {
+            startCountdown(updateTimer: updateTimer, updateList: updateList)
+        } else {
+            updateListInfo(updateList: updateList)
+        }
+    }
+}
+
+// MARK: - beforeStart
+extension MainViewModel {
+    private func startCountdown(updateTimer: @escaping () -> Void, updateList: @escaping () -> Void) {
+        checkRemainTime(updateTimer: updateTimer, updateList: updateList)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                self.checkRemainTime(updateTimer: updateTimer, updateList: updateList)
+            }
+        }
+    }
+    
+    private func stopCountdown() {
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func checkRemainTime(updateTimer: @escaping () -> Void, updateList: @escaping () -> Void) {
+        let remainTime = Date().getRemainTime()
+        
+        if remainTime > 0 {
+            self.updateTimerInfo(remainTime: remainTime, updateTimer: updateTimer)
+        } else {
+            self.stopCountdown()
+            self.updateListInfo(updateList: updateList)
+        }
+    }
+    
+    private func updateTimerInfo(remainTime: TimeInterval, updateTimer: @escaping () -> Void) {
+        self.time = remainTime.formatToHHmmss()
+        self.timeProgress = remainTime.getTimeProgress()
+        Task { @MainActor in updateTimer() }
+    }
+}
+    
+// MARK: - todoList
+extension MainViewModel {
+//    func didTapTodoItem(todo: TodoInfo) {
+//        let popupType: PopupTypes = TodoStatus(rawValue: todo.status) == .waitCertificattion ? .certification : .certificationInfo
+//        mainUseCase.showPopup(type: popupType, todoInfo: todo)
+//    }
+    
+    func updateFilter(filter: FilterTypes, completeAction: @escaping () -> Void) {
+        self.currentFilter = filter
+        
+        updateListInfo(updateList: completeAction)
+    }
+    
+    private func updateListInfo(updateList: @escaping () -> Void) {
+        Task {
+            todoList = try await mainUseCase.getTodoList(dateOffset: dateOffset, currentFilter: currentFilter)
+            mainViewStatus = currentFilter == .all && todoList.isEmpty ? .emptyList : .todoList
+            isBlockPanGesture = await todoListHeight < Int(UIScreen.main.bounds.height - (SheetStatus.normal.offset + 140 + 48))
+            await MainActor.run { updateList() }
+        }
+    }
+}
+
+// MARK: - about sheet
+extension MainViewModel {
     func setIsBlockPanGesture(_ isBlockPanGesture: Bool) {
         self.isBlockPanGesture = isBlockPanGesture
     }
     
-    func updateSheetStatus(_ sheetStatus: SheetStatus) {
-        self.sheetStatus = sheetStatus
+    func getNewOffset(from currentOffset: CGFloat, with translation: CGFloat) -> CGFloat {
+        switch sheetStatus {
+        case .expand:
+            if translation > 0 { return min(SheetStatus.normal.offset, translation) }
+            return currentOffset
+        case .normal:
+            if translation < 0 { return max(0, SheetStatus.normal.offset + translation) }
+            return currentOffset
+        }
     }
     
-    func updateFilter(_ filter: FilterTypes) {
-        self.currentFilter = filter
+    func updateSheetStatus(with translation: CGFloat, completeAction: @escaping (SheetStatus) -> Void) {
+        switch sheetStatus {
+        case .expand:
+            sheetStatus = translation > 100 ? .normal : .expand
+        case .normal:
+            sheetStatus = translation < -100 ? .expand : .normal
+        }
         
-        Task { @MainActor in
-            try await self.getTodos()
-        }
+        completeAction(sheetStatus)
+    }
+}
+
+// MARK: - navigate
+extension MainViewModel {
+    func navigateToTodoWriteView() {
+        mainUseCase.navigateToTodoWriteView(maximumTodoCount: groupInfo.maximumTodoCount)
     }
     
-    func setTodoList(_ todoList: [TodoInfo]) {
-        self.mainViewStatus = currentFilter == .all && todoList.isEmpty ? .emptyList : .todoList
-        self.todoList = todoList
-        self.isBlockPanGesture = self.todoListHeight < Int(UIScreen.main.bounds.height - (SheetStatus.normal.offset + 140 + 48))
-    }
-    
-    func getGroupStatus() async throws {
-        let response: GetGroupStatusResponse = try await NetworkManager.shared.request(GroupsRouter.getGroupStatus)
-        // TODO: 추후 수정 (FINISHED에 대한 정의가 제대로 나오면 MainViewStatus와 결합하며 enum으로 수정)
-        mainViewStatus = response.status == "READY" ? .beforeStart : .emptyList
-    }
-    
-    func getGroupInfo() async throws {
-        let response: GetGroupInfoResponse = try await NetworkManager.shared.request(GroupsRouter.getGroupInfo)
-        self.groupInfo = GroupInfo(
-            name: response.name,
-            duration: response.duration,
-            joinCode: response.joinCode,
-            maximumTodoCount: response.maximumTodoCount,
-            endAt: response.endAt,
-            remainingDays: response.remainingDays
-        )
-    }
-    
-    func getTodos() async throws {
-        let date = DateFormatterManager.formattedDate(dateOffset).split(separator: ".").joined(separator: "-")
-        let status: TodoStatus? = currentFilter == .all ? nil : TodoStatus.allCases.first(where: { $0.tag == currentFilter.tag })
-        let response: GetMyTodosResponse = try await NetworkManager.shared.request(TodosRouter.getMyTodos(date: date, status: status))
-        self.setTodoList(response.todos)
-    }
-    
-    func getReviews() async throws {
-        let response: GetReviewsResponse = try await NetworkManager.shared.request(TodoCertificationsRouter.getReviews)
-        if response.dailyTodoCertifications.count > 0 {
-            Task { @MainActor in
-                ModalityManager.shared.show(reviews: response.dailyTodoCertifications)
-            }
-        }
+    func navigateToRankingView() {
+        mainUseCase.navigateToRankingView()
     }
 }

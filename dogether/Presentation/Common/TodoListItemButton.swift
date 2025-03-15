@@ -1,5 +1,5 @@
 //
-//  DogetherTodoItem.swift
+//  TodoListItemButton.swift
 //  dogether
 //
 //  Created by seungyooooong on 2/14/25.
@@ -9,25 +9,29 @@ import Foundation
 import UIKit
 import SnapKit
 
-final class DogetherTodoItem: UIButton {
-    var action: () async -> Void    // TODO: 추후 개선
+final class TodoListItemButton: UIButton {
     private(set) var todo: TodoInfo
+    private(set) var action: (TodoInfo) async -> Void
     
-    init(action: @escaping () -> Void, todo: TodoInfo) {
-        self.action = action
+    init(todo: TodoInfo, action: @escaping (TodoInfo) -> Void) {
         self.todo = todo
+        self.action = action
         super.init(frame: .zero)
+        
         setUI()
     }
+    
     required init?(coder: NSCoder) { fatalError() }
     
     private let todoImageView = UIImageView()
+    
     private let contentLabel = {
         let label = UILabel()
         label.font = Fonts.body1S
         label.isUserInteractionEnabled = false
         return label
     }()
+    
     private let buttonLabel = {
         let label = UILabel()
         label.textAlignment = .center
@@ -37,11 +41,34 @@ final class DogetherTodoItem: UIButton {
         label.isUserInteractionEnabled = false
         return label
     }()
+    
+    private func updateUI() {
+        guard let status = TodoStatus(rawValue: todo.status) else { return }
+        
+        todoImageView.image = status.image
+        
+        if status == .waitCertificattion {
+            contentLabel.text = todo.content
+        } else {
+            let attributes: [NSAttributedString.Key: Any] = [
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .strikethroughColor: status.contentColor
+            ]
+            contentLabel.attributedText = NSAttributedString(string: todo.content, attributes: attributes)
+        }
+        
+        contentLabel.textColor = status.contentColor
+        buttonLabel.text = status.buttonText
+        buttonLabel.textColor = status.buttonTextColor
+        buttonLabel.backgroundColor = status.buttonColor
+    }
+    
     private func setUI() {
+        updateUI()
+        
         backgroundColor = .grey700
         layer.cornerRadius = 8
         addTarget(self, action: #selector(didTapTodoItem), for: .touchUpInside)
-        updateUI()
         
         [todoImageView, contentLabel, buttonLabel].forEach { addSubview($0) }
         
@@ -77,30 +104,13 @@ final class DogetherTodoItem: UIButton {
     
     func updateTodoStatus(_ status: TodoStatus) {
         self.todo.status = status.rawValue
+        
         updateUI()
-    }
-    
-    private func updateUI() {
-        guard let status = TodoStatus(rawValue: todo.status) else { return }
-        todoImageView.image = status.image
-        if status == .waitCertificattion {
-            contentLabel.text = todo.content
-        } else {
-            let attributes: [NSAttributedString.Key: Any] = [
-                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                .strikethroughColor: status.contentColor
-            ]
-            contentLabel.attributedText = NSAttributedString(string: todo.content, attributes: attributes)
-        }
-        contentLabel.textColor = status.contentColor
-        buttonLabel.text = status.buttonText
-        buttonLabel.textColor = status.buttonTextColor
-        buttonLabel.backgroundColor = status.buttonColor
     }
     
     @objc private func didTapTodoItem() {
         Task { @MainActor in
-            await action()
+            await action(self.todo)
         }
     }
 }

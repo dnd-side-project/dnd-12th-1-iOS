@@ -26,16 +26,7 @@ final class CompleteViewController: BaseViewController {
         label.numberOfLines = 0
         return label
     }()
-    
-    private let completeButton = DogetherButton(
-        title: "홈으로 가기",
-        status: .enabled) {
-            NavigationManager.shared
-                .setNavigationController(
-                    MainViewController()
-                )
-        }
-    
+    private let completeButton = DogetherButton(title: "홈으로 가기", status: .enabled)
     private var groupInfoView = UIView()
     private let joinCodeShareButton = {
         let button = UIButton()
@@ -86,6 +77,7 @@ final class CompleteViewController: BaseViewController {
             string: groupType.completeTitleText,
             attributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .center)
         )
+        completeButton.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
         // TODO: 추후 수정
         switch groupType {
         case .join:
@@ -162,6 +154,10 @@ final class CompleteViewController: BaseViewController {
                 $0.width.height.equalTo(20)
             }
         }
+    }
+    
+    @objc private func didTapCompleteButton() {
+        NavigationManager.shared.setNavigationController(MainViewController())
     }
     
     @objc private func didTapJoinCodeShareButton() {

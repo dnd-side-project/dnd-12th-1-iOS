@@ -34,12 +34,7 @@ final class ModalityViewController: BaseViewController {
     }
     
     override func configureView() {
-//        closeButton.action = didTapCloseButton
-        
-        closeButton.buttonTapped = { [weak self] in
-            self?.didTapCloseButton()
-        }
-        
+        closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
         todoExaminationModalityView = ExaminationModalityView(buttonAction: { [weak self] type in
             guard let weakSelf = self else { return }
             switch type {
@@ -93,7 +88,9 @@ final class ModalityViewController: BaseViewController {
         }
     }
     
-    private func didTapCloseButton() {
+    /// UIView 컨트롤러는 기본적으로 @MainActor를 가지고 있어요
+    /// Task를 열때 부모가 MainActor라 안달아 주셔도 메인쓰레드로 반환 됩니다.
+    @objc private func didTapCloseButton() {
         Task { @MainActor in
             try await viewModel.reviewTodo()
             // TODO: 검사 할 투두가 여러개일 때 다음 투두로 넘어가는 기능은 추후 구현

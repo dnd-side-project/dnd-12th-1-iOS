@@ -10,8 +10,9 @@ import Foundation
 final class StartViewModel {
     private(set) var isShowFloating: Bool = true
     
-    func hideFloating() {
+    func hideFloating(completeAction: @escaping () -> Void) {
         isShowFloating = false
+        completeAction()
     }
     
     func navigate(destinationTag: Int) {

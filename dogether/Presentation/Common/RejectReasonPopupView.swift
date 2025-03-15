@@ -60,7 +60,7 @@ final class RejectReasonPopupView: UIView {
             label.text = "한번 등록한 피드백은 바꿀 수 없어요"
             label.textColor = .grey400
             label.font = Fonts.body2S
-                
+            
             let stackView = UIStackView(arrangedSubviews: [imageView, label])
             stackView.axis = .horizontal
             stackView.spacing = 8
@@ -123,19 +123,31 @@ final class RejectReasonPopupView: UIView {
     
     private var rejectReasonButton = DogetherButton(title: "등록하기", status: .disabled)
     
-}
-
-// MARK: UI
-extension RejectReasonPopupView: BaseViewProtocol {
-    
     private func setUI() {
         
-        let _rejectButton = DogetherButton(title: "등록하기", status: .disabled) { [weak self] in
+        let _rejectAction = UIAction { [weak self] _ in
             guard let self else { return }
-            completeAction(rejectReasonTextView.text)
+            didTapRejectReasonButton()
         }
+        let _rejectButton = DogetherButton(title: "등록하기", status: .disabled)
         
-        self.rejectReasonButton = _rejectButton
+        _rejectButton.addAction(_rejectAction, for: .touchUpInside)
+        
+        self.rejectReasonPlaceHolderLabel.attributedText = NSAttributedString(
+            string: "팀원이 이해하기 쉽도록 인증에 대한 설명을 입력하세요.",
+            attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .left)
+        )
+        rejectReasonTextView = rejectReasonTextView()
+        rejectReasonTextView.becomeFirstResponder()
+        rejectReasonMaxLengthLabel.text = "/\(rejectReasonMaxLength)"
+//        rejectReasonButton.addTarget(self, action: #selector(didTapRejectReasonButton), for: .touchUpInside)
+        
+        [
+            closeButton, descriptionLabel, descriptionView,
+            rejectReasonView, rejectReasonPlaceHolderLabel, rejectReasonTextView,
+            rejectReasonTextCountLabel, rejectReasonMaxLengthLabel,
+            rejectReasonButton
+        ].forEach { addSubview($0) }
         
         configureHierarchy()
         configureConstraints()
@@ -225,6 +237,12 @@ extension RejectReasonPopupView: BaseViewProtocol {
         rejectReasonTextView = rejectReasonTextView()
         rejectReasonTextView.becomeFirstResponder()
         rejectReasonMaxLengthLabel.text = "/\(rejectReasonMaxLength)"
+    }
+    
+    func didTapRejectReasonButton() {
+        self.completeAction(self.rejectReasonTextView.text)
+        closeButtonActionSetting()
+//        PopupManager.shared.hidePopup()
     }
 }
 

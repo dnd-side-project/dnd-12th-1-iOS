@@ -8,7 +8,6 @@
 import Foundation
 
 struct DateFormatterManager {
-    
     private static let locale = Locale(identifier: "ko_KR")
     private static let timeZone = TimeZone(identifier: "ko_KR")
     

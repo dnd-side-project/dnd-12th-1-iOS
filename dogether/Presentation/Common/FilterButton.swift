@@ -10,13 +10,13 @@ import UIKit
 
 final class FilterButton: UIButton {
     let type: FilterTypes
-    let action: (FilterTypes) -> Void
     private(set) var isColorful: Bool
+    private(set) var action: (FilterTypes) -> Void
     
-    init(action: @escaping (FilterTypes) -> Void, type: FilterTypes, isColorful: Bool = true) {
-        self.action = action
+    init(type: FilterTypes, isColorful: Bool = true, action: @escaping (FilterTypes) -> Void = { _ in }) {
         self.type = type
         self.isColorful = isColorful
+        self.action = action
         
         super.init(frame: .zero)
         setUI()
@@ -29,18 +29,23 @@ final class FilterButton: UIButton {
     
     private var stackView = UIStackView()
     
-    private func setUI() {
+    private func updateUI() {
         backgroundColor = isColorful ? type.backgroundColor : .grey800
-        layer.cornerRadius = 16
         layer.borderColor = isColorful ? type.backgroundColor.cgColor : UIColor.grey500.cgColor
+        icon.tintColor = isColorful ? .grey900 : .grey400
+        label.textColor = isColorful ? .grey900 : .grey400
+    }
+    
+    private func setUI() {
+        updateUI()
+        
+        layer.cornerRadius = 16
         layer.borderWidth = 1
         addTarget(self, action: #selector(didTapFilterButton), for: .touchUpInside)
         
         icon.image = type.image?.withRenderingMode(.alwaysTemplate)
-        icon.tintColor = isColorful ? .grey900 : .grey400
         
         label.text = type.rawValue
-        label.textColor = isColorful ? .grey900 : .grey400
         label.font = Fonts.body2S
         
         let views = icon.image == nil ? [label] : [icon, label]
@@ -64,17 +69,14 @@ final class FilterButton: UIButton {
         }
     }
     
+    func setAction(_ action: @escaping (FilterTypes) -> Void) {
+        self.action = action
+    }
+    
     func setIsColorful(_ isColorful: Bool) {
         self.isColorful = isColorful
         
         updateUI()
-    }
-    
-    private func updateUI() {
-        backgroundColor = isColorful ? type.backgroundColor : .grey800
-        layer.borderColor = isColorful ? type.backgroundColor.cgColor : UIColor.grey500.cgColor
-        icon.tintColor = isColorful ? .grey900 : .grey400
-        label.textColor = isColorful ? .grey900 : .grey400
     }
     
     @objc private func didTapFilterButton() {

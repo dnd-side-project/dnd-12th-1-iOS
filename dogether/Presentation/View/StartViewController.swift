@@ -131,13 +131,7 @@ final class StartViewController: BaseViewController {
         super.viewDidLoad()
     }
     
-    private func updateView() {
-        floatingDescription.isHidden = !viewModel.isShowFloating
-    }
-    
     override func configureView() {
-        updateView()
-        
         floatingDescription.addTarget(self, action: #selector(didTapFloatingDescription), for: .touchUpInside)
         
         createButton = startButton(groupType: .create)
@@ -180,8 +174,7 @@ final class StartViewController: BaseViewController {
     }
     
     @objc private func didTapFloatingDescription() {
-        viewModel.hideFloating()
-        updateView()
+        viewModel.hideFloating(completeAction: updateView)
     }
     
     @objc private func didTapStartButton(_ sender: UIButton) {
@@ -189,3 +182,9 @@ final class StartViewController: BaseViewController {
     }
 }
 
+// MARK: - update UI
+extension StartViewController {
+    private func updateView() {
+        floatingDescription.isHidden = !viewModel.isShowFloating
+    }
+}

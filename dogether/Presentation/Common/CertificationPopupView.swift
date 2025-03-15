@@ -211,8 +211,8 @@ final class CertificationPopupView: UIView {
         shootButton = certificationButton(certificationMethod: .shoot)
         certificationStackView = certificationStackView(views: [selectButton, shootButton])
         
-        let _nextButton = DogetherButton(title: "다음", status: .enabled, buttonTapped: updatePopup)
-        self.nextButton = _nextButton
+        // NEXT BUTTON SETTING
+        setNextButton()
         
         [titleLabel, closeButton, todoContentLabel, certificationStackView].forEach { addSubview($0) }
         
@@ -305,15 +305,8 @@ final class CertificationPopupView: UIView {
         certificationTextView.becomeFirstResponder()
         certificationMaxLengthLabel.text = "/\(certificationMaxLength)"
         
-        let _dogetherButton = DogetherButton(
-            title: "인증하기",
-            status: .enabled
-        ) { [weak self] in
-            guard let self else { return }
-            delegate?.tossCertificationTextViewText(with: certificationTextView.text)
-        }
-        
-        self.certificationButton = _dogetherButton
+        // MARK: certificationButton SETTING
+        certificationButtonSetting()
         
         [
             descriptionLabel, descriptionView,
@@ -375,6 +368,37 @@ final class CertificationPopupView: UIView {
             $0.height.equalTo(50)
         }
     }
+}
+
+// MARK: SetConfigure
+extension CertificationPopupView {
+    
+    /// 다음 버튼을 정의합니다.
+    ///
+    /// Objc Func 은 Objc - C 를 호출하는 코드입니다. Swift 로 해결이 충분이 가능하다면 안쓰는것도 괜찮을 것 같아요
+    private func setNextButton() {
+        self.nextButton = DogetherButton(title: "다음", status: .enabled)
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            updatePopup()
+        }
+        self.nextButton.addAction(action, for: .touchUpInside)
+    }
+    
+    private func certificationButtonSetting() {
+        
+        let _certificationButton = DogetherButton(title:  "인증하기", status: .enabled)
+        
+        let action = UIAction { [weak self] _ in
+            guard let self else { return }
+            delegate?.tossCertificationTextViewText(with: certificationTextView.text)
+        }
+        
+        _certificationButton.addAction(action, for: .touchUpInside)
+        
+        self.certificationButton = _certificationButton
+    }
+    
 }
 
 // MARK: - abount keyboard

@@ -42,6 +42,7 @@ extension UIView {
     /// - Parameter action: 탭에 의한 맥션
     func addTapGesture(action: @escaping () -> Void) {
         let tapGesture = UITapGestureRecognizer()
+        tapGesture.cancelsTouchesInView = false
         tapGesture.addAction(action)
         self.isUserInteractionEnabled = true
         self.addGestureRecognizer(tapGesture)
@@ -53,6 +54,7 @@ extension UIView {
     ///   - action: 스와이프에 대한 액션
     func addSwipeGesture(direction: UISwipeGestureRecognizer.Direction = .left, action: @escaping () -> Void) {
         let swipeGesture = UISwipeGestureRecognizer()
+        swipeGesture.cancelsTouchesInView = false
         swipeGesture.direction = direction
         swipeGesture.addAction(action)
         self.isUserInteractionEnabled = true

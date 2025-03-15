@@ -19,20 +19,13 @@ final class CertificationListViewController: BaseViewController {
     
     private var buttonStackView = UIStackView()
     
-    private lazy var allButton = FilterButton(action: { self.updateTodoList(type: $0) },
-                                              type: .all)
+    private lazy var allButton = FilterButton(type: .all) { self.updateTodoList(type: $0) }
     
-    private lazy var waitButton = FilterButton(action: { self.updateTodoList(type: $0) },
-                                               type: .wait,
-                                               isColorful: false)
+    private lazy var waitButton = FilterButton(type: .wait, isColorful: false) { self.updateTodoList(type: $0) }
+                                               
+    private lazy var rejectButton = FilterButton(type: .reject, isColorful: false) { self.updateTodoList(type: $0) }
     
-    private lazy var rejectButton = FilterButton(action: { self.updateTodoList(type: $0) },
-                                                 type: .reject,
-                                                 isColorful: false)
-    
-    private lazy var approveButton = FilterButton(action: { self.updateTodoList(type: $0) },
-                                                  type: .approve,
-                                                  isColorful: false)
+    private lazy var approveButton = FilterButton(type: .approve, isColorful: false) { self.updateTodoList(type: $0) }
     
     private lazy var collectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
@@ -52,11 +45,11 @@ final class CertificationListViewController: BaseViewController {
         SectionData(title: "2일차",
                     date: "2025.01.02 (화)",
                     images: [.sample, .sample, .sample],
-                    button: FilterButton(action: { _ in }, type: .approve)),
+                    button: FilterButton(type: .approve)),
         SectionData(title: "1일차",
                     date: "2025.01.01 (월)",
                     images: [.sample, .sample],
-                    button: FilterButton(action: { _ in }, type: .wait))
+                    button: FilterButton(type: .wait))
     ]
     
     override func viewDidLoad() {

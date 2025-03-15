@@ -9,6 +9,9 @@ import Foundation
 import UIKit
 import SnapKit
 
+/// 팝업 베이스 뷰컨을 만들었으니
+/// 쪼개 주시길 바랍니다.
+/// 코드 플로우가 복잡해서 분리하기가 까다롭습니다.
 final class PopupViewController: BaseViewController {
     private var viewModel = PopupViewModel()
     
@@ -77,9 +80,8 @@ final class PopupViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
-        [backgroundView, popupView].forEach {
-            view.addSubview($0)
-        }
+        self.view.addSubview(backgroundView)
+        self.view.addSubview(popupView)
     }
     
     override func configureConstraints() {
@@ -109,6 +111,13 @@ extension PopupViewController {
     /// background View Settings
     private func setBackgroundView() {
         self.view.backgroundColor = .clear
+        
+        // MARK: View Tap Gesture 대리자 에시
+        self.backgroundView
+            .addTapGesture { [weak self] in
+                guard let self else { return }
+                dismissAct()
+            }
     }
      
     /// 뷰가 사라질때의 애니메이션을 정의합니다.
