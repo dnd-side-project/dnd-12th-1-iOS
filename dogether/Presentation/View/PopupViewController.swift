@@ -141,7 +141,7 @@ extension PopupViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
             guard let weakSelf = self else { return }
             UIView.animate(withDuration: 0.4) {
-                weakSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+                weakSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.8)
                 weakSelf.view.alpha = 1
                 weakSelf.popupView.alpha = 1
             }
