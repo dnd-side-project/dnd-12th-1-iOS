@@ -97,6 +97,7 @@ extension BasePopUpViewController {
         self.horizontalPadding = horizontalPadding
         self.popUpView.snp.remakeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(horizontalPadding)
+            $0.center.equalToSuperview()
         }
     }
     
