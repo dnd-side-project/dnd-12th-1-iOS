@@ -10,7 +10,9 @@ import SnapKit
 
 final class TodoWriteViewController: BaseViewController {
     
-    var maximumTodoCount: Int?
+    private let dogetherHeader = NavigationHeader(title: "투두 작성")
+    
+    var maximumTodoCount = 10 // 일단 다시 바꾸겠습니다
     
     private var toDoList: [String] = [] {
         didSet {
@@ -141,10 +143,12 @@ final class TodoWriteViewController: BaseViewController {
         super.viewDidLoad()
         
         setupTapGesture()
+        setupKeyboardHandling()
     }
     
     override func configureHierarchy() {
-        [dateLabel, toDoTextField, toDoLimitTextCount, addButton, addButtonIcon, infoView, emptyView, toDoTableView, saveButton].forEach {
+        [dogetherHeader, dateLabel, toDoTextField, toDoLimitTextCount, addButton, addButtonIcon,
+         infoView, emptyView, toDoTableView, saveButton].forEach {
             view.addSubview($0)
         }
         
@@ -154,8 +158,15 @@ final class TodoWriteViewController: BaseViewController {
     }
     
     override func configureConstraints() {
+        
+        dogetherHeader.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(28)
+        }
+        
         dateLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(22)
+            $0.top.equalTo(dogetherHeader.snp.bottom).offset(22)
             $0.leading.equalToSuperview().offset(16)
         }
         
@@ -254,6 +265,7 @@ final class TodoWriteViewController: BaseViewController {
     }
     
     @objc private func addTodo() {
+        
         guard let text = toDoTextField.text, !text.isEmpty, text.count <= 20 else { return }
         guard toDoList.count < maximumTodoCount ?? 0 else { return }
         
@@ -272,7 +284,18 @@ final class TodoWriteViewController: BaseViewController {
             let limitedText = String(text.prefix(20))
             toDoTextField.text = limitedText
         }
-        toDoLimitTextCount.text = "\(toDoTextField.text?.count ?? 0)/20"
+        
+        let currentCount = "\(toDoTextField.text?.count ?? 0)"
+        let totalCount = "/20"
+        let fullText = currentCount + totalCount
+        
+        let attributedString = NSMutableAttributedString(string: fullText)
+        if let range = fullText.range(of: currentCount) {
+            let nsRange = NSRange(range, in: fullText)
+            attributedString.addAttribute(.foregroundColor, value: UIColor.blue300, range: nsRange) // .blue300을 UIColor로 변경
+        }
+        
+        toDoLimitTextCount.attributedText = attributedString
     }
     
     // 텍스트필드 입력 시 borderColor
@@ -298,7 +321,6 @@ extension TodoWriteViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         
         let cell = tableView.dequeueReusableCell(withIdentifier: ToDoWirteListTableViewCell.identifier,
                                                  for: indexPath) as! ToDoWirteListTableViewCell
@@ -337,6 +359,36 @@ extension TodoWriteViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         addTodo()
         return true
+    }
+    
+    private func setupKeyboardHandling() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func keyboardWillShow(_ notification: NSNotification) {
+        guard let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        saveButton.snp.updateConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(keyboardFrame.cgRectValue.height - 16)
+        }
+        self.view.layoutIfNeeded()
+    }
+    
+    @objc private func keyboardWillHide(_ notification: NSNotification) {
+        saveButton.snp.updateConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+        self.view.layoutIfNeeded()
     }
 }
 
