@@ -10,6 +10,8 @@ import SnapKit
 
 final class MyDashboardViewController: BaseViewController {
     
+    private let dogetherHeader = NavigationHeader(title: "통계")
+    
     private let scrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = false
@@ -46,7 +48,8 @@ final class MyDashboardViewController: BaseViewController {
     }()
     
     private lazy var myDataCollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createMyDataCollectionLayout())
+        let collectionView = UICollectionView(frame: .zero,
+                                              collectionViewLayout: createMyDataCollectionLayout())
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -105,7 +108,9 @@ final class MyDashboardViewController: BaseViewController {
         return stackView
     }()
     
-    private func createProgressView(title: String, progress: Float, isToday: Bool = false) -> UIStackView {
+    private func createProgressView(title: String,
+                                    progress: Float,
+                                    isToday: Bool = false) -> UIStackView {
         
         // 프로그레스바 전체
         let progressBarContainer = StripedView()
@@ -212,7 +217,8 @@ final class MyDashboardViewController: BaseViewController {
     }()
     
     private lazy var certificationCollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createCeritificationCollectionLayout())
+        let collectionView = UICollectionView(frame: .zero,
+                                              collectionViewLayout: createCeritificationCollectionLayout())
         collectionView.backgroundColor = .clear
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -230,7 +236,7 @@ final class MyDashboardViewController: BaseViewController {
     
     override func configureHierarchy() {
         
-        [scrollView].forEach {
+        [dogetherHeader, scrollView].forEach {
             view.addSubview($0)
         }
         
@@ -257,8 +263,15 @@ final class MyDashboardViewController: BaseViewController {
     
     override func configureConstraints() {
         
+        dogetherHeader.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(28)
+        }
+        
         scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.top.equalTo(dogetherHeader.snp.bottom).offset(16)
+            $0.leading.trailing.bottom.equalToSuperview()
         }
         
         contentView.snp.makeConstraints {
@@ -378,7 +391,9 @@ final class MyDashboardViewController: BaseViewController {
             
             let isToday = (title == "4일차")
             
-            let progressView = createProgressView(title: title, progress: Float(progress), isToday: isToday)
+            let progressView = createProgressView(title: title,
+                                                  progress: Float(progress),
+                                                  isToday: isToday)
             
             if let label = progressView.subviews.first(where: { $0 is UILabel }) as? UILabel {
                 label.font = Fonts.body2S
@@ -417,7 +432,6 @@ final class MyDashboardViewController: BaseViewController {
                     self.messageLabel.attributedText = attributedText
                     self.updateCollectionViewData(mySummary: mySummary)
                 }
-                
             } catch {
                 print(error.localizedDescription)
             }
@@ -461,7 +475,6 @@ extension MyDashboardViewController: UICollectionViewDelegate, UICollectionViewD
             (image: .approve, title: "인정 개수", count: "\(mySummary.totalCertificatedCount)개"),
             (image: .reject, title: "노인정 개수", count: "\(mySummary.totalRejectedCount)개")
         ]
-        
         myDataCollectionView.reloadData()
     }
 }
