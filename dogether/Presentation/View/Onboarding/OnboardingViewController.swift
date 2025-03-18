@@ -12,7 +12,7 @@ import SnapKit
 final class OnboardingViewController: BaseViewController {
     
     private let viewModel = OnboardingViewModel()
-
+    
     private lazy var scrollView = {
         let scrollView = UIScrollView()
         scrollView.delegate = self
@@ -44,7 +44,7 @@ final class OnboardingViewController: BaseViewController {
         button.addTarget(self, action: #selector(nextButtonClicked), for: .touchUpInside)
         return button
     }()
-
+    
     private lazy var signInButton =  {
         let button = ASAuthorizationAppleIDButton(type: .signIn, style: .white)
         button.cornerRadius = 12
@@ -88,7 +88,7 @@ final class OnboardingViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
-
+        
         signInButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.top.equalTo(pageControl.snp.bottom).offset(64)
@@ -128,6 +128,7 @@ final class OnboardingViewController: BaseViewController {
             viewModel.saveNotiToken()
             
             let IsJoiningResponse: GetIsJoiningResponse = try await NetworkManager.shared.request(GroupsRouter.getIsJoining)
+            
             if IsJoiningResponse.isJoining {
                 NavigationManager.shared.setNavigationController(MainViewController())
             } else {
@@ -171,16 +172,17 @@ final class OnboardingViewController: BaseViewController {
             title.text = "오늘의 목표를 세우고,\n사진으로 투두 인증하기"
             subtitle.text = "목표만 세우면 끝?! 인증까지 해야 진짜 실천이에요"
             imageView.image = .onboarding1
+            
         case 2:
             title.text = "투두를 인증하면\n날아오는 팀원의 피드백"
             subtitle.text = "열심히 하면 ‘인정’, 대충하면 ‘노인정’을 받아요"
             imageView.image = .onboarding2
-
+            
         case 3:
             title.text = "서로 검사해야 다음 목표로 GO"
             subtitle.text = " 팀원의 인증을 검사해야\n새로운 목표를 설정할 수 있어요"
             imageView.image = .onboarding3
-
+            
         default:
             break
         }
