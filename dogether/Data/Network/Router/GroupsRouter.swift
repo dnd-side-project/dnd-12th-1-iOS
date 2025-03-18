@@ -13,6 +13,7 @@ enum GroupsRouter: NetworkEndpoint {
     case getGroupInfo
     case getMySummary
     case getTeamSummary
+    /// 챌린지 그룹 참여 여부 확인
     case getIsJoining
     case leaveGroup
     case getGroupStatus
