@@ -8,25 +8,13 @@
 import UIKit
 import SnapKit
 
-final class ExaminationModalityView: UIView {
-    var buttonAction: (FilterTypes) -> Void
-    private var review: ReviewModel
-    
-    init(buttonAction: @escaping (FilterTypes) -> Void, review: ReviewModel) {
-        self.buttonAction = buttonAction
-        self.review = review
+final class ExaminationModalityView: BasePopupView {
+    init() {
         super.init(frame: .zero)
-        setUI()
-        
-        Task { @MainActor in
-            guard let url = URL(string: self.review.mediaUrls[0]) else { return }
-            let (data, _) = try await URLSession.shared.data(from: url)
-            imageView.image = UIImage(data: data)
-        }
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    private var imageView = UIImageView()
+    private var imageView = CertificationImageView(image: .logo)
     
     private let contentLabel = {
         let label = UILabel()
@@ -40,7 +28,6 @@ final class ExaminationModalityView: UIView {
         button.backgroundColor = .grey0
         button.layer.cornerRadius = 8
         button.tag = type.tag
-        button.addTarget(self, action: #selector(didTapExaminationButton(_:)), for: .touchUpInside)
         
         let icon = UIImageView(image: type.image?.withRenderingMode(.alwaysTemplate))
         icon.tintColor = .grey700
@@ -67,8 +54,8 @@ final class ExaminationModalityView: UIView {
         
         return button
     }
-    private var rejectButton = UIButton()
-    private var approveButton = UIButton()
+    var rejectButton = UIButton()
+    var approveButton = UIButton()
     
     private func examinationStackView(buttons: [UIButton]) -> UIStackView {
         let stackView = UIStackView(arrangedSubviews: buttons)
@@ -79,36 +66,26 @@ final class ExaminationModalityView: UIView {
     }
     private var examinationStackView = UIStackView()
     
-    private func setUI() {
+    override func configureView() {
         backgroundColor = .grey800
         layer.cornerRadius = 12
-        
-        // TODO: 추후 수정
-        imageView = CertificationImageView(
-            image: .logo,
-            certificationContent: review.content,
-            certificator: review.doer
-        )
-        
-        contentLabel.attributedText = NSAttributedString(
-            string: review.todoContent,
-            attributes: Fonts.getAttributes(for: Fonts.head2B, textAlignment: .center)
-        )
         
         rejectButton = examinationButton(type: .reject)
         approveButton = examinationButton(type: .approve)
         examinationStackView = examinationStackView(buttons: [rejectButton, approveButton])
-        
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
         [imageView, contentLabel, examinationStackView].forEach { addSubview($0) }
-        
-        self.snp.updateConstraints {
-            $0.height.equalTo(487)
-        }
-        
+    }
+    
+    override func configureConstraints() {
         imageView.snp.makeConstraints {
             $0.top.equalToSuperview().offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.width.height.equalTo(303)
+            $0.width.height.equalTo(imageView.snp.width)
         }
         
         contentLabel.snp.makeConstraints {
@@ -119,24 +96,32 @@ final class ExaminationModalityView: UIView {
         
         examinationStackView.snp.makeConstraints {
             $0.top.equalTo(contentLabel.snp.bottom).offset(16)
+            $0.bottom.equalToSuperview().inset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(48)
         }
     }
-    
-    @objc private func didTapExaminationButton(_ sender: UIButton) {
-        guard let type = FilterTypes.allCases.first(where: { $0.tag == sender.tag }) else { return }
+}
+ 
+extension ExaminationModalityView {
+    func setReview(review: ReviewModel) {
+        imageView.image = .logo
+        imageView.updateCertificator(certificator: review.doer)
+        imageView.updateCertificationContent(certificationContent: review.content)
         
+        Task { [weak self] in
+            guard let self else { return }
+            try await imageView.loadImage(url: review.mediaUrl)
+        }
+        
+        contentLabel.attributedText = NSAttributedString(
+            string: review.todoContent,
+            attributes: Fonts.getAttributes(for: Fonts.head2B, textAlignment: .center)
+        )
+    }
+    
+    func updateButtonBackgroundColor(type: FilterTypes) {
         rejectButton.backgroundColor = type == .reject ? .dogetherRed : .grey0
         approveButton.backgroundColor = type == .approve ? .blue300 : .grey0
-        
-        switch type {
-        case .reject:
-            buttonAction(type)
-        case .approve:
-            buttonAction(type)
-        default:
-            return
-        }
     }
 }

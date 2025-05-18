@@ -9,18 +9,18 @@ import Foundation
 
 final class OnboardingViewModel {
     private let authUseCase: AuthUseCase
+    private let groupUseCase: GroupUseCase
     private let appLaunchUseCase: AppLaunchUseCase
     
     let onboardingStep: Int = 3
     
-    private(set) var destination: BaseViewController?
-    
     init() {
         let authRepository = DIManager.shared.getAuthRepository()
-        let appLaunchRepository = DIManager.shared.getAppLaunchRepository()
+        let groupRepository = DIManager.shared.getGroupRepository()
         
         self.authUseCase = AuthUseCase(repository: authRepository)
-        self.appLaunchUseCase = AppLaunchUseCase(repository: appLaunchRepository)
+        self.groupUseCase = GroupUseCase(repository: groupRepository)
+        self.appLaunchUseCase = AppLaunchUseCase()
     }
 
     func signInWithApple() async throws {
@@ -29,7 +29,11 @@ final class OnboardingViewModel {
         
         let appleLoginRequest = AppleLoginRequest(name: userInfo.name, idToken: userInfo.idToken)
         try await authUseCase.appleLogin(appleLoginRequest: appleLoginRequest)
-        
-        destination = try await appLaunchUseCase.getDestination()
+    }
+    
+    func getDestination() async throws -> BaseViewController {
+        let challengeGroupInfos = try await groupUseCase.getChallengeGroupInfos()
+        let destination = try await appLaunchUseCase.getDestination(challengeGroupInfos: challengeGroupInfos)
+        return destination
     }
 }

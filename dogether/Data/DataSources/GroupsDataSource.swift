@@ -12,10 +12,6 @@ final class GroupsDataSource {
     
     private init() { }
     
-    func getIsJoining() async throws -> GetIsJoiningResponse {
-        try await NetworkManager.shared.request(GroupsRouter.getIsJoining)
-    }
-    
     func createGroup(createGroupRequest: CreateGroupRequest) async throws -> CreateGroupResponse {
         try await NetworkManager.shared.request(
             GroupsRouter.createGroup(createGroupRequest: createGroupRequest)
@@ -28,15 +24,15 @@ final class GroupsDataSource {
         )
     }
     
-    func getGroupStatus() async throws -> GetGroupStatusResponse {
-        try await NetworkManager.shared.request(GroupsRouter.getGroupStatus)
+    func getGroups() async throws -> GetGroupsResponse {
+        try await NetworkManager.shared.request(GroupsRouter.getGroups)
     }
     
-    func getGroupInfo() async throws -> GetGroupInfoResponse {
-        try await NetworkManager.shared.request(GroupsRouter.getGroupInfo)
+    func getRanking(groupId: String) async throws -> GetRankingResponse {
+        try await NetworkManager.shared.request(GroupsRouter.getRanking(groupId: groupId))
     }
     
-    func getTeamSummary() async throws -> GetTeamSummaryResponse {
-        try await NetworkManager.shared.request(GroupsRouter.getTeamSummary)
+    func getMyGroup() async throws -> GetMyGroupResponse {
+        try await NetworkManager.shared.request(GroupsRouter.getMyGroups)
     }
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DogetherGroupInfo: UIView {
+final class DogetherGroupInfo: BaseView {
     var groupName: String
     var memberCount: Int
     var duration: GroupChallengeDurations
@@ -27,23 +27,21 @@ final class DogetherGroupInfo: UIView {
         self.startAt = startAt
         
         super.init(frame: .zero)
-        setUI()
     }
     init(
         groupName: String = "",
         memberCount: Int = 0,
-        duration: GroupChallengeDurations = .threeDays,
+        duration: Int = 3,
         startAtString: String,
         endAtString: String
     ) {
         self.groupName = groupName
         self.memberCount = memberCount
-        self.duration = duration
+        self.duration = GroupChallengeDurations(rawValue: duration) ?? .threeDays
         self.startAtString = startAtString
         self.endAtString = endAtString
         
         super.init(frame: .zero)
-        setUI()
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -91,7 +89,7 @@ final class DogetherGroupInfo: UIView {
     private var startDayInfoLabel = UILabel()
     private var endDayInfoLabel = UILabel()
     
-    private func setUI() {
+    override func configureView() {
         durationDescriptionLabel = descriptionLabel()
         memberCountDescriptionLabel = descriptionLabel()
         startDayDescriptionLabel = descriptionLabel()
@@ -104,28 +102,31 @@ final class DogetherGroupInfo: UIView {
         
         groupNameLabel.text = groupName
         
-        durationDescriptionLabel.text = "총 기간"
+        durationDescriptionLabel.text = "활동 기간"
         memberCountDescriptionLabel.text = "그룹원"
         startDayDescriptionLabel.text = "시작일"
         endDayDescriptionLabel.text = "종료일"
         
-        durationInfoLabel.text = "\(duration.rawValue)일"
+        durationInfoLabel.text = duration.text
         memberCountInfoLabel.text = "총 \(memberCount)명"
-        if let startAt {
-            startDayInfoLabel.text = "\(DateFormatterManager.formattedDate(startAt.daysFromToday)) (\(startAt.text))"
-            endDayInfoLabel.text = "\(DateFormatterManager.formattedDate(startAt.daysFromToday + duration.rawValue)) (D-\(duration.rawValue))"
-        } else if let startAtString, let endAtString {
+        if let startAtString, let endAtString {
             startDayInfoLabel.text = "\(startAtString)"
             endDayInfoLabel.text = "\(endAtString)"
         }
-        
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
         [ groupInfoView,
           durationDescriptionLabel, memberCountDescriptionLabel, startDayDescriptionLabel, endDayDescriptionLabel,
           durationInfoLabel, memberCountInfoLabel, startDayInfoLabel, endDayInfoLabel
         ].forEach { addSubview($0) }
         
         [groupNameLabel, dividerView].forEach { groupInfoView.addSubview($0) }
-        
+    }
+    
+    override func configureConstraints() {
         groupInfoView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -190,17 +191,20 @@ final class DogetherGroupInfo: UIView {
             $0.height.equalTo(25)
         }
     }
-    
+}
+ 
+extension DogetherGroupInfo {
     func setInfo(groupName: String, memberCount: Int, duration: GroupChallengeDurations, startAt: GroupStartAts) {
         self.groupName = groupName
         self.memberCount = memberCount
         self.duration = duration
         self.startAt = startAt
         
+        
         groupNameLabel.text = groupName
-        durationInfoLabel.text = "\(duration.rawValue)일"
+        durationInfoLabel.text = duration.text
         memberCountInfoLabel.text = "총 \(memberCount)명"
-        startDayInfoLabel.text = "\(DateFormatterManager.formattedDate(startAt.daysFromToday)) (\(startAt.text))"
-        endDayInfoLabel.text = "\(DateFormatterManager.formattedDate(startAt.daysFromToday + duration.rawValue)) (D-\(duration.rawValue))"
+        startDayInfoLabel.text = DateFormatterManager.formattedDate(startAt.daysFromToday)
+        endDayInfoLabel.text = DateFormatterManager.formattedDate(startAt.daysFromToday + duration.rawValue)
     }
 }

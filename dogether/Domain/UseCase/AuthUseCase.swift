@@ -31,10 +31,10 @@ final class AuthUseCase: NSObject {
 extension AuthUseCase: ASAuthorizationControllerDelegate {
     /// apple server에 login 요청을 보내는 함수입니다.
     ///
-    /// 기본적으로 fullName과 email을 요청합니다.
+    /// 기본적으로 fullName을 요청합니다.
     func appleLogin() {
         let request = ASAuthorizationAppleIDProvider().createRequest()
-        request.requestedScopes = [.fullName, .email]
+        request.requestedScopes = [.fullName]
         
         let controller = ASAuthorizationController(authorizationRequests: [request])
         controller.delegate = self

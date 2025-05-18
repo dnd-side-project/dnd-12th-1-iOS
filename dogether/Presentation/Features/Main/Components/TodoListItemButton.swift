@@ -8,16 +8,18 @@
 import UIKit
 import SnapKit
 
-final class TodoListItemButton: UIButton {
+final class TodoListItemButton: BaseButton {
     private(set) var todo: TodoInfo
+    private(set) var isToday: Bool
+    private(set) var isUncertified: Bool
     
-    init(todo: TodoInfo) {
+    init(todo: TodoInfo, isToday: Bool) {
         self.todo = todo
-        super.init(frame: .zero)
+        self.isToday = isToday
+        self.isUncertified = todo.status == TodoStatus.waitCertification.rawValue
         
-        setUI()
+        super.init(frame: .zero)
     }
-    
     required init?(coder: NSCoder) { fatalError() }
     
     private let todoImageView = UIImageView()
@@ -29,8 +31,9 @@ final class TodoListItemButton: UIButton {
         return label
     }()
     
-    private let buttonLabel = {
+    private let certificationLabel = {
         let label = UILabel()
+        label.text = "인증하기"
         label.textAlignment = .center
         label.font = Fonts.body2S
         label.layer.cornerRadius = 6
@@ -39,41 +42,41 @@ final class TodoListItemButton: UIButton {
         return label
     }()
     
-    private func updateUI() {
-        guard let status = TodoStatus(rawValue: todo.status) else { return }
-        
-        todoImageView.image = status.image
-        
-        if status == .waitCertification {
-            contentLabel.text = todo.content
-        } else {
-            let attributes: [NSAttributedString.Key: Any] = [
-                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
-                .strikethroughColor: status.contentColor
-            ]
-            contentLabel.attributedText = NSAttributedString(string: todo.content, attributes: attributes)
-        }
-        
-        contentLabel.textColor = status.contentColor
-        buttonLabel.text = status.buttonText
-        buttonLabel.textColor = status.buttonTextColor
-        buttonLabel.backgroundColor = status.buttonColor
-    }
+    private let checkImageView = {
+        let imageView = UIImageView()
+        imageView.image = .chevronRight.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = .grey200
+        return imageView
+    }()
     
-    private func setUI() {
-        updateUI()
-        
+    override func configureView() {
         backgroundColor = .grey700
         layer.cornerRadius = 8
         
-        [todoImageView, contentLabel, buttonLabel].forEach { addSubview($0) }
+        todoImageView.image = TodoStatus(rawValue: todo.status)?.image
         
+        contentLabel.text = todo.content
+        contentLabel.textColor = isUncertified ? isToday ? .grey50 : .grey400 : .grey300
+        
+        certificationLabel.textColor = isToday ? .grey900 : .grey400
+        certificationLabel.backgroundColor = isToday ? .blue300 : .grey500
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
+        let rightView = isUncertified ? certificationLabel : checkImageView
+        [todoImageView, contentLabel, rightView].forEach { addSubview($0) }
+    }
+    
+    override func configureConstraints() {
         self.snp.makeConstraints {
             $0.height.equalTo(64)
         }
         
         if todo.status != TodoStatus.waitCertification.rawValue {
-            let imageSize = todo.status == TodoStatus.waitExamination.rawValue ? 22 : todo.status == TodoStatus.reject.rawValue ? 26 : 28 // MARK: 임의로 사이즈 조정
+            guard let status = TodoStatus(rawValue: todo.status) else { return }
+            let imageSize = status == .waitExamination ? 22 : status == .reject ? 26 : 28 // MARK: 임의로 사이즈 조정
             todoImageView.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.left.equalToSuperview().offset(16)
@@ -83,24 +86,22 @@ final class TodoListItemButton: UIButton {
         
         contentLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.left.equalTo(
-                todo.status == TodoStatus.waitCertification.rawValue ? self : todoImageView.snp.right
-            ).offset(
-                todo.status == TodoStatus.waitCertification.rawValue ? 16 : 8
-            )
+            $0.left.equalTo(isUncertified ? self : todoImageView.snp.right).offset(isUncertified ? 16 : 8)
         }
         
-        buttonLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.right.equalToSuperview().offset(-16)
-            $0.width.equalTo(72)
-            $0.height.equalTo(28)
+        if isUncertified {
+            certificationLabel.snp.makeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.right.equalToSuperview().offset(-16)
+                $0.width.equalTo(72)
+                $0.height.equalTo(28)
+            }
+        } else {
+            checkImageView.snp.makeConstraints {
+                $0.centerY.equalToSuperview()
+                $0.right.equalToSuperview().offset(-16)
+                $0.width.height.equalTo(20)
+            }
         }
-    }
-    
-    func updateTodoStatus(_ status: TodoStatus) {
-        self.todo.status = status.rawValue
-        
-        updateUI()
     }
 }

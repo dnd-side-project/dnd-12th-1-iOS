@@ -8,18 +8,22 @@
 import UIKit
 
 final class PopupViewModel {
-    private(set) var certificationMediaUrl: String?
-    private(set) var rejectReason: String?
+    private let popupUseCase: PopupUseCase
     
-    func uploadImage(image: UIImage) {
-        Task { @MainActor in
-            self.certificationMediaUrl = try await S3Manager.shared.uploadImage(image: image)
-        }
+    private(set) var stringContent: String?
+    
+    var popupType: PopupTypes?
+    var alertType: AlertTypes?
+    var todoInfo: TodoInfo?
+    
+    init() {
+        let popupRepository = DIManager.shared.getPopupRepository()
+        self.popupUseCase = PopupUseCase(repository: popupRepository)
     }
-    
-    func certifyTodo(todoId: Int, certificationContent: String?) async throws {
-        guard let content = certificationContent, let mediaUrl = certificationMediaUrl else { return }
-        let request = CertifyTodoRequest(content: content, mediaUrls: [mediaUrl])
-        try await NetworkManager.shared.request(TodosRouter.certifyTodo(todoId: String(todoId), certifyTodoRequest: request))
+}
+
+extension PopupViewModel {
+    func setStringContent(_ text: String) {
+        stringContent = text
     }
 }

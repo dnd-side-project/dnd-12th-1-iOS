@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class DogetherButton: UIButton {
+final class DogetherButton: BaseButton {
     private(set) var title: String
     private(set) var status: ButtonStatus
     
@@ -16,26 +16,33 @@ final class DogetherButton: UIButton {
         self.status = status
         
         super.init(frame: .zero)
-        setUI()
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    private func updateUI() {
-        setTitleColor(status.textColor, for: .normal)
-        backgroundColor = status.backgroundColor
-        isEnabled = status == .enabled
-    }
-    
-    private func setUI() {
+    override func configureView() {
         updateUI()
         
         setTitle(title, for: .normal)
         titleLabel?.font = Fonts.body1B
         layer.cornerRadius = 12
-        
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() { }
+    
+    override func configureConstraints() {
         self.snp.makeConstraints {
             $0.height.equalTo(50)
         }
+    }
+}
+ 
+extension DogetherButton {
+    private func updateUI() {
+        setTitleColor(status.textColor, for: .normal)
+        backgroundColor = status.backgroundColor
+        isEnabled = status == .enabled
     }
     
     func setTitle(_ title: String) {

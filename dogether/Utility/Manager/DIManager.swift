@@ -12,25 +12,16 @@ final class DIManager {
     
     private init() { }
     
-    enum BuildMode {
+    enum BuildModes {
         case debug
         case live
     }
     
-    private let defaultBuildMode: BuildMode = .debug
+    private let defaultBuildMode: BuildModes = .live
 }
 
 extension DIManager {
-    func getAppLaunchRepository(buildMode: BuildMode? = nil) -> AppLaunchProtocol {
-        switch buildMode ?? defaultBuildMode {
-        case .debug:
-            return AppLaunchRepositoryTest()
-        case .live:
-            return AppLaunchRepository()
-        }
-    }
-    
-    func getAuthRepository(buildMode: BuildMode? = nil) -> AuthProtocol {
+    func getAuthRepository(buildMode: BuildModes? = nil) -> AuthProtocol {
         switch buildMode ?? defaultBuildMode {
         case .debug:
             return AuthRepositoryTest()
@@ -39,16 +30,7 @@ extension DIManager {
         }
     }
     
-    func getMainRepository(buildMode: BuildMode? = nil) -> MainProtocol {
-        switch buildMode ?? defaultBuildMode {
-        case .debug:
-            return MainRepositoryTest()
-        case .live:
-            return MainRepository()
-        }
-    }
-    
-    func getGroupRepository(buildMode: BuildMode? = nil) -> GroupProtocol {
+    func getGroupRepository(buildMode: BuildModes? = nil) -> GroupProtocol {
         switch buildMode ?? defaultBuildMode {
         case .debug:
             return GroupRepositoryTest()
@@ -57,12 +39,57 @@ extension DIManager {
         }
     }
     
-    func getTodoRepository(buildMode: BuildMode? = nil) -> TodoProtocol {
+    func getChallengeGroupsRepository(buildMode: BuildModes? = nil) -> ChallengeGroupsProtocol {
         switch buildMode ?? defaultBuildMode {
         case .debug:
-            return TodoRepositoryTest()
+            return ChallengeGroupsRepositoryTest()
         case .live:
-            return TodoRepository()
+            return ChallengeGroupsRepository()
+        }
+    }
+    
+    func getPopupRepository(buildMode: BuildModes? = nil) -> PopupProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return PopupRepositoryTest()
+        case .live:
+            return PopupRepository()
+        }
+    }
+    
+    func getTodoCertificationsRepository(buildMode: BuildModes? = nil) -> TodoCertificationsProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return TodoCertificationsRepositoryTest()
+        case .live:
+            return TodoCertificationsRepository()
+        }
+    }
+    
+    func getCertificationListRepository(buildMode: BuildModes? = nil) -> CertificationListProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return CertificationListRepositoryTest()
+        case .live:
+            return CertificationListRepository()
+        }
+    }
+    
+    func getStatsRepository(buildMode: BuildModes? = nil) -> StatsProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return StatsRepositoryTest()
+        case .live:
+            return StatsRepository()
+        }
+    }
+    
+    func getMyProfileRepository(buildMode: BuildModes? = nil) -> MyProfileProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return MyProfileRepositoryTest()
+        case .live:
+            return MyProfileRepository()
         }
     }
 }

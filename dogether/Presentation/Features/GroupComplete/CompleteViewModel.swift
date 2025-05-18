@@ -11,5 +11,5 @@ final class CompleteViewModel {
     var groupType: GroupTypes = .create
     
     var joinCode: String = ""
-    var groupInfo: GroupInfo = GroupInfo()
+    var groupInfo: ChallengeGroupInfo = ChallengeGroupInfo()
 }

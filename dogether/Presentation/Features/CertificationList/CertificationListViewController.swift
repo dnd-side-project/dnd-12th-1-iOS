@@ -2,215 +2,129 @@
 //  CertificationListViewController.swift
 //  dogether
 //
-//  Created by 박지은 on 2/18/25.
+//  Created by yujaehong on 4/21/25.
 //
 
-import UIKit
-import SnapKit
-
-struct SectionData {
-    let title: String
-    let date: String
-    let images: [UIImage]
-    let button: UIButton
-}
+import Foundation
 
 final class CertificationListViewController: BaseViewController {
-    
-    private var buttonStackView = UIStackView()
-    
-    private let allButton = FilterButton(type: .all)
-    private let waitButton = FilterButton(type: .wait, isColorful: false)
-    private let rejectButton = FilterButton(type: .reject, isColorful: false)
-    private let approveButton = FilterButton(type: .approve, isColorful: false)
-    
-    private lazy var collectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.backgroundColor = .clear
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.register(CertificationListCollectionViewCell.self,
-                                forCellWithReuseIdentifier: CertificationListCollectionViewCell.identifier)
-        collectionView.register(CertificationListHeaderView.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: CertificationListHeaderView.identifier)
-        return collectionView
-    }()
-    
-    private let sections: [SectionData] = [
-        SectionData(title: "2일차",
-                    date: "2025.01.02 (화)",
-                    images: [.sample, .sample, .sample],
-                    button: FilterButton(type: .approve)),
-        SectionData(title: "1일차",
-                    date: "2025.01.01 (월)",
-                    images: [.sample, .sample],
-                    button: FilterButton(type: .wait))
-    ]
+    var viewModel = CertificationListViewModel()
+    private let navigationHeader = NavigationHeader(title: "인증 목록")
+    private let certificationListEmptyView = CertificationListEmptyView()
+    private var certificationListContentView: CertificationListContentView?
+    private var bottomSheetViewController: BottomSheetViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewModel.executeSort(option: .todoCompletionDate)
     }
     
     override func configureView() {
-        navigationItem.title = "인증 목록"
-        [allButton, waitButton, rejectButton, approveButton].forEach { button in
-            button.addAction(
-                UIAction { [weak self, weak button] _ in
-                    guard let self, let button else { return }
-                    updateTodoList(type: button.type)
-                }, for: .touchUpInside
-            )
-        }
-        buttonStackView = filterButtonStackView(buttons: [allButton, waitButton, rejectButton, approveButton])
+    }
+    
+    override func configureAction() {
+        navigationHeader.delegate = self
+        viewModel.delegate = self
     }
     
     override func configureHierarchy() {
-        [buttonStackView, collectionView].forEach {
-            view.addSubview($0)
-        }
+        [navigationHeader, certificationListEmptyView].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
-        buttonStackView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(28)
-            $0.left.equalToSuperview().offset(16)
+        navigationHeader.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
         }
         
-        collectionView.snp.makeConstraints {
-            $0.top.equalTo(buttonStackView.snp.bottom).offset(30)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.bottom.equalToSuperview()
+        certificationListEmptyView.snp.makeConstraints {
+            $0.top.equalTo(navigationHeader.snp.bottom)
+            $0.left.right.bottom.equalToSuperview()
         }
-    }
-    
-    private func filterButtonStackView(buttons: [UIButton]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: buttons)
-        stackView.axis = .horizontal
-        stackView.spacing = 8
-        return stackView
-    }
-    
-    private func updateTodoList(type: FilterTypes) {
-        allButton.setIsColorful(type == .all)
-        waitButton.setIsColorful(type == .wait)
-        rejectButton.setIsColorful(type == .reject)
-        approveButton.setIsColorful(type == .approve)
-    }
-    
-    private func createLayout() -> UICollectionViewFlowLayout {
-        let layout = UICollectionViewFlowLayout()
-        let spacing: CGFloat = 11
-        let itemWidth = 166
-        let itemHeight = 166
-        
-        layout.scrollDirection = .vertical
-        layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
-        layout.minimumLineSpacing = spacing
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 24, right: 0)
-        layout.minimumInteritemSpacing = spacing
-        
-        return layout
     }
 }
 
-final class CertificationListHeaderView: UICollectionReusableView, ReusableProtocol {
-    
-    private let titleLabel = {
-        let label = UILabel()
-        label.font = Fonts.head2B
-        label.textColor = .grey0
-        return label
-    }()
-    
-    private let dateLabel = {
-        let label = UILabel()
-        label.font = Fonts.body1S
-        label.textColor = .grey400
-        return label
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        [titleLabel, dateLabel].forEach {
-            addSubview($0)
-        }
-        
-        titleLabel.snp.makeConstraints {
-            $0.top.leading.equalToSuperview()
-        }
-        
-        dateLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom)
-            $0.leading.equalToSuperview()
+extension CertificationListViewController {
+    private func displayViewForCurrentStatus() {
+        if viewModel.viewStatus == .hasData,
+           certificationListContentView == nil {
+            let contentView = CertificationListContentView(viewModel: viewModel)
+            self.certificationListContentView = contentView
+            self.certificationListContentView?.delegate = self
+            view.addSubview(contentView)
+            contentView.snp.makeConstraints {
+                $0.top.equalTo(navigationHeader.snp.bottom)
+                $0.left.right.bottom.equalToSuperview()
+            }
+            certificationListContentView?.isHidden = false
+            certificationListEmptyView.isHidden = true
+            
+            configureSortButtonTitle()
+            configureBottomSheetViewController()
         }
     }
     
-    func configure(title: String, date: String) {
-        titleLabel.text = title
-        dateLabel.text = date
+    private func configureSortButtonTitle() {
+        let defaultOption: CertificationSortOption = .todoCompletionDate
+        certificationListContentView?
+            .filterView
+            .sortButton
+            .updateSelectedOption(defaultOption.bottomSheetItem)
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    private func configureBottomSheetViewController() {
+        let bottomSheetItem = CertificationSortOption.allCases.map { $0.bottomSheetItem }
+        let selectedItem = viewModel.selectedGroup?.bottomSheetItem
         
+        bottomSheetViewController = BottomSheetViewController(
+            titleText: "정렬",
+            bottomSheetItem: bottomSheetItem,
+            selectedItem: selectedItem
+        )
+        
+        bottomSheetViewController?.modalPresentationStyle = .overCurrentContext
+        bottomSheetViewController?.modalTransitionStyle = .coverVertical
+        
+        bottomSheetViewController?.didSelectOption = { [weak self] selected in
+            guard let self else { return }
+            
+            self.viewModel.selectedGroup = selected.value as? CertificationSortOption
+            
+            self.certificationListContentView?
+                .filterView
+                .sortButton
+                .updateSelectedOption(selected)
+            
+            if let sortOption = selected.value as? CertificationSortOption {
+                self.viewModel.executeSort(option: sortOption)
+            }
+        }
     }
 }
 
-extension CertificationListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return sections.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        numberOfItemsInSection section: Int) -> Int {
-        return sections[section].images.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CertificationListCollectionViewCell.identifier,
-                                                      for: indexPath) as! CertificationListCollectionViewCell
-        
-        let sectionData = sections[indexPath.section]
-        let imageName = sectionData.images[indexPath.item]
-        let button = sectionData.button
-        
-        cell.configure(imageName: imageName, button: button)
-        cell.layer.cornerRadius = 12
-        cell.clipsToBounds = true
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        viewForSupplementaryElementOfKind kind: String,
-                        at indexPath: IndexPath) -> UICollectionReusableView {
-        
-        guard kind == UICollectionView.elementKindSectionHeader else {
-            return UICollectionReusableView()
-        }
-        
-        guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind,
-                                                                           withReuseIdentifier: CertificationListHeaderView.identifier,
-                                                                           for: indexPath) as? CertificationListHeaderView else {
-            return UICollectionReusableView()
-        }
-        
-        let sectionData = sections[indexPath.section]
-        header.configure(title: sectionData.title, date: sectionData.date)
-        
-        return header
+// MARK: - ViewModel 로 부터 갱신된 데이터를 가져와서 ContentView 업데이트
+extension CertificationListViewController: CertificationListViewModelDelegate {
+    func didFetchSucceed() {
+        displayViewForCurrentStatus()
+        self.certificationListContentView?.filterView.sortButton.delegate = self
+        certificationListContentView?.reloadData()
     }
 }
 
-extension CertificationListViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 50)
+// MARK: - ContentView 에서 전달하는 이벤트를 받기 위한 Delegate
+extension CertificationListViewController: CertificationListContentViewDelegate {
+    func didTapFilter(selectedFilter: FilterTypes) {
+        viewModel.currentFilter = selectedFilter
+    }
+    
+    func didTapCertificationFilterView() {
+    }
+}
+
+extension CertificationListViewController: BottomSheetDelegate {
+    func presentBottomSheet() {
+        if presentedViewController == nil, let bottomSheetViewController {
+            present(bottomSheetViewController, animated: true)
+        }
     }
 }

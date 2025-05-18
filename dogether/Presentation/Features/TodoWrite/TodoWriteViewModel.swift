@@ -8,7 +8,9 @@
 import Foundation
 
 final class TodoWriteViewModel {
-    private let todoUseCase: TodoUseCase
+    private let challengeGroupsUseCase: ChallengeGroupUseCase
+    
+    var groupId: Int = 0
     
     let maximumTodoCount: Int = 10
     let todoMaxLength: Int = 20
@@ -17,8 +19,8 @@ final class TodoWriteViewModel {
     private(set) var todos: [String] = []
     
     init() {
-        let todoRepository = DIManager.shared.getTodoRepository()
-        self.todoUseCase = TodoUseCase(repository: todoRepository)
+        let challengeGroupsRepository = DIManager.shared.getChallengeGroupsRepository()
+        self.challengeGroupsUseCase = ChallengeGroupUseCase(repository: challengeGroupsRepository)
     }
     
 }
@@ -45,6 +47,6 @@ extension TodoWriteViewModel {
     }
     
     func createTodos() async throws {
-        try await todoUseCase.createTodos(todos: todos)
+        try await challengeGroupsUseCase.createTodos(groupId: groupId, todos: todos)
     }
 }

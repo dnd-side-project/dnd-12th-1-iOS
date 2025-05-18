@@ -6,15 +6,18 @@
 //
 
 import UIKit
+import SnapKit
+
+import Combine
 
 final class GroupJoinViewController: BaseViewController {
     private let viewModel = GroupJoinViewModel()
     
-    private let dogetherHeader = NavigationHeader(title: "그룹 가입하기")
+    private let navigationHeader = NavigationHeader(title: "그룹 가입하기")
     
     private let titleLabel = {
         let label = UILabel()
-        label.text = "초대번호 입력"
+        label.text = "초대코드 입력"
         label.textColor = .grey0
         label.font = Fonts.emphasis2B
         return label
@@ -22,71 +25,74 @@ final class GroupJoinViewController: BaseViewController {
     
     private let subTitleLabel = UILabel()
     
-    private var textFields: [UITextField] = []
-    
-    // MARK: 숨겨두고 키보드 입력을 받는 textField
-    private let textField = {
+    private let codeTextField = {
         let textField = UITextField()
-        textField.alpha = 0
-        textField.isHidden = true
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "코드입력 (8자리)",
+            attributes: [
+                .foregroundColor: UIColor.grey300
+            ]
+        )
+        textField.font = Fonts.body1S
+        textField.textColor = .grey0
+        textField.backgroundColor = .grey800
+        textField.layer.cornerRadius = 12
+        textField.layer.masksToBounds = true
+        textField.keyboardType = .asciiCapable
+        textField.returnKeyType = .done
+        textField.tintColor = .blue300
+        textField.autocorrectionType = .no
+        let paddingView = UIView()
+        paddingView.frame = CGRect(x: 0, y: 0, width: 16, height: textField.frame.height)
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
         return textField
-    }()
-    
-    private func codeLabel() -> UILabel {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.textAlignment = .center
-        label.font = Fonts.head1B
-        label.backgroundColor = .grey700
-        label.layer.cornerRadius = 15
-        label.layer.masksToBounds = true
-        return label
-    }
-    
-    private let codeLabelStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 4
-        return stackView
     }()
     
     private var joinButton = DogetherButton(title: "가입하기", status: .disabled)
     
-    // MARK: about keyboardOserver
-    deinit { NotificationCenter.default.removeObserver(self) }
+    private var joinButtonBottomConstraint: Constraint?
+    
+    private var cancellables = Set<AnyCancellable>()
+    private var keyboardHeight: CGFloat = 0
+    private let buttonBottomInset: CGFloat = 16
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        textField.becomeFirstResponder()
-        updateCodeLabelFocus()
-        setupKeyboardHandling()
+        observeKeyboardNotifications()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        codeTextField.becomeFirstResponder()
     }
     
     override func configureView() {
-        dogetherHeader.delegate = self
-        
         updateSubTitleLabel()
+    }
+    
+    override func configureAction() {
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)))
         
-        textField.delegate = self
-        textField.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
+        navigationHeader.delegate = self
+        codeTextField.delegate = self
+        
+        codeTextField.addAction(
+            UIAction { [weak self, weak codeTextField] _ in
+                guard let self, let textField = codeTextField else { return }
                 viewModel.setCode(textField.text)
-                updateCodeLabels()
-            }, for: .editingChanged
+                textField.text = viewModel.code
+                joinButton.setButtonStatus(status: viewModel.code.count < viewModel.codeLength ? .disabled : .enabled)
+            },
+            for: .editingChanged
         )
 
-        (0 ..< viewModel.codeLength).forEach { _ in codeLabelStackView.addArrangedSubview(codeLabel()) }
-        
         joinButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
                 Task {
                     do {
                         try await self.viewModel.joinGroup()
-                        guard let groupInfo = self.viewModel.groupInfo else { return }
+                        guard let groupInfo = self.viewModel.challengeGroupInfo else { return }
                         await MainActor.run {
                             let completeViewController = CompleteViewController()
                             completeViewController.viewModel.groupType = .join
@@ -97,6 +103,7 @@ final class GroupJoinViewController: BaseViewController {
                         self.viewModel.handleCodeError()
                         
                         self.updateSubTitleLabel()
+                        self.updateCodetextField()
                         
                         self.joinButton.setButtonStatus(status: .disabled)
                     }
@@ -106,19 +113,18 @@ final class GroupJoinViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
-        [dogetherHeader, titleLabel, subTitleLabel, textField, codeLabelStackView, joinButton].forEach { view.addSubview($0) }
+        [navigationHeader, titleLabel, subTitleLabel, codeTextField, joinButton].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
-        dogetherHeader.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(28)
+        navigationHeader.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
         }
 
         titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(100)
+            $0.top.equalTo(navigationHeader.snp.bottom).offset(44)
             $0.height.equalTo(36)
         }
         
@@ -128,21 +134,20 @@ final class GroupJoinViewController: BaseViewController {
             $0.height.equalTo(25)
         }
         
-        codeLabelStackView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(subTitleLabel.snp.bottom).offset(89)
-            $0.width.equalTo(48 * viewModel.codeLength + 4 * (viewModel.codeLength - 1))
-            $0.height.equalTo(60)
+        codeTextField.snp.makeConstraints {
+            $0.top.equalTo(subTitleLabel.snp.bottom).offset(48)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.height.equalTo(50)
         }
         
         joinButton.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+            joinButtonBottomConstraint = $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(buttonBottomInset).constraint
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
     }
 }
 
-// MARK: - update UI
+// MARK: - Update UI
 extension GroupJoinViewController {
     private func updateSubTitleLabel() {
         subTitleLabel.text = viewModel.status.text
@@ -150,140 +155,79 @@ extension GroupJoinViewController {
         subTitleLabel.font = viewModel.status.font
     }
     
-    private func updateCodeLabels() {
-        for i in 0 ..< codeLabelStackView.subviews.count {
-            guard let codeLabel = codeLabelStackView.subviews[i] as? UILabel else { return }
-            if i < viewModel.code.count {
-                codeLabel.text = String(Array(viewModel.code)[i])
-            } else {
-                codeLabel.text = ""
+    private func updateCodetextField() {
+        codeTextField.layer.borderColor = viewModel.status.borderColor.cgColor
+    }
+}
+
+// MARK: - Keyboard
+extension GroupJoinViewController {
+    private func observeKeyboardNotifications() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { notification -> CGFloat? in
+                guard let userInfo = notification.userInfo,
+                      let frameValue = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+                    return nil
+                }
+                return frameValue.cgRectValue.height
             }
-        }
-        updateCodeLabelFocus()
-        if viewModel.code.count == viewModel.codeLength {
-            textField.resignFirstResponder()
-            joinButton.setButtonStatus(status: .enabled)
-        }
+            .sink { [weak self] height in
+                guard let self else { return }
+                keyboardHeight = height
+                updateUIForKeyboard()
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                keyboardHeight = 0
+                updateUIForKeyboard()
+            }
+            .store(in: &cancellables)
     }
     
-    private func updateCodeLabelFocus() {
-        for i in 0 ..< codeLabelStackView.subviews.count {
-            if i == viewModel.code.count {
-                codeLabelStackView.subviews[i].layer.borderColor = UIColor.blue300.cgColor
-                codeLabelStackView.subviews[i].layer.borderWidth = 1.5
+    private func updateUIForKeyboard() {
+        UIView.animate(withDuration: 0.35) { [weak self] in
+            guard let self = self else { return }
+            let safeAreaBottom = view.safeAreaInsets.bottom
+            let adjustedKeyboardHeight = max(keyboardHeight - safeAreaBottom, 0)
+            if keyboardHeight > 0 {
+                joinButtonBottomConstraint?.update(inset: adjustedKeyboardHeight + buttonBottomInset)
             } else {
-                codeLabelStackView.subviews[i].layer.borderColor = UIColor.clear.cgColor
-                codeLabelStackView.subviews[i].layer.borderWidth = 0
+                joinButtonBottomConstraint?.update(inset: buttonBottomInset)
             }
+            view.layoutIfNeeded()
         }
     }
 }
 
-// MARK: - about keyboard
+// MARK: - UITextFieldDelegate
 extension GroupJoinViewController: UITextFieldDelegate {
-    private func setupKeyboardHandling() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)))
-        codeLabelStackView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showKeyboard)))
-    }
-    
-    // MARK: - UITextFieldDelegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("return \(textField)")
-        textField.resignFirstResponder()
+        if joinButton.isEnabled {
+            joinButton.sendActions(for: .touchUpInside)
+        }
         return true
     }
-    
-    @objc private func keyboardWillShow(_ notification: NSNotification) {
-        print("keyboardshow")
-    }
-    
-    @objc private func keyboardWillHide(_ notification: NSNotification) {
-        print("keyboardhide")
-    }
-    
-    @objc private func textDidChange(_ textField: UITextField) {
-        
-        guard let text = textField.text, !text.isEmpty else { return }
-        
-        for (index, textF) in textFields.enumerated() where textF == textField {
-            if index < textFields.count - 1 {
-                textFields[index + 1].becomeFirstResponder()
-            } else {
-                // 마지막 입력 후 키보드 내리기
-                textField.resignFirstResponder()
-                joinButton.isEnabled = true
-            }
-        }
-        
-        // 입력중인 텍스트필드 border 색상 변경
-        setTextFieldBorderColor()
-        
-        textField.textColor = .grey0
-    }
-    
+
     private func setTextFieldBorderColor() {
-        for textField in textFields {
-            if textField.isFirstResponder {
-                textField.layer.borderColor = UIColor.blue300.cgColor
-                textField.layer.borderWidth = 1.5
-            } else {
-                textField.layer.borderColor = UIColor.clear.cgColor
-                textField.layer.borderWidth = 0
-            }
+        if codeTextField.isFirstResponder {
+            codeTextField.layer.borderColor = UIColor.blue300.cgColor
+            codeTextField.layer.borderWidth = 1.5
+        } else {
+            codeTextField.layer.borderColor = UIColor.clear.cgColor
+            codeTextField.layer.borderWidth = 0
         }
     }
-    
+
     func textFieldDidBeginEditing(_ textField: UITextField) {
         setTextFieldBorderColor()
     }
-    
-//    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-//        // 첫번째 텍스트필드부터 입력
-//        if let index = textFields.firstIndex(of: textField) {
-//            return index == 0 || !textFields[index - 1].text!.isEmpty
-//        }
-//        return false
-//    }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
         setTextFieldBorderColor()
     }
     
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        
-//        // 빈 텍스트필드에 무언가를 입력할때
-//        if string.isEmpty {
-//            if let currentText = textField.text, !currentText.isEmpty {
-//                // 현재 값이 있으면 삭제
-//                textField.text = ""
-//                
-//                if let index = textFields.firstIndex(of: textField), index > 0 {
-//                    let previousTextField = textFields[index - 1]
-//                    
-//                    DispatchQueue.main.async {
-//                        previousTextField.becomeFirstResponder()
-//                    }
-//                }
-//                return false
-//            }
-//        }
-//        // 한글자만 입력 가능
-//        return textField.text?.isEmpty ?? true
-//    }
-    
     @objc private func dismissKeyboard() { view.endEditing(true) }
-    
-    @objc private func showKeyboard() { textField.becomeFirstResponder() }
 }

@@ -2,37 +2,27 @@
 //  MyPageViewModel.swift
 //  dogether
 //
-//  Created by seungyooooong on 3/25/25.
+//  Created by yujaehong on 5/17/25.
 //
 
 import Foundation
 
 final class MyPageViewModel {
-    private let authUseCase: AuthUseCase
+    private(set) var myProfile: MyProfileResponse?
+    private let myProfileUseCase: MyProfileUseCase
     
     init() {
-        let authRepository = DIManager.shared.getAuthRepository()
-        self.authUseCase = AuthUseCase(repository: authRepository)
+        let myProfileRepository = DIManager.shared.getMyProfileRepository()
+        self.myProfileUseCase = MyProfileUseCase(repository: myProfileRepository)
     }
 }
 
 extension MyPageViewModel {
-    func leaveGroup() async throws {
-        // FIXME: UI 수정 후 내용 반영
-        try await NetworkManager.shared.request(GroupsRouter.leaveGroup)
-    }
-    
-    func logout() {
-        UserDefaultsManager.shared.accessToken = nil
-        UserDefaultsManager.shared.userFullName = nil
-    }
-    
-    func withdraw() async throws {
-        authUseCase.appleLogin()
-        guard let userInfo = try await authUseCase.userInfo else { return }
-        
-        let withdrawRequst = WithdrawRequest(authorizationCode: userInfo.authorizationCode)
-        try await NetworkManager.shared.request(AuthRouter.withdraw(withdrawRequest: withdrawRequst))
+    func getMyProfile(getMyProfile: @escaping () -> Void) {
+        Task {
+            let response = try await myProfileUseCase.getMyProfile()
+            self.myProfile = response
+            await MainActor.run { getMyProfile() }
+        }
     }
 }
-

@@ -8,6 +8,6 @@
 import Foundation
 
 protocol PopupDelegate: AnyObject {
+    var completion: ((Any) -> Void)? { get }
     func hidePopup()
-    var rejectPopupCompletion: ((String) -> Void)? { get set }
 }

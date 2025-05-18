@@ -1,0 +1,28 @@
+{
+  "joiningChallengeGroups": [
+    {
+      "groupId": 1,
+      "groupName": "폰트의 챌린지",
+      "currentMemberCount": 3,
+      "maximumMemberCount": 8,
+      "joinCode": "G3hIj4kLm",
+      "status": "RUNNING",
+      "startAt": "25.03.02",
+      "endAt": "25.03.05",
+      "progressDay": 5,
+      "progressRate": 0.3
+    },
+    {
+      "groupId": 2,
+      "groupName": "켈리와 친구들",
+      "currentMemberCount": 5,
+      "maximumMemberCount": 10,
+      "joinCode": "A1Bc4dEf",
+      "status": "D_DAY",
+      "startAt": "25.03.02",
+      "endAt": "25.03.05",
+      "progressDay": 2,
+      "progressRate": 0.5
+    }
+  ]
+}

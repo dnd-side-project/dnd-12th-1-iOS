@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class CounterView: UIView {
+final class CounterView: BaseView {
     let min: Int
     let max: Int
     let unit: String
@@ -22,7 +22,6 @@ final class CounterView: UIView {
         self.changeCountAction = changeCountAction
         
         super.init(frame: .zero)
-        setUI()
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -86,7 +85,13 @@ final class CounterView: UIView {
         return label
     }()
     
-    private func setUI() {
+    override func configureView() {
+        currentLabel.text = "\(current)\(unit)"
+        minLabel.text = "\(min)\(unit)"
+        maxLabel.text = "\(max)\(unit)"
+    }
+    
+    override func configureAction() {
         [minusButton, plusButton].forEach { button in
             button.addAction(
                 UIAction { [weak self, weak button] _ in
@@ -95,14 +100,14 @@ final class CounterView: UIView {
                 }, for: .touchUpInside
             )
         }
-        
-        currentLabel.text = "\(current)\(unit)"
-        minLabel.text = "\(min)\(unit)"
-        maxLabel.text = "\(max)\(unit)"
-        
+    }
+    
+    override func configureHierarchy() {
         [dogetherCountView, minLabel, maxLabel].forEach { addSubview($0) }
         [minusButton, minusImageView, plusButton, plusImageView, currentLabel].forEach { dogetherCountView.addSubview($0) }
-        
+    }
+    
+    override func configureConstraints() {
         dogetherCountView.snp.makeConstraints {
             $0.top.equalToSuperview()
             $0.width.equalToSuperview()
@@ -145,7 +150,9 @@ final class CounterView: UIView {
             $0.right.equalToSuperview()
         }
     }
-    
+}
+ 
+extension CounterView {
     private func changeCount(tag direction: Int) {
         let after = current + direction
         if min <= after && after <= max {

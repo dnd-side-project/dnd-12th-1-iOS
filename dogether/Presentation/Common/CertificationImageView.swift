@@ -7,16 +7,22 @@
 
 import UIKit
 
-final class CertificationImageView: UIImageView {
-    private(set) var certificationContent: String
-    private(set) var certificator: String
+final class CertificationImageView: BaseImageView {
+    private let certificationContent: String?
+    private(set) var certificator: String?
     
-    init(image: UIImage?, certificationContent: String = "", certificator: String = "") {
+    init(image: UIImage? = nil, imageUrl: String? = nil, certificationContent: String? = nil) {
         self.certificationContent = certificationContent
-        self.certificator = certificator
         
         super.init(image: image)
-        setUI()
+        
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                try await loadImage(url: imageUrl)
+                updateCertificationContentLabelConstraints()
+            }
+        }
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -41,7 +47,7 @@ final class CertificationImageView: UIImageView {
     private let certificationContentLabel = {
         let label = UILabel()
         label.textColor = .grey100
-        label.font = Fonts.body1R
+        label.numberOfLines = 0
         return label
     }()
     
@@ -57,30 +63,72 @@ final class CertificationImageView: UIImageView {
         gradientView.layer.sublayers?.first?.frame = gradientView.bounds
     }
     
-    private func setUI() {
-        backgroundColor = .grey900
-        layer.cornerRadius = 12
+    override func configureView() {
         contentMode = .scaleAspectFit
+        backgroundColor = .grey900
+        clipsToBounds = true
+        layer.cornerRadius = 12
         
-        certificationContentLabel.text = certificationContent
-        certificatorLabel.text = certificator
+        gradientView.layer.cornerRadius = 12
+        gradientView.layer.borderColor = UIColor.grey700.cgColor
+        gradientView.layer.borderWidth = 1
         
+        updateCertificationContent(certificationContent: certificationContent, updateConstraints: false)
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
         [gradientView, certificationContentLabel, certificatorLabel].forEach { addSubview($0) }
-        
+    }
+    
+    override func configureConstraints() {
         gradientView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         
         certificationContentLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(certificatorLabel.snp.top).inset(4)
-            $0.height.equalTo(25)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.bottom.equalToSuperview().inset(32)
         }
         
         certificatorLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.bottom.equalToSuperview().inset(16)
-            $0.height.equalTo(28)
+            $0.height.equalTo(0)
+        }
+    }
+}
+
+extension CertificationImageView {
+    func updateCertificator(certificator: String? = nil) {
+        self.certificator = certificator
+        certificatorLabel.text = certificator
+        
+        certificatorLabel.snp.updateConstraints {
+            $0.height.equalTo(certificator == nil ? 0 : 28)
+        }
+    }
+    
+    func updateCertificationContent(certificationContent: String? = nil, updateConstraints: Bool = true) {
+        certificationContentLabel.attributedText = NSAttributedString(
+            string: certificationContent ?? "",
+            attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .center)
+        )
+        
+        if updateConstraints { updateCertificationContentLabelConstraints() }
+    }
+    
+    private func updateCertificationContentLabelConstraints() {
+        certificationContentLabel.snp.remakeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
+            if certificator == nil {
+                $0.bottom.equalToSuperview().inset(16)
+            } else {
+                $0.bottom.equalTo(certificatorLabel.snp.top).inset(4)
+            }
         }
     }
 }

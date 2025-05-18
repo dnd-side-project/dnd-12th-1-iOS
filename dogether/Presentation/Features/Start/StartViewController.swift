@@ -9,7 +9,11 @@ import UIKit
 import SnapKit
 
 final class StartViewController: BaseViewController {
+    var isFirst = true  // FIXME: 추후 수정
+    
     private let dogetherHeader = DogetherHeader()
+    
+    private let navigationHeader = NavigationHeader(title: "새 그룹 추가")
     
     private let titleLabel = {
         let label = UILabel()
@@ -20,50 +24,6 @@ final class StartViewController: BaseViewController {
         label.textColor = .grey0
         label.numberOfLines = 0
         return label
-    }()
-    
-    private let floatingDescription = {
-        let button = UIButton()
-        button.backgroundColor = .grey50
-        button.layer.cornerRadius = 8
-        button.layer.zPosition = 1
-        
-        let tail = UIImageView(image: .tail)
-        
-        let label = UILabel()
-        label.text = "한 번에 하나의 그룹에서만 활동할 수 있어요"
-        label.textColor = .grey800
-        label.font = Fonts.smallS
-        
-        let icon = UIImageView(image: .close)
-        icon.contentMode = .scaleAspectFit
-        
-        let stackView = UIStackView(arrangedSubviews: [label, icon])
-        stackView.axis = .horizontal
-        stackView.spacing = 4
-        stackView.isUserInteractionEnabled = false
-        
-        [tail, stackView].forEach { button.addSubview($0) }
-        
-        tail.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(-7)
-            $0.left.equalToSuperview().offset(25)
-            $0.width.height.equalTo(14)
-        }
-        
-        label.snp.makeConstraints {
-            $0.height.equalTo(18)
-        }
-        
-        icon.snp.makeConstraints {
-            $0.width.equalTo(12)
-        }
-        
-        stackView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(8)
-        }
-        
-        return button
     }()
     
     private func startButton(groupType: GroupTypes) -> UIButton {
@@ -136,41 +96,46 @@ final class StartViewController: BaseViewController {
     override func configureView() {
         dogetherHeader.delegate = self
         
-        floatingDescription.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                hideFloating()
-            }, for: .touchUpInside
-        )
+        navigationHeader.delegate = self
         
         createButton = startButton(groupType: .create)
         joinButton = startButton(groupType: .join)
     }
     
+    override func configureAction() { }
+    
     override func configureHierarchy() {
-        [dogetherHeader, titleLabel, floatingDescription, createButton, joinButton].forEach { view.addSubview($0) }
+        if isFirst { [dogetherHeader, titleLabel].forEach { view.addSubview($0) } }
+        else { [navigationHeader].forEach { view.addSubview($0) } }
+        
+        [createButton, joinButton].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
-        dogetherHeader.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(28)
-        }
-        
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(dogetherHeader.snp.bottom).offset(28)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(72)
-        }
-        
-        floatingDescription.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(10)
-            $0.left.equalTo(titleLabel)
+        if isFirst {
+            dogetherHeader.snp.makeConstraints {
+                $0.top.equalTo(view.safeAreaLayoutGuide)
+                $0.horizontalEdges.equalToSuperview()
+            }
+            
+            titleLabel.snp.makeConstraints {
+                $0.top.equalTo(dogetherHeader.snp.bottom).offset(28)
+                $0.horizontalEdges.equalToSuperview().inset(16)
+                $0.height.equalTo(72)
+            }
+        } else {
+            navigationHeader.snp.makeConstraints {
+                $0.top.equalTo(view.safeAreaLayoutGuide)
+                $0.horizontalEdges.equalToSuperview()
+            }
         }
         
         createButton.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(41)
+            if isFirst {
+                $0.top.equalTo(titleLabel.snp.bottom).offset(41)
+            } else {
+                $0.top.equalTo(navigationHeader.snp.bottom).offset(16)
+            }
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(100)
         }
@@ -180,12 +145,5 @@ final class StartViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(100)
         }
-    }
-}
-
-// MARK: - update UI
-extension StartViewController {
-    private func hideFloating() {
-        floatingDescription.isHidden = true
     }
 }

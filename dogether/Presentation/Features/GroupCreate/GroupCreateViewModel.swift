@@ -11,7 +11,7 @@ final class GroupCreateViewModel {
     private let groupUseCase: GroupUseCase
     
     let maxStep: Int = 3
-    let groupNameMaxLength: Int = 12
+    let groupNameMaxLength: Int = 10
     
     private(set) var joinCode: String?
     private(set) var currentStep: CreateGroupSteps = .one
@@ -55,11 +55,10 @@ extension GroupCreateViewModel {
 extension GroupCreateViewModel {
     func createGroup() async throws {
         let createGroupRequest = CreateGroupRequest(
-            name: currentGroupName,
+            groupName: currentGroupName,
             maximumMemberCount: memberCount,
             startAt: currentStartAt,
-            durationOption: currentDuration,
-            maximumTodoCount: 10    // FIXME: API 수정 시 삭제
+            duration: currentDuration
         )
         joinCode = try await groupUseCase.createGroup(createGroupRequest: createGroupRequest)
     }

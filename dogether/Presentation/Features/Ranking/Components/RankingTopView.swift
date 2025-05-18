@@ -8,12 +8,12 @@
 import UIKit
 import SnapKit
 
-final class RankingTopView: UIView {
-    private let ranking: RankingModel?
+final class RankingTopView: BaseView {
+    let ranking: RankingModel?
+    
     init(ranking: RankingModel?) {
         self.ranking = ranking
         super.init(frame: .zero)
-        setUI()
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -23,20 +23,24 @@ final class RankingTopView: UIView {
         view.layer.cornerRadius = 12
         return view
     }()
+    
     private let rankingImageView = UIImageView()
-    private let profileImageView = UIImageView()
+    private let profileImageView = RankingImageView(viewType: .topView)
+    
     private let nameLabel = {
         let label = UILabel()
         label.textColor = .grey0
         label.font = Fonts.body1B
         return label
     }()
+    
     private let certificationLabel = {
         let label = UILabel()
         label.textColor = .blue300
         label.font = Fonts.body2S
         return label
     }()
+    
     private let emptyProfileView = {
         let view = UIView()
         view.layer.cornerRadius = 26
@@ -44,6 +48,7 @@ final class RankingTopView: UIView {
         view.layer.borderWidth = 1
         return view
     }()
+    
     private let emptyNameLabel = {
         let label = UILabel()
         label.text = "-"
@@ -51,6 +56,7 @@ final class RankingTopView: UIView {
         label.font = Fonts.body1B
         return label
     }()
+    
     private let emptyCertificationLabel = {
         let label = UILabel()
         label.text = "-"
@@ -59,24 +65,43 @@ final class RankingTopView: UIView {
         return label
     }()
 
-    private func setUI() {
+    override func configureView() {
         if let ranking {
             rankingImageView.image = ranking.rank == 1 ? .crown1 : ranking.rank == 2 ? .crown2 : .crown3
-            profileImageView.image = ranking.rank == 1 ? .profile1 : ranking.rank == 2 ? .profile2 : .profile3
+            profileImageView.setReadStatus(readStatus: ranking.historyReadStatus)
             nameLabel.text = ranking.name
-            certificationLabel.text = "달성률 \(Int(ranking.certificationRate))%"
+            certificationLabel.text = "달성률 \(ranking.achievementRate)%"
             
+            Task { [weak self] in
+                guard let self, let url = URL(string: ranking.profileImageUrl) else { return }
+                let (data, _) = try await URLSession.shared.data(from: url)
+                profileImageView.setImage(image: UIImage(data: data))
+            }
+        }
+    }
+    
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
+        if ranking != nil {
             [rankingView, rankingImageView].forEach { addSubview($0) }
             [profileImageView, nameLabel, certificationLabel].forEach { rankingView.addSubview($0) }
-            
+        } else {
+            [rankingView].forEach { addSubview($0) }
+            [emptyProfileView, emptyNameLabel, emptyCertificationLabel].forEach { rankingView.addSubview($0) }
+        }
+    }
+    
+    override func configureConstraints() {
+        if let ranking {
             rankingView.snp.makeConstraints {
                 $0.top.equalToSuperview().offset(ranking.rank == 1 ? 20 : 40)
                 $0.width.equalTo(107)
-                $0.height.equalTo(150)
+                $0.height.equalTo(158)
             }
             
             rankingImageView.snp.makeConstraints {
-                $0.centerX.equalToSuperview()
+                $0.centerX.equalToSuperview()   // TODO: 살짝 오른쪽으로 치우쳐진 느낌이 드는데 추후 확인 필요
                 $0.centerY.equalTo(rankingView.snp.top)
                 $0.width.height.equalTo(36)
             }
@@ -84,7 +109,7 @@ final class RankingTopView: UIView {
             profileImageView.snp.makeConstraints {
                 $0.centerX.equalToSuperview()
                 $0.top.equalToSuperview().offset(20)
-                $0.width.height.equalTo(52)
+                $0.width.height.equalTo(60)
             }
             
             nameLabel.snp.makeConstraints {
@@ -99,19 +124,16 @@ final class RankingTopView: UIView {
                 $0.height.equalTo(21)
             }
         } else {
-            [rankingView].forEach { addSubview($0) }
-            [emptyProfileView, emptyNameLabel, emptyCertificationLabel].forEach { rankingView.addSubview($0) }
-            
             rankingView.snp.makeConstraints {
                 $0.top.equalToSuperview().offset(40)
                 $0.width.equalTo(107)
-                $0.height.equalTo(150)
+                $0.height.equalTo(158)
             }
             
             emptyProfileView.snp.makeConstraints {
                 $0.centerX.equalToSuperview()
                 $0.top.equalToSuperview().offset(20)
-                $0.width.height.equalTo(52)
+                $0.width.height.equalTo(60)
             }
             
             emptyNameLabel.snp.makeConstraints {

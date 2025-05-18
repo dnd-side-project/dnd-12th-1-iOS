@@ -9,18 +9,17 @@ import UIKit
 import SnapKit
 
 final class RankingViewController: BaseViewController {
-    var rankings: [RankingModel]?
+    var viewModel = RankingViewModel()
     
     private let navigationHeader = NavigationHeader(title: "순위")
     
-    private func rankingTopStackView(views: [UIView]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: views)
+    private var rankingTopStackView = {
+        let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 11
         stackView.distribution = .fillEqually
         return stackView
-    }
-    private var rankingTopStackView = UIStackView()
+    }()
     
     private let descriptionView = {
         let view = UIView()
@@ -31,7 +30,7 @@ final class RankingViewController: BaseViewController {
         let imageView = UIImageView(image: .notice)
         
         let label = UILabel()
-        label.text = "달성률은 작성한 투두 중 완료한 비율을 의미합니다."
+        label.text = "달성률은 인증, 인정, 참여 기간을 기준으로 계산돼요."
         label.textColor = .grey400
         label.font = Fonts.body2S
         
@@ -64,12 +63,22 @@ final class RankingViewController: BaseViewController {
         super.viewDidLoad()
     }
     
-    override func configureView() {
-        navigationHeader.delegate = self
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
-        guard let rankings else { return }
-        let rankingTopViews = (0 ..< 3).map { RankingTopView(ranking: rankings.count > $0 ? rankings[$0] : nil) }
-        rankingTopStackView = rankingTopStackView(views: [rankingTopViews[1], rankingTopViews[0], rankingTopViews[2]])
+        Task { [weak self] in
+            guard let self else { return }
+            try await viewModel.loadRankingView()
+            await MainActor.run { self.updateView() }
+        }
+    }
+    
+    override func configureView() {
+        updateView()
+    }
+    
+    override func configureAction() {
+        navigationHeader.delegate = self
         
         rankingTableView.delegate = self
         rankingTableView.dataSource = self
@@ -82,13 +91,12 @@ final class RankingViewController: BaseViewController {
     
     override func configureConstraints() {
         navigationHeader.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(28)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         rankingTopStackView.snp.makeConstraints {
-            $0.top.equalTo(navigationHeader.snp.bottom).offset(16)
+            $0.top.equalTo(navigationHeader.snp.bottom).offset(8)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(190)
         }
@@ -100,27 +108,63 @@ final class RankingViewController: BaseViewController {
         }
         
         rankingTableView.snp.makeConstraints {
-            $0.top.equalTo(descriptionView.snp.bottom).offset(18)
+            $0.top.equalTo(descriptionView.snp.bottom).offset(16)
             $0.bottom.left.right.equalToSuperview()
         }
+    }
+}
+
+extension RankingViewController {
+    private func updateView() {
+        rankingTopStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
+        [1, 0, 2].forEach { index in
+            let ranking = viewModel.rankings[safe: index]
+            let topView = RankingTopView(ranking: ranking)
+            topView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tappedTopView(_:))))
+            rankingTopStackView.addArrangedSubview(topView)
+        }
+        
+        rankingTableView.reloadData()
     }
 }
 
 // MARK: - aboout tableView
 extension RankingViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let rankings, rankings.count > 3 else { return 0}
-        return rankings.count - 3
+        guard viewModel.rankings.count > 3 else { return 0 }
+        return viewModel.rankings.count - 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let ranking = rankings?[indexPath.row + 3], let cell = tableView.dequeueReusableCell(
+        guard let cell = tableView.dequeueReusableCell(
             withIdentifier: RankingTableViewCell.identifier,
             for: indexPath
         ) as? RankingTableViewCell else { return UITableViewCell() }
         
-        cell.setExtraInfo(ranking: ranking)
+        cell.setExtraInfo(ranking: viewModel.rankings[indexPath.row + 3])
         
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        goMemberCertificationView(rankingIndex: indexPath.row + 3)
+    }
+}
+
+extension RankingViewController {
+    @objc private func tappedTopView(_ sender: UITapGestureRecognizer) {
+        if let rankingTopView = sender.view as? RankingTopView, let ranking = rankingTopView.ranking {
+            goMemberCertificationView(rankingIndex: ranking.rank - 1)
+        }
+    }
+    
+    private func goMemberCertificationView(rankingIndex: Int) {
+        if viewModel.rankings[rankingIndex].historyReadStatus == nil { return }
+        
+        let memberCertificationViewController = MemberCertificationViewController()
+        memberCertificationViewController.viewModel.groupId = viewModel.groupId
+        memberCertificationViewController.viewModel.memberInfo = viewModel.rankings[rankingIndex]
+        coordinator?.pushViewController(memberCertificationViewController)
     }
 }

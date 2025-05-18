@@ -76,3 +76,18 @@ enum FilterTypes: String, CaseIterable {
         }
     }
 }
+
+extension FilterTypes {
+    init?(status: String) {
+        switch status.uppercased() {
+        case "REVIEW_PENDING":
+            self = .wait
+        case "REJECT":
+            self = .reject
+        case "APPROVE":
+            self = .approve
+        default:
+            return nil
+        }
+    }
+}

@@ -9,17 +9,24 @@ import Foundation
 
 final class SplashViewModel {
     private let appLaunchUseCase: AppLaunchUseCase
-    
-    private(set) var destination: BaseViewController?
+    private let groupUseCase: GroupUseCase
     
     init() {
-        let appLaunchRepository = DIManager.shared.getAppLaunchRepository()
-        self.appLaunchUseCase = AppLaunchUseCase(repository: appLaunchRepository)
+        let groupRepository = DIManager.shared.getGroupRepository()
+        
+        self.appLaunchUseCase = AppLaunchUseCase()
+        self.groupUseCase = GroupUseCase(repository: groupRepository)
     }
     
     func launchApp() async throws {
         try await appLaunchUseCase.launchApp()
+    }
+    
+    func getDestination() async throws -> BaseViewController {
+        if UserDefaultsManager.shared.accessToken == nil { return await OnboardingViewController() }
         
-        destination = try await appLaunchUseCase.getDestination()
+        let challengeGroupInfos = try await groupUseCase.getChallengeGroupInfos()
+        let destination = try await appLaunchUseCase.getDestination(challengeGroupInfos: challengeGroupInfos)
+        return destination
     }
 }

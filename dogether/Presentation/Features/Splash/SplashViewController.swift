@@ -38,7 +38,7 @@ final class SplashViewController: BaseViewController {
         
         Task {
             try await viewModel.launchApp()
-            guard let destination = viewModel.destination else { return }
+            let destination = try await viewModel.getDestination()
             await MainActor.run {
                 coordinator?.setNavigationController(destination)
             }
@@ -46,6 +46,8 @@ final class SplashViewController: BaseViewController {
     }
     
     override func configureView() { }
+    
+    override func configureAction() { }
     
     override func configureHierarchy() {
         [logoView].forEach { view.addSubview($0) }

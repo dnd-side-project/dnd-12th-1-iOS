@@ -2,31 +2,22 @@
 //  AppLaunchUseCase.swift
 //  dogether
 //
-//  Created by seungyooooong on 3/1/25.
+//  Created by seungyooooong on 5/7/25.
 //
 
 import Foundation
 
 final class AppLaunchUseCase {
-    private let repository: AppLaunchProtocol
-    
-    init(repository: AppLaunchProtocol) {
-        self.repository = repository
-    }
-    
     func launchApp() async throws {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
     }
     
-    func getDestination() async throws -> BaseViewController {
-        let needLogin = UserDefaultsManager.shared.accessToken == nil
-        if needLogin { return await OnboardingViewController() }
-        
-        let response = try await repository.getIsJoining()
-        if response.isJoining {
-            return await MainViewController()
-        } else {
-            return await StartViewController()
+    func getDestination(challengeGroupInfos: [ChallengeGroupInfo]) async throws -> BaseViewController {
+        if challengeGroupInfos.isEmpty { return await StartViewController() }
+        else {
+            let mainViewController = await MainViewController()
+            await mainViewController.viewModel.challengeGroupInfos = challengeGroupInfos
+            return mainViewController
         }
     }
 }

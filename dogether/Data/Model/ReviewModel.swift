@@ -10,7 +10,7 @@ import Foundation
 struct ReviewModel: Decodable {
     let id: Int
     let content: String
-    let mediaUrls: [String]
+    let mediaUrl: String
     let todoContent: String
     let doer: String
 }

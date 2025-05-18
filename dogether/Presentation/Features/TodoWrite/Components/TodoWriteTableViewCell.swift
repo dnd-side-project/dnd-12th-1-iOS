@@ -7,7 +7,12 @@
 
 import UIKit
 
-final class TodoWriteTableViewCell: UITableViewCell, ReusableProtocol {
+final class TodoWriteTableViewCell: BaseTableViewCell, ReusableProtocol {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    }
+    required init?(coder: NSCoder) { fatalError() }
+    
     private let tableViewCell = {
         let view = UIView()
         view.backgroundColor = .grey800
@@ -29,32 +34,19 @@ final class TodoWriteTableViewCell: UITableViewCell, ReusableProtocol {
         return button
     }()
     
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        setUI()
-    }
-    required init?(coder: NSCoder) { fatalError() }
-    
-    func setExtraInfo(text: String, index: Int, deleteAction: @escaping (Int) -> Void) {
-        todoLabel.text = text
-        deleteButton.tag = index
-        deleteButton.removeTarget(nil, action: nil, for: .touchUpInside)
-        deleteButton.addAction(
-            UIAction { [weak deleteButton] _ in
-                guard let deleteButton else { return }
-                deleteAction(deleteButton.tag)
-            }, for: .touchUpInside
-        )
-    }
-    
-    private func setUI() {
+    override func configureView() {
         selectionStyle = .none
         backgroundColor = .clear
         contentView.addSubview(tableViewCell)
-        
-        [todoLabel, deleteButton].forEach { tableViewCell.addSubview($0) }
+    }
     
+    override func configureAction() { }
+        
+    override func configureHierarchy() {
+        [todoLabel, deleteButton].forEach { tableViewCell.addSubview($0) }
+    }
+    
+    override func configureConstraints() {
         tableViewCell.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.verticalEdges.equalToSuperview().inset(6)
@@ -71,5 +63,19 @@ final class TodoWriteTableViewCell: UITableViewCell, ReusableProtocol {
             $0.trailing.equalToSuperview().offset(-16)
             $0.width.height.equalTo(20)
         }
+    }
+}
+
+extension TodoWriteTableViewCell {
+    func setExtraInfo(text: String, index: Int, deleteAction: @escaping (Int) -> Void) {
+        todoLabel.text = text
+        deleteButton.tag = index
+        deleteButton.removeTarget(nil, action: nil, for: .touchUpInside)
+        deleteButton.addAction(
+            UIAction { [weak deleteButton] _ in
+                guard let deleteButton else { return }
+                deleteAction(deleteButton.tag)
+            }, for: .touchUpInside
+        )
     }
 }

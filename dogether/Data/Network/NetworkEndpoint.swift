@@ -28,12 +28,16 @@ enum Path {
     static let auth = "/auth"
     static let groups = "/groups"
     static let todos = "/todos"
+    static let challengeGroups = "/challenge-groups"
+    static let todoHistory = "/todo-history"
     static let todoCertifications = "/todo-certifications"
     static let notification = "/notification"
     static let s3 = "/s3"
     
     static let summary = "/summary"
     static let tokens = "/tokens"
+    static let myActivity = "/my/activity"
+    static let myProfile = "/my/profile"
 }
 
 enum Header {

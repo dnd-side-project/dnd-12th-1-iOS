@@ -9,5 +9,5 @@ import Foundation
 
 struct CertifyTodoRequest: Encodable {
     let content: String
-    let mediaUrls: [String]
+    let mediaUrl: String
 }

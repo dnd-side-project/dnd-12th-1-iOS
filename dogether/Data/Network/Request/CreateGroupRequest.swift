@@ -8,17 +8,15 @@
 import Foundation
 
 struct CreateGroupRequest: Encodable {
-    let name: String
+    let groupName: String
     let maximumMemberCount: Int
     let startAt: String
-    let durationOption: Int
-    let maximumTodoCount: Int
+    let duration: Int
     
-    init(name: String, maximumMemberCount: Int, startAt: GroupStartAts, durationOption: GroupChallengeDurations, maximumTodoCount: Int) {
-        self.name = name
+    init(groupName: String, maximumMemberCount: Int, startAt: GroupStartAts, duration: GroupChallengeDurations) {
+        self.groupName = groupName
         self.maximumMemberCount = maximumMemberCount
         self.startAt = startAt.rawValue
-        self.durationOption = durationOption.rawValue
-        self.maximumTodoCount = maximumTodoCount
+        self.duration = duration.rawValue
     }
 }

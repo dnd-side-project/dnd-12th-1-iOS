@@ -8,23 +8,23 @@
 import UIKit
 
 enum CertificationMethods: Int {
-    case select
-    case shoot
+    case gallery
+    case camera
     
     var title: String {
         switch self {
-        case .select:
+        case .gallery:
             return "사진 선택"
-        case .shoot:
+        case .camera:
             return "사진 촬영"
         }
     }
     
     var image: UIImage {
         switch self {
-        case .select:
+        case .gallery:
             return .gallery
-        case .shoot:
+        case .camera:
             return .camera
         }
     }

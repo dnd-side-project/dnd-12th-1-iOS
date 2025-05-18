@@ -14,9 +14,9 @@ enum SheetStatus {
     var offset: CGFloat {
         switch self {
         case .expand:
-            return 16
+            return 112
         case .normal:
-            return 281
+            return 280
         }
     }
 }

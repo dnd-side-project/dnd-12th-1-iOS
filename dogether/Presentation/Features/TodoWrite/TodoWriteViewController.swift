@@ -8,7 +8,7 @@
 import UIKit
 
 final class TodoWriteViewController: BaseViewController {
-    private let viewModel = TodoWriteViewModel()
+    var viewModel = TodoWriteViewModel()
     
     private let navigationHeader = NavigationHeader(title: "투두 작성")
     
@@ -16,8 +16,14 @@ final class TodoWriteViewController: BaseViewController {
         let label = UILabel()
         label.attributedText = NSAttributedString(
             string: DateFormatterManager.formattedDate(format: .MdE),
-            attributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .left)
+            attributes: Fonts.getAttributes(for: Fonts.body1S, textAlignment: .left)
         )
+        label.textColor = .grey400
+        return label
+    }()
+    
+    private let todoLimitLabel = {
+       let label = UILabel()
         label.textColor = .grey0
         return label
     }()
@@ -26,18 +32,19 @@ final class TodoWriteViewController: BaseViewController {
         let textField = UITextField()
         textField.font = Fonts.body1S
         textField.tintColor = .blue300
+        textField.textColor = .grey0
         textField.returnKeyType = .done
         textField.borderStyle = .none
-        textField.backgroundColor = .grey800
+        textField.backgroundColor = .grey900
         textField.layer.cornerRadius = 12
-        textField.layer.borderWidth = 1
-        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.layer.borderWidth = 1.5
+        textField.layer.borderColor = UIColor.grey600.cgColor
         
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = leftPaddingView
         textField.leftViewMode = .always
         
-        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 92, height: textField.frame.height))
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: textField.frame.height))
         textField.rightView = rightPaddingView
         textField.rightViewMode = .always
         
@@ -46,19 +53,19 @@ final class TodoWriteViewController: BaseViewController {
     
     private let todoLimitTextCount = {
         let label = UILabel()
-        label.textColor = .grey300
+        label.textColor = .grey500
         label.font = Fonts.smallS
         return label
     }()
     
     private let addButton = {
         let button = UIButton()
-        button.backgroundColor = .grey700
+        button.backgroundColor = .blue300
         button.layer.cornerRadius = 8
         
         let imageView = UIImageView()
         imageView.image = .plus.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = .grey100
+        imageView.tintColor = .grey900
         imageView.isUserInteractionEnabled = false
         
         button.addSubview(imageView)
@@ -71,33 +78,10 @@ final class TodoWriteViewController: BaseViewController {
         return button
     }()
     
-    private let noticeView = {
-        let imageView = UIImageView(image: .notice)
-        
-        let label = UILabel()
-        label.text = "한 번 저장한 투두는 수정 및 삭제할 수 없어요"
-        label.textColor = .grey400
-        label.font = Fonts.body2S
-        
-        let stackView = UIStackView(arrangedSubviews: [imageView, label])
-        stackView.axis = .horizontal
-        stackView.spacing = 8
-        stackView.alignment = .center
-        stackView.layer.cornerRadius = 8
-        stackView.layer.borderWidth = 1
-        stackView.layer.borderColor = UIColor.grey600.cgColor
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
-        
-        imageView.snp.makeConstraints {
-            $0.width.height.equalTo(24)
-        }
-        
-        return stackView
-    }()
-    
     private let emptyListView = {
-        let imageView = UIImageView(image: .comment)
+//        let imageView = UIImageView(image: .emptyDusik)
+        let imageView = UIImageView(image: .embarrassedDosik)
+        imageView.contentMode = .scaleAspectFit
         
         let titleLabel = UILabel()
         titleLabel.attributedText = NSAttributedString(
@@ -117,12 +101,12 @@ final class TodoWriteViewController: BaseViewController {
         stackView.axis = .vertical
         stackView.alignment = .center
         
-        stackView.setCustomSpacing(15, after: imageView)
-        stackView.setCustomSpacing(4, after: titleLabel)
+        stackView.setCustomSpacing(17, after: imageView)
+        stackView.setCustomSpacing(0, after: titleLabel)
         
         imageView.snp.makeConstraints {
-            $0.width.equalTo(74)
-            $0.height.equalTo(54)
+            $0.width.equalTo(129)
+            $0.height.equalTo(148)
         }
         
         return stackView
@@ -138,25 +122,26 @@ final class TodoWriteViewController: BaseViewController {
     }()
     
     private let saveButton = DogetherButton(title: "투두 저장", status: .disabled)
-    
-    // MARK: about keyboardOserver
-    deinit { NotificationCenter.default.removeObserver(self) }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
+
+    override func viewDidAppear(_ animated: Bool) {
         todoTextField.becomeFirstResponder()
-        setupKeyboardHandling()
     }
     
     override func configureView() {
         updateView()
         
-        todoTextField.delegate = self
         todoTextField.attributedPlaceholder = NSAttributedString(
-            string: "투두를 입력해주세요 (최대 \(viewModel.maximumTodoCount)개)",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.grey300]
+            string: "예) 30분 걷기, 책 20페이지 읽기",
+            attributes: [NSAttributedString.Key.foregroundColor: UIColor.grey500]
         )
+    }
+    
+    override func configureAction() {
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)))
+        
+        navigationHeader.delegate = self
+        
+        todoTextField.delegate = self
         todoTextField.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
@@ -181,10 +166,12 @@ final class TodoWriteViewController: BaseViewController {
         saveButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                Task {
-                    try await self.viewModel.createTodos()
-                    await MainActor.run {
-                        self.coordinator?.popViewController()
+                coordinator?.showPopup(self, type: .alert, alertType: .saveTodo) { _ in
+                    Task {
+                        try await self.viewModel.createTodos()
+                        await MainActor.run {
+                            self.coordinator?.popViewController()
+                        }
                     }
                 }
             }, for: .touchUpInside
@@ -196,54 +183,54 @@ final class TodoWriteViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
-        [ navigationHeader, dateLabel,
+        [ navigationHeader, dateLabel, todoLimitLabel,
           todoTextField, todoLimitTextCount, addButton,
-          noticeView, emptyListView, todoTableView, saveButton
+          emptyListView, todoTableView, saveButton
         ].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
         navigationHeader.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(28)
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
         }
         
         dateLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationHeader.snp.bottom).offset(22)
+            $0.top.equalTo(navigationHeader.snp.bottom).offset(12)
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        todoLimitLabel.snp.makeConstraints {
+            $0.top.equalTo(dateLabel.snp.bottom)
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
         todoTextField.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom).offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(16)
+            $0.top.equalTo(todoLimitLabel.snp.bottom).offset(20)
+            $0.leading.equalToSuperview().offset(16)
+            $0.trailing.equalToSuperview().inset(72)
             $0.height.equalTo(50)
         }
         
         todoLimitTextCount.snp.makeConstraints {
             $0.centerY.equalTo(todoTextField)
-            $0.trailing.equalTo(addButton.snp.leading).offset(-5)
+            $0.trailing.equalTo(todoTextField.snp.trailing).inset(8)
         }
         
         addButton.snp.makeConstraints {
             $0.centerY.equalTo(todoTextField)
-            $0.trailing.equalTo(todoTextField.snp.trailing).offset(-8)
-            $0.width.height.equalTo(40)
-        }
-        
-        noticeView.snp.makeConstraints {
-            $0.top.equalTo(todoTextField.snp.bottom).offset(12)
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(40)
+            $0.leading.equalTo(todoTextField.snp.trailing).offset(8)
+            $0.trailing.equalToSuperview().inset(16)
+            $0.width.height.equalTo(48)
         }
         
         emptyListView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
-            $0.top.equalTo(noticeView.snp.bottom).offset(94)
+            $0.top.equalTo(todoTextField.snp.bottom).offset(101)
         }
         
         todoTableView.snp.makeConstraints {
-            $0.top.equalTo(noticeView.snp.bottom).offset(22)
+            $0.top.equalTo(todoTextField.snp.bottom).offset(22)
             $0.bottom.equalTo(saveButton.snp.top).offset(-10)
             $0.left.right.equalToSuperview()
         }
@@ -258,6 +245,7 @@ final class TodoWriteViewController: BaseViewController {
 extension TodoWriteViewController {
     private func updateView() {
         updateTextField()
+        updateTodoLimitLabel()
         
         emptyListView.isHidden = !viewModel.todos.isEmpty
         todoTableView.isHidden = viewModel.todos.isEmpty
@@ -269,6 +257,27 @@ extension TodoWriteViewController {
     private func updateTextField() {
         todoTextField.text = viewModel.todo
         todoLimitTextCount.text = "\(viewModel.todo.count)/\(viewModel.todoMaxLength)"
+    }
+    
+    private func updateTodoLimitLabel() {
+        let current = "\(viewModel.todos.count)"
+        let maximum = "/\(viewModel.maximumTodoCount)"
+        let fullText = "추가 가능 투두 \(current)\(maximum)"
+    
+        let baseAttributes = Fonts.getAttributes(for: Fonts.head1B, textAlignment: .left)
+        let attributedText = NSMutableAttributedString(string: fullText, attributes: baseAttributes)
+
+        if let currentRange = fullText.range(of: current) {
+            let nsRange = NSRange(currentRange, in: fullText)
+            attributedText.addAttribute(.foregroundColor, value: UIColor.blue300, range: nsRange)
+        }
+
+        if let maximumRange = fullText.range(of: maximum) {
+            let nsRange = NSRange(maximumRange, in: fullText)
+            attributedText.addAttribute(.foregroundColor, value: UIColor.grey600, range: nsRange)
+        }
+
+        todoLimitLabel.attributedText = attributedText
     }
 }
 
@@ -295,36 +304,24 @@ extension TodoWriteViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-// MARK: - abount keyboard
+// MARK: - abount keyboard (UITextFieldDelegate)
 extension TodoWriteViewController: UITextFieldDelegate {
-    private func setupKeyboardHandling() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)))
-    }
-    
-    // MARK: - UITextFieldDelegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        if viewModel.addTodo() {
+               todoTableView.reloadData()
+               viewModel.updateTodo(todo: "")
+               updateTextField()
+               updateView()
+           }
         return true
     }
     
-    @objc private func keyboardWillShow(_ notification: NSNotification) {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         todoTextField.layer.borderColor = UIColor.blue300.cgColor
     }
     
-    @objc private func keyboardWillHide(_ notification: NSNotification) {
-        todoTextField.layer.borderColor = UIColor.clear.cgColor
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        todoTextField.layer.borderColor = UIColor.grey600.cgColor
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }

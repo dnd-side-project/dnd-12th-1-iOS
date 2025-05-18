@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class StartAtButton: UIButton {
+final class StartAtButton: BaseButton {
     private(set) var startAt: GroupStartAts
     private(set) var isColorful: Bool
     
@@ -16,9 +16,7 @@ final class StartAtButton: UIButton {
         self.isColorful = isColorful
         
         super.init(frame: .zero)
-        setUI()
     }
-    
     required init?(coder: NSCoder) { fatalError() }
     
     private let icon = UIImageView()
@@ -27,17 +25,7 @@ final class StartAtButton: UIButton {
     
     private let descriptionLabel = UILabel()
     
-    private func updateUI() {
-        layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
-        
-        icon.tintColor = isColorful ? .blue300 : .grey0
-        
-        label.textColor = isColorful ? .blue300 : .grey0
-        
-        descriptionLabel.textColor = isColorful ? .blue300 : .grey0
-    }
-    
-    private func setUI() {
+    override func configureView() {
         updateUI()
         
         backgroundColor = .grey800
@@ -54,9 +42,15 @@ final class StartAtButton: UIButton {
             attributes: Fonts.getAttributes(for: Fonts.body2R, textAlignment: .left)
         )
         descriptionLabel.numberOfLines = 0
+    }
+    
+    override func configureAction() { }
         
+    override func configureHierarchy() {
         [icon, label, descriptionLabel].forEach { addSubview($0) }
-        
+    }
+     
+    override func configureConstraints() {
         icon.snp.makeConstraints {
             $0.top.equalToSuperview().offset(26)
             $0.left.equalToSuperview().inset(20)
@@ -74,6 +68,16 @@ final class StartAtButton: UIButton {
             $0.bottom.equalToSuperview().inset(27)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }
+    }
+    
+    private func updateUI() {
+        layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
+        
+        icon.tintColor = isColorful ? .blue300 : .grey0
+        
+        label.textColor = isColorful ? .blue300 : .grey0
+        
+        descriptionLabel.textColor = isColorful ? .blue300 : .grey0
     }
     
     func setColorful(isColorful: Bool) {

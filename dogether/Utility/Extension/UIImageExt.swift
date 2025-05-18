@@ -21,4 +21,20 @@ extension UIImage {
         guard let data = resizedImage?.jpegData(compressionQuality: compressionQuality) else { return nil }
         return UIImage(data: data)
     }
+    
+    func imageWithPadding(insets: UIEdgeInsets, backgroundColor: UIColor = .clear) -> UIImage {
+        let newSize = CGSize(width: self.size.width + insets.left + insets.right,
+                             height: self.size.height + insets.top + insets.bottom)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, self.scale)
+        backgroundColor.setFill()
+        UIRectFill(CGRect(origin: .zero, size: newSize))
+
+        let origin = CGPoint(x: insets.left, y: insets.top)
+        self.draw(at: origin)
+        let paddedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return paddedImage ?? self
+    }
 }

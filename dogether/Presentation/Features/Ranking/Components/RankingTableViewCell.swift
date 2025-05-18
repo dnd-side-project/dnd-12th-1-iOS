@@ -7,86 +7,35 @@
 
 import UIKit
 
-final class RankingTableViewCell: UITableViewCell, ReusableProtocol {
-    private let tableViewCell = UIView()
-    
-    private let rankingLabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.body2S
-        return label
-    }()
-    
-    private let profileImageView = UIImageView(image: .profile4)
-    
-    private let nameLabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.body1S
-        return label
-    }()
-    
-    private let certificationImageView = UIImageView(image: .certification)
-    
-    private let certificationLabel = {
-        let label = UILabel()
-        label.textColor = .blue300
-        label.font = Fonts.body2S
-        return label
-    }()
-    
+final class RankingTableViewCell: BaseTableViewCell, ReusableProtocol {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        setUI()
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    func setExtraInfo(ranking: RankingModel) {
-        rankingLabel.text = String(ranking.rank)
-        nameLabel.text = ranking.name
-        certificationLabel.text = "\(Int(ranking.certificationRate))%"
-    }
+    private let tableViewCell = RankingView()
     
-    private func setUI() {
+    override func configureView() {
         selectionStyle = .none
         backgroundColor = .clear
+    }
+     
+    override func configureAction() { }
+    
+    override func configureHierarchy() {
         contentView.addSubview(tableViewCell)
-        
-        [rankingLabel, profileImageView, nameLabel, certificationImageView, certificationLabel].forEach { tableViewCell.addSubview($0) }
-        
+    }
+     
+    override func configureConstraints() {
         tableViewCell.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(32)
+            $0.horizontalEdges.equalToSuperview().inset(20)
             $0.verticalEdges.equalToSuperview().inset(10)
-            $0.height.equalTo(40)
         }
-        
-        rankingLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.left.equalToSuperview()
-        }
-        
-        profileImageView.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.left.equalTo(rankingLabel.snp.right).offset(20)
-            $0.width.height.equalTo(40)
-        }
-        
-        nameLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.left.equalTo(profileImageView.snp.right).offset(12)
-        }
-        
-        certificationImageView.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.right.equalTo(certificationLabel.snp.left).offset(-4)
-            $0.width.height.equalTo(24)
-        }
-        
-        certificationLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.right.equalToSuperview()
-            $0.width.equalTo(31)
-        }
+    }
+}
+
+extension RankingTableViewCell {
+    func setExtraInfo(ranking: RankingModel) {
+        tableViewCell.setExtraInfo(ranking: ranking)
     }
 }

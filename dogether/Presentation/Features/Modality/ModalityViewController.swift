@@ -12,13 +12,7 @@ final class ModalityViewController: BaseViewController {
     var viewModel = ModalityViewModel()
     
     // TODO: 현재는 TodoExamination 단일 종류만 존재하지만 추후 확장
-    private let backgroundView = {
-        let view = UIView()
-        view.backgroundColor = .grey900.withAlphaComponent(0.8)
-        return view
-    }()
-    
-    private let titlaLabel = {
+    private let titleLabel = {
         let label = UILabel()
         label.text = "투두를 검사해주세요!"
         label.textColor = .grey0
@@ -26,7 +20,7 @@ final class ModalityViewController: BaseViewController {
         return label
     }()
     
-    private var todoExaminationModalityView = UIView()
+    private let todoExaminationModalityView = ExaminationModalityView()
     
     private var closeButton = DogetherButton(title: "보내기", status: .disabled)
     
@@ -35,38 +29,68 @@ final class ModalityViewController: BaseViewController {
     }
     
     override func configureView() {
-        closeButton.addTarget(self, action: #selector(didTapCloseButton), for: .touchUpInside)
-        todoExaminationModalityView = ExaminationModalityView(buttonAction: { type in
-            switch type {
-            case .reject:
-                self.viewModel.setResult(.reject)
-                self.viewModel.setRejectReason()
-                self.closeButton.setButtonStatus(status: .disabled)
-                self.coordinator?.showPopup(self, type: .rejectReason, rejectPopupCompletion: {
-                    self.viewModel.setRejectReason($0)
-                    self.closeButton.setButtonStatus(status: .enabled)
-                })
-                
-            case .approve:
-                self.viewModel.setResult(.approve)
-                self.closeButton.setButtonStatus(status: .enabled)
-                
-            default:
-                return
-            }
-        }, review: viewModel.reviews[viewModel.current])
+        view.backgroundColor = .grey900
+        
+        updateView()
+    }
+    
+    override func configureAction() {
+        [todoExaminationModalityView.rejectButton, todoExaminationModalityView.approveButton].forEach { button in
+            button.addAction(
+                UIAction { [weak self, weak button] _ in
+                    guard let self, let button, let type = FilterTypes.allCases.first(where: { $0.tag == button.tag }) else { return }
+                    todoExaminationModalityView.updateButtonBackgroundColor(type: type)
+                    
+                    switch type {
+                    case .reject:
+                        viewModel.setResult(.reject)
+                        viewModel.setRejectReason()
+                        closeButton.setButtonStatus(status: .disabled)
+                        coordinator?.showPopup(self, type: .rejectReason) { rejectReason in
+                            guard let rejectReason = rejectReason as? String else { return }
+                            self.viewModel.setRejectReason(rejectReason)
+                            self.closeButton.setButtonStatus(status: .enabled)
+                        }
+                        
+                    case .approve:
+                        viewModel.setResult(.approve)
+                        closeButton.setButtonStatus(status: .enabled)
+                        
+                    default:
+                        return
+                    }
+                }, for: .touchUpInside
+            )
+        }
+        
+        closeButton.addAction(
+            UIAction { [weak self] _ in
+                guard let self else { return }
+                Task {
+                    try await self.viewModel.reviewTodo()
+                    await MainActor.run {
+                        self.viewModel.setCurrent(self.viewModel.current + 1)
+                        if self.viewModel.reviews.count == self.viewModel.current {
+                            self.coordinator?.hideModal()
+                        } else {
+                            self.viewModel.setResult()
+                            self.viewModel.setRejectReason()
+                            self.todoExaminationModalityView.updateButtonBackgroundColor(type: .all)
+                            self.closeButton.setButtonStatus(status: .disabled)
+                            self.updateView()
+                        }
+                    }
+                }
+            }, for: .touchUpInside
+        )
     }
     
     override func configureHierarchy() {
-        [backgroundView, titlaLabel, todoExaminationModalityView, closeButton].forEach { view.addSubview($0) }
+        [titleLabel, todoExaminationModalityView, closeButton].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
-        backgroundView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        titlaLabel.snp.makeConstraints {
+        titleLabel.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(48)
             $0.height.equalTo(36)
@@ -74,27 +98,17 @@ final class ModalityViewController: BaseViewController {
         
         todoExaminationModalityView.snp.makeConstraints {
             $0.center.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview()
         }
         
         closeButton.snp.makeConstraints {
-            $0.bottom.equalToSuperview().inset(48)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(50)
         }
     }
     
-    @objc private func didTapCloseButton() {
-        Task { @MainActor in
-            try await viewModel.reviewTodo()
-            // TODO: 검사 할 투두가 여러개일 때 다음 투두로 넘어가는 기능은 추후 구현
-//            viewModel.setCurrent(viewModel.current + 1)
-//            if viewModel.reviews.count == viewModel.current {
-                ModalityManager.shared.dismiss()
-//            } else {
-//                viewModel.setResult()
-//                viewModel.setRejectReason()
-//                configureView() // TODO: 추후 확인
-//            }
-        }
+    func updateView() {
+        todoExaminationModalityView.setReview(review: viewModel.reviews[viewModel.current])
     }
 }

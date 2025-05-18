@@ -11,11 +11,7 @@ import SnapKit
 final class CompleteViewController: BaseViewController {
     var viewModel = CompleteViewModel()
     
-    private let firecrackerImageView = {
-        let imageView = UIImageView()
-        imageView.image = .firecracker
-        return imageView
-    }()
+    private let firecrackerImageView = UIImageView(image: .firecracker)
     
     private let titleLabel = {
         let label = UILabel()
@@ -38,21 +34,24 @@ final class CompleteViewController: BaseViewController {
         label.text = joinCode
         label.textColor = .grey0
         label.font = Fonts.head1B
-        label.isUserInteractionEnabled = false
         
         let imageView = UIImageView()
         imageView.image = .share.withRenderingMode(.alwaysTemplate)
         imageView.tintColor = .grey400
-        imageView.isUserInteractionEnabled = false
         
         let stackView = UIStackView(arrangedSubviews: [label, imageView])
         stackView.axis = .horizontal
         stackView.spacing = 8
+        stackView.isUserInteractionEnabled = false
         
         [stackView].forEach { button.addSubview($0) }
         
         stackView.snp.makeConstraints {
             $0.center.equalToSuperview()
+        }
+        
+        label.snp.makeConstraints {
+            $0.height.equalTo(36)
         }
         
         imageView.snp.makeConstraints {
@@ -92,6 +91,21 @@ final class CompleteViewController: BaseViewController {
             attributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .center)
         )
         
+        switch viewModel.groupType {
+        case .join:
+            groupInfoView = DogetherGroupInfo(
+                groupName: viewModel.groupInfo.name,
+                memberCount: viewModel.groupInfo.maximumMember,
+                duration: viewModel.groupInfo.duration,
+                startAtString: viewModel.groupInfo.startDate,
+                endAtString: viewModel.groupInfo.endDate
+            )
+        case .create:
+            joinCodeShareButton = joinCodeShareButton(joinCode: viewModel.joinCode)
+        }
+    }
+    
+    override func configureAction() {
         completeButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
@@ -99,18 +113,7 @@ final class CompleteViewController: BaseViewController {
             }, for: .touchUpInside
         )
         
-        switch viewModel.groupType {
-        case .join:
-            // FIXME: API 수정 후 내용 반영
-            groupInfoView = DogetherGroupInfo(
-                groupName: viewModel.groupInfo.name,
-                memberCount: 10,
-                duration: GroupChallengeDurations(rawValue: viewModel.groupInfo.duration) ?? .threeDays,
-                startAtString: "2025-01-01",
-                endAtString: viewModel.groupInfo.endAt
-            )
-        case .create:
-            joinCodeShareButton = joinCodeShareButton(joinCode: viewModel.joinCode)
+        if viewModel.groupType == .create {
             joinCodeShareButton.addAction(
                 UIAction { [weak self] _ in
                     guard let self else { return }

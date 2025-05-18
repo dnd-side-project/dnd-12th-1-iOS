@@ -7,8 +7,9 @@
 
 import Foundation
 
-enum MainViewStatus: Int {
-    case beforeStart
-    case emptyList
-    case todoList
+enum MainViewStatus: String {
+    case ready = "READY"
+    case running = "RUNNING"
+    case dDay = "D_DAY"
+    case finished = "FINISHED"
 }

@@ -12,15 +12,27 @@ import FirebaseCore
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
         // Override point for customization after application launch.
         
         // MARK: - about PushNotice
+        UNUserNotificationCenter.current().delegate = PushNoticeManager.shared
         FirebaseApp.configure()
-        _ = PushNoticeManager.shared
         application.registerForRemoteNotifications()
         
         return true
+    }
+    
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        PushNoticeManager.shared.handleNotification(userInfo: userInfo)
+        completionHandler(.newData)
     }
 
     // MARK: UISceneSession Lifecycle
