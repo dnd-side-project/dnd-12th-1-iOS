@@ -18,11 +18,8 @@ final class MyPageViewModel {
 }
 
 extension MyPageViewModel {
-    func getMyProfile(getMyProfile: @escaping () -> Void) {
-        Task {
-            let response = try await myProfileUseCase.getMyProfile()
-            self.myProfile = response
-            await MainActor.run { getMyProfile() }
-        }
+    func getMyProfile() async throws {
+        let response = try await myProfileUseCase.getMyProfile()
+        self.myProfile = response
     }
 }

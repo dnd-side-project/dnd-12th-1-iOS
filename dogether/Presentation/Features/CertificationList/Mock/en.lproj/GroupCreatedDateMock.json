@@ -15,7 +15,7 @@
           "status": "REJECT",
           "certificationContent": "운동 개조짐 ㅋㅋㅋㅋ",
           "certificationMediaUrl": "운동 조지는 짤.png",
-          "rejectReason": "에이 이건 운동 아니지"
+          "reviewFeedback": "에이 이건 운동 아니지"
         }
       ]
     },
@@ -29,7 +29,7 @@
           "status": "APPROVE",
           "certificationContent": "인강 진짜 열심히 들었습니다. ㅎ",
           "certificationMediaUrl": "인강 달리는 짤.png",
-          "rejectReason": "우리 오늘 인강 듣는날 아닌데?"
+          "reviewFeedback": "우리 오늘 인강 듣는날 아닌데?"
         }
       ]
     },
@@ -43,7 +43,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "오늘 6시에 기상 성공!",
           "certificationMediaUrl": "알람 끄는 짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 4,
@@ -51,7 +51,7 @@
           "status": "REJECT",
           "certificationContent": "커피 마심 ㅎㅎ",
           "certificationMediaUrl": "커피짤.png",
-          "rejectReason": "물 안 마셨잖아요!"
+          "reviewFeedback": "물 안 마셨잖아요!"
         }
       ]
     },
@@ -65,7 +65,7 @@
           "status": "APPROVE",
           "certificationContent": "나만의 속도로 꾸준히 읽었어요.",
           "certificationMediaUrl": "책 읽는 사진.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 6,
@@ -73,7 +73,7 @@
           "status": "REJECT",
           "certificationContent": "귀찮아서 못 씀",
           "certificationMediaUrl": "손 흔드는 짤.png",
-          "rejectReason": "리뷰를 안 쓰셨어요."
+          "reviewFeedback": "리뷰를 안 쓰셨어요."
         }
       ]
     },
@@ -87,7 +87,7 @@
           "status": "APPROVE",
           "certificationContent": "귀리랑 샐러드 먹음!",
           "certificationMediaUrl": "샐러드사진.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 8,
@@ -95,7 +95,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "물병 두 개 비움!",
           "certificationMediaUrl": "물병 두 개.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 9,
@@ -103,7 +103,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "진짜 간식 안 먹었어요..",
           "certificationMediaUrl": "텅빈책상.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     }

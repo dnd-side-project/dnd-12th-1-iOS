@@ -9,7 +9,8 @@ import UIKit
 
 final class GroupManagementViewController: BaseViewController {
     private let viewModel = GroupManagementViewModel()
-    private let navigationHeader = NavigationHeader(title: "그룹 탈퇴")
+    private let navigationHeader = NavigationHeader(title: "그룹 관리")
+    private let emptyView = GroupEmptyView()
     private let groupTableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .clear
@@ -29,15 +30,22 @@ final class GroupManagementViewController: BaseViewController {
         
         viewModel.fetchMyGroup { [weak self] in
             self?.groupTableView.reloadData()
+            self?.updateEmptyViewVisibility()
         }
     }
     
     override func configureAction() {
         navigationHeader.delegate = self
+        
+        emptyView.createButtonTapHandler = { [weak self] in
+            guard let self else { return }
+            coordinator?.pushViewController(GroupCreateViewController())
+        }
     }
     
     override func configureHierarchy() {
         [navigationHeader, groupTableView].forEach { view.addSubview($0) }
+        view.addSubview(emptyView)
     }
     
     override func configureConstraints() {
@@ -50,6 +58,11 @@ final class GroupManagementViewController: BaseViewController {
             $0.top.equalTo(navigationHeader.snp.bottom).offset(4)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.bottom.equalToSuperview()
+        }
+        
+        emptyView.snp.makeConstraints {
+            $0.top.equalTo(navigationHeader.snp.bottom)
+            $0.left.right.bottom.equalToSuperview()
         }
     }
 }
@@ -73,17 +86,19 @@ extension GroupManagementViewController: UITableViewDataSource, UITableViewDeleg
                     await MainActor.run {
                         self.viewModel.fetchMyGroup { [weak self] in
                             guard let self else { return }
-                            self.groupTableView.reloadData()
-                            
-                            // 그룹이 비어 있으면 StartViewController로 이동
-                            if self.viewModel.groups.isEmpty {
-                                self.coordinator?.setNavigationController(StartViewController())
-                            }
+                            groupTableView.reloadData()
+                            updateEmptyViewVisibility()
                         }
                     }
                 }
             }
         }
         return cell
+    }
+}
+
+extension GroupManagementViewController {
+    private func updateEmptyViewVisibility() {
+        emptyView.isHidden = viewModel.viewStatus == .hasData
     }
 }

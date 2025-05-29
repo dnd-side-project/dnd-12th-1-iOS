@@ -55,7 +55,7 @@ final class RankingImageView: BaseView {
     private let gradientLayer = CAGradientLayer()
     private let shapeLayer = CAShapeLayer()
     
-    private let imageView = UIImageView(image: .logo)
+    private let imageView = UIImageView(image: .profile)
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -102,8 +102,8 @@ final class RankingImageView: BaseView {
         }
     }
     
-    func setImage(image: UIImage?) {
-        imageView.image = image
+    func loadImage(url: String?) {
+        imageView.loadImage(url: url)
     }
     
     func setReadStatus(readStatus: HistoryReadStatus?) {

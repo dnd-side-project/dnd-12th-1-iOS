@@ -8,11 +8,29 @@
 import UIKit
 import SnapKit
 
-final class ExaminationModalityView: BasePopupView {
-    init() {
-        super.init(frame: .zero)
-    }
+final class ExaminationModalityView: BaseView {
+    init() { super.init(frame: .zero) }
     required init?(coder: NSCoder) { fatalError() }
+    
+    private let scrollView = UIScrollView()
+    
+    var closeButton = DogetherButton(title: "보내기", status: .disabled)
+    
+    private let contentStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.alignment = .fill
+        return stackView
+    }()
+    
+    private let titleLabel = {
+        let label = UILabel()
+        label.text = "투두를 검사해주세요!"
+        label.textColor = .grey0
+        label.font = Fonts.head1B
+        label.textAlignment = .center
+        return label
+    }()
     
     private var imageView = CertificationImageView(image: .logo)
     
@@ -57,47 +75,63 @@ final class ExaminationModalityView: BasePopupView {
     var rejectButton = UIButton()
     var approveButton = UIButton()
     
-    private func examinationStackView(buttons: [UIButton]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: buttons)
+    private var examinationStackView = {
+        let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 11
         stackView.distribution = .fillEqually
         return stackView
-    }
-    private var examinationStackView = UIStackView()
+    }()
+    
+    private let reviewFeedbackView = ReviewFeedbackView()
     
     override func configureView() {
-        backgroundColor = .grey800
-        layer.cornerRadius = 12
-        
         rejectButton = examinationButton(type: .reject)
         approveButton = examinationButton(type: .approve)
-        examinationStackView = examinationStackView(buttons: [rejectButton, approveButton])
+        
+        [rejectButton, approveButton].forEach { examinationStackView.addArrangedSubview($0) }
+        
+        [titleLabel, imageView, contentLabel, examinationStackView].forEach { contentStackView.addArrangedSubview($0) }
+        contentStackView.setCustomSpacing(60, after: titleLabel)
+        contentStackView.setCustomSpacing(16, after: imageView)
+        contentStackView.setCustomSpacing(16, after: contentLabel)
     }
     
     override func configureAction() { }
     
     override func configureHierarchy() {
-        [imageView, contentLabel, examinationStackView].forEach { addSubview($0) }
+        [scrollView, closeButton].forEach { addSubview($0) }
+        [contentStackView].forEach { scrollView.addSubview($0) }
     }
     
     override func configureConstraints() {
-        imageView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(24)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.width.height.equalTo(imageView.snp.width)
+        scrollView.snp.makeConstraints {
+            $0.top.equalToSuperview()
+            $0.bottom.equalToSuperview().inset(50 + 16 + 16)
+            $0.horizontalEdges.equalToSuperview()
         }
         
-        contentLabel.snp.makeConstraints {
-            $0.top.equalTo(imageView.snp.bottom).offset(16)
-            $0.horizontalEdges.equalToSuperview().inset(20)
-            $0.height.equalTo(56)
+        closeButton.snp.makeConstraints {
+            $0.bottom.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        contentStackView.snp.makeConstraints {
+            $0.top.equalToSuperview().inset(44)
+            $0.bottom.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+        
+        titleLabel.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(36)
+        }
+        
+        imageView.snp.makeConstraints {
+            $0.width.height.equalTo(scrollView.snp.width).offset(-32)
         }
         
         examinationStackView.snp.makeConstraints {
-            $0.top.equalTo(contentLabel.snp.bottom).offset(16)
-            $0.bottom.equalToSuperview().inset(24)
-            $0.horizontalEdges.equalToSuperview().inset(20)
+            $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(48)
         }
     }
@@ -106,13 +140,9 @@ final class ExaminationModalityView: BasePopupView {
 extension ExaminationModalityView {
     func setReview(review: ReviewModel) {
         imageView.image = .logo
+        imageView.loadImage(url: review.mediaUrl)
         imageView.updateCertificator(certificator: review.doer)
         imageView.updateCertificationContent(certificationContent: review.content)
-        
-        Task { [weak self] in
-            guard let self else { return }
-            try await imageView.loadImage(url: review.mediaUrl)
-        }
         
         contentLabel.attributedText = NSAttributedString(
             string: review.todoContent,
@@ -123,5 +153,25 @@ extension ExaminationModalityView {
     func updateButtonBackgroundColor(type: FilterTypes) {
         rejectButton.backgroundColor = type == .reject ? .dogetherRed : .grey0
         approveButton.backgroundColor = type == .approve ? .blue300 : .grey0
+    }
+    
+    func addFeedback(feedback: String) {
+        reviewFeedbackView.updateFeedback(feedback: feedback)
+        reviewFeedbackView.isHidden = false
+        
+        contentStackView.addArrangedSubview(reviewFeedbackView)
+        contentStackView.setCustomSpacing(16, after: examinationStackView)
+        
+        reviewFeedbackView.snp.makeConstraints {
+            $0.horizontalEdges.equalToSuperview()
+        }
+    }
+    
+    func removeFeedback() {
+        reviewFeedbackView.isHidden = true
+        
+        contentStackView.removeArrangedSubview(reviewFeedbackView)
+            
+        reviewFeedbackView.snp.removeConstraints()
     }
 }

@@ -10,7 +10,7 @@ import UIKit
 final class StatsViewController: BaseViewController {
     var viewModel = StatsViewModel()
     private let navigationHeader = NavigationHeader(title: "통계")
-    private let statsEmptyView = StatsEmptyView()
+    private let statsEmptyView = GroupEmptyView()
     private var statsContentView: StatsContentView?
     
     private var bottomSheetViewController: BottomSheetViewController?
@@ -83,10 +83,8 @@ extension StatsViewController {
         
         bottomSheetViewController?.didSelectOption = { [weak self] selectedItem in
             guard let self,
-                  let selectedGroup = selectedItem.value as? GroupSortOption else {
-                return
-            }
-            self.viewModel.fetchStatsForSelectedGroup(selectedGroup)
+                  let selectedGroup = selectedItem.value as? GroupSortOption else { return }
+            viewModel.fetchStatsForSelectedGroup(selectedGroup)
         }
     }
 }

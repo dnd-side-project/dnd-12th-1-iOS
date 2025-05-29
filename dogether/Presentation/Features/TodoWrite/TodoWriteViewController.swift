@@ -79,7 +79,6 @@ final class TodoWriteViewController: BaseViewController {
     }()
     
     private let emptyListView = {
-//        let imageView = UIImageView(image: .emptyDusik)
         let imageView = UIImageView(image: .embarrassedDosik)
         imageView.contentMode = .scaleAspectFit
         

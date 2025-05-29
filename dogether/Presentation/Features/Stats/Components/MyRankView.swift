@@ -11,7 +11,7 @@ import SnapKit
 final class MyRankView: BaseView {
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "chart2")
+        imageView.image = .chart.withRenderingMode(.alwaysTemplate)
         imageView.tintColor = .grey0
         imageView.contentMode = .scaleAspectFit
         return imageView

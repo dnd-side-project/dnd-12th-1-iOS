@@ -12,13 +12,8 @@ enum SortType: String {
     case groupCreatedAt = "GROUP_CREATED_AT"
 }
 
-enum StatusType: String {
-    case approve = "APPROVE"
-    case reject = "REJECT"
-}
-
 enum CertificationListRouter: NetworkEndpoint {
-    case getMyActivity(sort: SortType, status: StatusType)
+    case getMyActivity(sort: SortType)
 
     var path: String {
         return Path.api + Path.myActivity
@@ -30,10 +25,9 @@ enum CertificationListRouter: NetworkEndpoint {
 
     var parameters: [URLQueryItem]? {
         switch self {
-        case .getMyActivity(let sort, let status):
+        case .getMyActivity(let sort):
             return [
-                URLQueryItem(name: "sort", value: sort.rawValue),
-                URLQueryItem(name: "status", value: status.rawValue)
+                URLQueryItem(name: "sort", value: sort.rawValue)
             ]
         }
     }
@@ -41,7 +35,7 @@ enum CertificationListRouter: NetworkEndpoint {
     var header: [String: String]? {
         return [
             Header.Key.contentType: Header.Value.applicationJson,
-            Header.Key.authorization: Header.Value.bearer + Header.Value.accessToken
+            Header.Key.authorization: Header.Value.bearer + (UserDefaultsManager.shared.accessToken ?? "")
         ]
     }
 

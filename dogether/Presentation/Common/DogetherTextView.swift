@@ -114,13 +114,13 @@ extension DogetherTextView {
 extension DogetherTextView {
     enum TextViewTypes {
         case certification
-        case rejectReason
+        case reviewFeedback
         
         var placeHolder: String {
             switch self {
             case .certification:
                 return "팀원이 이해하기 쉽도록 인증에 대한 설명을 입력하세요."
-            case .rejectReason:
+            case .reviewFeedback:
                 return "노인정에 대한 피드백이 필요해요.\n어떤 부분이 부족한지 정확하게 적어주세요!"
             }
         }
@@ -129,7 +129,7 @@ extension DogetherTextView {
             switch self {
             case .certification:
                 return 40
-            case .rejectReason:
+            case .reviewFeedback:
                 return 60
             }
         }
@@ -138,7 +138,7 @@ extension DogetherTextView {
             switch self {
             case .certification:
                 return 75
-            case .rejectReason:
+            case .reviewFeedback:
                 return 130
             }
         }

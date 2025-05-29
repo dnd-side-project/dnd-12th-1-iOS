@@ -36,7 +36,7 @@ extension CertificationListRepository {
                     status: info.status,
                     certificationContent: info.certificationContent,
                     certificationMediaUrl: info.certificationMediaUrl,
-                    rejectReason: info.rejectReason,
+                    reviewFeedback: info.reviewFeedback,
                     createdAt: daily.createdAt
                 )
             }
@@ -72,7 +72,7 @@ extension CertificationListRepository {
                     status: info.status,
                     certificationContent: info.certificationContent,
                     certificationMediaUrl: info.certificationMediaUrl,
-                    rejectReason: info.rejectReason,
+                    reviewFeedback: info.reviewFeedback,
                     createdAt: "" // 그룹은 날짜 미사용
                 )
             }

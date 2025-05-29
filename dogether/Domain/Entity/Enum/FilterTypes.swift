@@ -75,6 +75,17 @@ enum FilterTypes: String, CaseIterable {
             return ""
         }
     }
+    
+    var reviewResult: ReviewResults? {
+        switch self {
+        case .reject:
+            return .reject
+        case .approve:
+            return .approve
+        default:
+            return nil
+        }
+    }
 }
 
 extension FilterTypes {

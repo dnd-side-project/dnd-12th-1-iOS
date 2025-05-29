@@ -16,7 +16,7 @@ struct CertificationInfo: Codable {
     let status: String
     let certificationContent: String
     let certificationMediaUrl: String
-    let rejectReason: String?
+    let reviewFeedback: String?
 }
 
 /// 인증 통계 정보
@@ -53,7 +53,6 @@ struct CertificationGroupListResponse: Codable {
 /// 그룹명 + 인증 정보 + 생성일자
 struct GroupTodoCertification: Codable {
     let groupName: String
-    let createdAt: String
     let certificationInfo: [CertificationInfo]
 }
 
@@ -72,7 +71,7 @@ struct CertificationItem {
     let status: String
     let certificationContent: String
     let certificationMediaUrl: String
-    let rejectReason: String?
+    let reviewFeedback: String?
     let createdAt: String
 }
 

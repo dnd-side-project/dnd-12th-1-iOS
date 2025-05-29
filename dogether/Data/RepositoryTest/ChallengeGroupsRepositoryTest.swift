@@ -21,7 +21,7 @@ final class ChallengeGroupsRepositoryTest: ChallengeGroupsProtocol {
         let rejects = (7 ... 8).map {
             TodoInfo(
                 id: $0, content: "testTodo \($0)testTodo \($0)testTodo \($0)", status: "REJECT",
-                certificationContent: "test todo content \($0)test todo content \($0)test todo content \($0)", rejectReason: "test todo reject reason \($0)test todo reject reason \($0)test todo reject reason \($0)test todo reject reason \($0)"
+                certificationContent: "test todo content \($0)test todo content \($0)test todo content \($0)", reviewFeedback: "test todo reject reason \($0)test todo reject reason \($0)test todo reject reason \($0)test todo reject reason \($0)"
             )
         }
         if status == nil {

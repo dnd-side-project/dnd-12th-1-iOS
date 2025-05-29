@@ -125,7 +125,7 @@ extension NavigationCoordinator: NotificationHandler {
         case .review:
             guard let currentViewController = navigationController.viewControllers.last,
                   let mainViewController = currentViewController as? MainViewController else { return }
-            // TODO: 페이지로 바뀌면 popViewController에서 자동으로 willAppear가 불리지 않지
+            // FIXME: 추후 메인화면 개편과 함께 수정, 자정 새로고침에 대해 고려
             Task { [weak mainViewController] in
                 guard let self = mainViewController else { return }
                 try await self.viewModel.updateListInfo()

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class CertificationCell: UICollectionViewCell {
     static let reuseIdentifier = "CertificationCell"
@@ -47,19 +48,14 @@ final class CertificationCell: UICollectionViewCell {
         fatalError()
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+    }
+    
     func configure(with certificationItem: CertificationItem) {
-        Task { [weak self] in
-            guard let self, let url = URL(string: certificationItem.certificationMediaUrl) else { return }
-            
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                imageView.image = UIImage(data: data)
-            } catch {
-                imageView.image = UIImage(named: "sample")!
-            }
-        }
+        imageView.loadImage(url: certificationItem.certificationMediaUrl)
         
-        // 상태 버튼 업데이트
         if let filterType = FilterTypes(status: certificationItem.status) {
             statusButton.update(type: filterType)
         }

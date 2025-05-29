@@ -11,7 +11,7 @@ import SnapKit
 final class EmptyStateView: BaseView {
     
     private let imageView: UIImageView = {
-        let imageView = UIImageView(image: .realDusik)
+        let imageView = UIImageView(image: .embarrassedDosik)
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()

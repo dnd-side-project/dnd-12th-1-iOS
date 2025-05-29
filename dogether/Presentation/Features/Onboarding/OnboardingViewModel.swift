@@ -32,8 +32,8 @@ final class OnboardingViewModel {
     }
     
     func getDestination() async throws -> BaseViewController {
-        let challengeGroupInfos = try await groupUseCase.getChallengeGroupInfos()
-        let destination = try await appLaunchUseCase.getDestination(challengeGroupInfos: challengeGroupInfos)
+        let isParticipating = try await groupUseCase.getIsParticipating()
+        let destination = try await appLaunchUseCase.getDestination(isParticipating: isParticipating)
         return destination
     }
 }

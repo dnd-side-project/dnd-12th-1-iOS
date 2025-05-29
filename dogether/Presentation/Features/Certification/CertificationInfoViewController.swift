@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 final class CertificationInfoViewController: BaseViewController {
     var todoInfo = TodoInfo(id: 0, content: "", status: "")
@@ -24,29 +25,7 @@ final class CertificationInfoViewController: BaseViewController {
         return label
     }()
     
-    private func rejectReasonView(reason: String) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .grey600
-        view.layer.cornerRadius = 8
-        
-        let label = UILabel()
-        label.attributedText = NSAttributedString(
-            string: reason,
-            attributes: Fonts.getAttributes(for: Fonts.body1S, textAlignment: .left)
-        )
-        label.textColor = .grey100
-        label.numberOfLines = 0
-        
-        view.addSubview(label)
-        
-        label.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.verticalEdges.equalToSuperview().inset(10)
-        }
-        
-        return view
-    }
-    private var rejectReasonView = UIView()
+    private var reviewFeedbackView = ReviewFeedbackView()
     
     override func configureView() {
         imageView = CertificationImageView(
@@ -54,11 +33,8 @@ final class CertificationInfoViewController: BaseViewController {
             certificationContent: todoInfo.certificationContent
         )
         
-        Task { [weak self] in
-            guard let self else { return }
-            try await imageView.loadImage(url: todoInfo.certificationMediaUrl)
-        }
-            
+        imageView.loadImage(url: todoInfo.certificationMediaUrl)
+        
         guard let status = TodoStatus(rawValue: todoInfo.status),
               let filterType = FilterTypes.allCases.first(where: { $0.tag == status.tag }) else { return }
         statusView = FilterButton(type: filterType)
@@ -68,7 +44,7 @@ final class CertificationInfoViewController: BaseViewController {
             attributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .center)
         )
         
-        if let rejectReason = todoInfo.rejectReason { rejectReasonView = rejectReasonView(reason: rejectReason) }
+        if let reviewFeedback = todoInfo.reviewFeedback { reviewFeedbackView.updateFeedback(feedback: reviewFeedback) }
     }
     
     override func configureAction() {
@@ -78,7 +54,7 @@ final class CertificationInfoViewController: BaseViewController {
     override func configureHierarchy() {
         [navigationHeader, imageView, statusView, contentLabel].forEach { view.addSubview($0) }
         
-        if todoInfo.rejectReason != nil { view.addSubview(rejectReasonView) }
+        if let reviewFeedback = todoInfo.reviewFeedback, reviewFeedback.count > 0 { view.addSubview(reviewFeedbackView) }
     }
      
     override func configureConstraints() {
@@ -104,8 +80,8 @@ final class CertificationInfoViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview().inset(16)
         }
         
-        if todoInfo.rejectReason != nil {
-            rejectReasonView.snp.makeConstraints {
+        if let reviewFeedback = todoInfo.reviewFeedback, reviewFeedback.count > 0 {
+            reviewFeedbackView.snp.makeConstraints {
                 $0.top.equalTo(contentLabel.snp.bottom).offset(16)
                 $0.horizontalEdges.equalToSuperview().inset(16)
             }

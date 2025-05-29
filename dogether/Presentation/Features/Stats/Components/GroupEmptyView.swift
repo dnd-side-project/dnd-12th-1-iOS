@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class StatsEmptyView: BaseView {
+final class GroupEmptyView: BaseView {
     private let emptyStateView = EmptyStateView(
         title: "소속된 그룹이 없어요",
         description: "새로운 그룹을 만들어 함께 시작해보세요!"

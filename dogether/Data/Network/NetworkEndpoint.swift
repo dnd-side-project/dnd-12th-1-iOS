@@ -49,6 +49,5 @@ enum Header {
     enum Value {
         static let applicationJson = "application/json"
         static let bearer = "Bearer "
-        static let accessToken = UserDefaultsManager.shared.accessToken ?? ""
     }
 }

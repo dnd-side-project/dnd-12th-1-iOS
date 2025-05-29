@@ -13,7 +13,7 @@ struct TodoInfo: Decodable {
     var status: String
     var certificationContent: String?
     var certificationMediaUrl: String?
-    var rejectReason: String?
+    var reviewFeedback: String?
     
     init(
         id: Int,
@@ -21,13 +21,25 @@ struct TodoInfo: Decodable {
         status: String,
         certificationContent: String? = nil,
         certificationMediaUrl: String? = nil,
-        rejectReason: String? = nil
+        reviewFeedback: String? = nil
     ) {
         self.id = id
         self.content = content
         self.status = status
         self.certificationContent = certificationContent
         self.certificationMediaUrl = certificationMediaUrl
-        self.rejectReason = rejectReason
+        self.reviewFeedback = reviewFeedback
     }
 }
+
+extension TodoInfo {
+    init(from item: CertificationItem) {
+        self.id = item.id
+        self.content = item.content
+        self.status = item.status
+        self.certificationContent = item.certificationContent
+        self.certificationMediaUrl = item.certificationMediaUrl
+        self.reviewFeedback = item.reviewFeedback
+    }
+}
+

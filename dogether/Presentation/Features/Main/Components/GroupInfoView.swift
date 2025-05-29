@@ -8,10 +8,13 @@
 import UIKit
 
 final class GroupInfoView: BaseView {
+    private let hasCopyImage: Bool
     private(set) var challengeGroupInfo: ChallengeGroupInfo
     
-    init(challengeGroupInfo: ChallengeGroupInfo = ChallengeGroupInfo()) {
+    init(challengeGroupInfo: ChallengeGroupInfo = ChallengeGroupInfo(), hasCopyImage: Bool = true) {
         self.challengeGroupInfo = challengeGroupInfo
+        self.hasCopyImage = hasCopyImage
+        
         super.init(frame: .zero)
     }
     required init?(coder: NSCoder) { fatalError() }
@@ -34,23 +37,33 @@ final class GroupInfoView: BaseView {
         return stackView
     }()
     
-    func descriptionLabel(text: String) -> UILabel {
-        let label = UILabel()
-        label.attributedText = NSAttributedString(
-            string: text,
-            attributes: Fonts.getAttributes(for: Fonts.body2R, textAlignment: .left)
-        )
-        label.textColor = .grey300
-        return label
-    }
-    
     private let memberInfoLabel = UILabel()
     private let joinCodeInfoLabel = UILabel()
     private let endDateInfoLabel = UILabel()
     
-    private func infoStackView(labels: [UILabel]) -> UIStackView {
-        let stackView = UIStackView(arrangedSubviews: labels)
+    private let joinCodeCopyImageView = UIImageView(image: .copy)
+    private let joinCodeInfoStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 2
+        stackView.alignment = .bottom
+        return stackView
+    }()
+    
+    private var memberStackView = UIStackView()
+    var joinCodeStackView = UIStackView()   // MARK: 탭 액션 viewController에서 지정
+    private var endDateStackView = UIStackView()
+    private func infoStackView(description: String) -> UIStackView {
+        let label = UILabel()
+        label.attributedText = NSAttributedString(
+            string: description,
+            attributes: Fonts.getAttributes(for: Fonts.body2R, textAlignment: .left)
+        )
+        label.textColor = .grey300
+        
+        let stackView = UIStackView(arrangedSubviews: [label])
         stackView.axis = .vertical
+        
         return stackView
     }
     
@@ -104,17 +117,18 @@ final class GroupInfoView: BaseView {
         
         [nameLabel, changeGroupImageView].forEach { groupNameStackView.addArrangedSubview($0) }
         
-        let memberDescriptionLabel = descriptionLabel(text: "그룹원")
-        let joinCodeDescriptionLabel = descriptionLabel(text: "초대코드")
-        let endDateDescriptionLabel = descriptionLabel(text: "종료일")
+        memberStackView = infoStackView(description: "그룹원")
+        joinCodeStackView = infoStackView(description: "초대코드")
+        endDateStackView = infoStackView(description: "종료일")
         
         memberInfoLabel.textColor = .grey0
         joinCodeInfoLabel.textColor = .grey0
         endDateInfoLabel.textColor = .grey0
         
-        let memberStackView = infoStackView(labels: [memberDescriptionLabel, memberInfoLabel])
-        let joinCodeStackView = infoStackView(labels: [joinCodeDescriptionLabel, joinCodeInfoLabel])
-        let endDateStackView = infoStackView(labels: [endDateDescriptionLabel, endDateInfoLabel])
+        memberStackView.addArrangedSubview(memberInfoLabel)
+        if hasCopyImage { [joinCodeInfoLabel, joinCodeCopyImageView].forEach { joinCodeInfoStackView.addArrangedSubview($0) } }
+        joinCodeStackView.addArrangedSubview(hasCopyImage ? joinCodeInfoStackView : joinCodeInfoLabel)
+        endDateStackView.addArrangedSubview(endDateInfoLabel)
         
         [memberStackView, joinCodeStackView, endDateStackView].forEach { groupInfoStackView.addArrangedSubview($0) }
         
@@ -144,6 +158,10 @@ final class GroupInfoView: BaseView {
         groupInfoStackView.snp.makeConstraints {
             $0.top.equalTo(nameLabel.snp.bottom).offset(12)
             $0.left.equalToSuperview()
+        }
+        
+        joinCodeCopyImageView.snp.makeConstraints {
+            $0.width.height.equalTo(18)
         }
         
         durationProgressView.snp.makeConstraints {

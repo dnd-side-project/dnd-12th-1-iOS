@@ -14,7 +14,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "책 30쪽 읽음",
           "certificationMediaUrl": "책읽는짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 12,
@@ -22,7 +22,7 @@
           "status": "APPROVE",
           "certificationContent": "전신 스트레칭 10분!",
           "certificationMediaUrl": "스트레칭짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -35,7 +35,7 @@
           "status": "APPROVE",
           "certificationContent": "방 완전 깨끗하게 청소함!",
           "certificationMediaUrl": "청소짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -48,7 +48,7 @@
           "status": "REJECT",
           "certificationContent": "5분 산책했어요",
           "certificationMediaUrl": "산책짤.png",
-          "rejectReason": "산책 시간 너무 짧아요"
+          "reviewFeedback": "산책 시간 너무 짧아요"
         },
         {
           "id": 13,
@@ -56,7 +56,7 @@
           "status": "APPROVE",
           "certificationContent": "오늘 2리터 클리어!",
           "certificationMediaUrl": "물짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -69,7 +69,7 @@
           "status": "APPROVE",
           "certificationContent": "파스타 만들었음",
           "certificationMediaUrl": "요리짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -82,7 +82,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "팔굽혀펴기 30개!",
           "certificationMediaUrl": "운동짤2.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 14,
@@ -90,7 +90,7 @@
           "status": "REJECT",
           "certificationContent": "5개 외움",
           "certificationMediaUrl": "단어짤.png",
-          "rejectReason": "조금 더 많이 외워야 할 듯해요"
+          "reviewFeedback": "조금 더 많이 외워야 할 듯해요"
         }
       ]
     },
@@ -103,7 +103,7 @@
           "status": "APPROVE",
           "certificationContent": "강의 1시간 듣고 요약함",
           "certificationMediaUrl": "인강짤2.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -116,7 +116,7 @@
           "status": "REJECT",
           "certificationContent": "일기 썼어요",
           "certificationMediaUrl": "일기짤.png",
-          "rejectReason": "내용이 너무 부족해요"
+          "reviewFeedback": "내용이 너무 부족해요"
         }
       ]
     },
@@ -129,7 +129,7 @@
           "status": "REVIEW_PENDING",
           "certificationContent": "10분간 명상",
           "certificationMediaUrl": "명상짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 15,
@@ -137,7 +137,7 @@
           "status": "APPROVE",
           "certificationContent": "아침 6시 기상 완료!",
           "certificationMediaUrl": "기상짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         }
       ]
     },
@@ -150,7 +150,7 @@
           "status": "APPROVE",
           "certificationContent": "한 챕터 읽음",
           "certificationMediaUrl": "독서짤.png",
-          "rejectReason": null
+          "reviewFeedback": null
         },
         {
           "id": 16,
@@ -158,7 +158,7 @@
           "status": "REJECT",
           "certificationContent": "책상 위 살짝 정리함",
           "certificationMediaUrl": "정리짤.png",
-          "rejectReason": "좀 더 꼼꼼한 정리가 필요해요"
+          "reviewFeedback": "좀 더 꼼꼼한 정리가 필요해요"
         }
       ]
     }

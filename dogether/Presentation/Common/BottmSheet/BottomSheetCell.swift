@@ -18,7 +18,7 @@ final class BottomSheetCell: UITableViewCell {
 
     private let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "checkmark")
+        imageView.image = .check
         imageView.isHidden = true
         return imageView
     }()

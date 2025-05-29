@@ -117,7 +117,8 @@ final class CompleteViewController: BaseViewController {
             joinCodeShareButton.addAction(
                 UIAction { [weak self] _ in
                     guard let self else { return }
-                    present(UIActivityViewController(activityItems: [viewModel.joinCode], applicationActivities: nil), animated: true)
+                    let inviteGroup = SystemManager.inviteGroup(groupName: viewModel.groupInfo.name, joinCode: viewModel.joinCode)
+                    present(UIActivityViewController(activityItems: inviteGroup, applicationActivities: nil), animated: true)
                 }, for: .touchUpInside
             )
         }

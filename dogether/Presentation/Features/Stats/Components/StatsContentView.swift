@@ -18,7 +18,7 @@ final class StatsContentView: BaseView {
     
     private let dusikImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "glassDusik")
+        imageView.image = .glassDusik
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
         return imageView
@@ -26,7 +26,7 @@ final class StatsContentView: BaseView {
     
     private let dusikArmView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "dusikArm")
+        imageView.image = .dusikArm
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
         return imageView
@@ -55,10 +55,8 @@ final class StatsContentView: BaseView {
     }
     
     override func configureAction() {
-        groupInfoView.onGroupSelectorTapped = { [weak self] in
-            guard let self else { return }
-            delegate?.presentBottomSheet()
-        }
+        let groupSelectorTapGesture = UITapGestureRecognizer(target: self, action: #selector(tappedGroupSelectorStackView))
+        groupInfoView.groupSelectorStackView.addGestureRecognizer(groupSelectorTapGesture)
     }
     
     override func configureHierarchy() {
@@ -93,8 +91,7 @@ final class StatsContentView: BaseView {
         
         dailyAchievementBarView.snp.makeConstraints {
             $0.top.equalTo(groupInfoView.snp.bottom).offset(12)
-            $0.leading.equalToSuperview().inset(16)
-            $0.trailing.equalToSuperview().inset(32)
+            $0.leading.trailing.equalToSuperview().inset(16)
             $0.height.equalTo(343)
         }
         
@@ -106,10 +103,14 @@ final class StatsContentView: BaseView {
 
         statsSummaryView.snp.makeConstraints {
             $0.top.equalTo(dailyAchievementBarView.snp.bottom).offset(16)
-            $0.leading.equalTo(myRankView.snp.trailing).offset(18) // 두 뷰 사이 간격 18
+            $0.leading.equalTo(myRankView.snp.trailing).offset(18)
             $0.trailing.equalToSuperview().inset(16)
-            $0.width.equalTo(myRankView.snp.width) // 너비 동일하게
+            $0.width.equalTo(myRankView.snp.width)
             $0.height.equalTo(180)
         }
+    }
+    
+    @objc private func tappedGroupSelectorStackView() {
+        delegate?.presentBottomSheet()
     }
 }

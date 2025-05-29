@@ -8,6 +8,8 @@
 import UIKit
 import SnapKit
 
+import Combine
+
 final class PopupViewController: BaseViewController {
     var viewModel = PopupViewModel()
     
@@ -16,8 +18,19 @@ final class PopupViewController: BaseViewController {
     
     private var popupView = BasePopupView()
     
+    private var popupViewCenterYConstraint: Constraint?
+    private var cancellables = Set<AnyCancellable>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        observeKeyboardNotifications()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if let popupView = popupView as? ReviewFeedbackPopupView {
+            popupView.reviewFeedbackTextView.becomeFirstResponder()
+        }
     }
     
     override func configureView() {
@@ -38,8 +51,10 @@ final class PopupViewController: BaseViewController {
     
     override func configureConstraints() {
         popupView.snp.makeConstraints {
-            $0.center.equalToSuperview()
+            $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)
+            
+            popupViewCenterYConstraint = $0.centerY.equalToSuperview().constraint
         }
     }
 }
@@ -60,17 +75,17 @@ extension PopupViewController {
             )
             return alertView
             
-        case .rejectReason:
-            let rejectReasonPopupView = RejectReasonPopupView()
-            rejectReasonPopupView.rejectReasonTextView.delegate = self
-            rejectReasonPopupView.rejectReasonButton.addAction(
+        case .reviewFeedback:
+            let reviewFeedbackPopupView = ReviewFeedbackPopupView()
+            reviewFeedbackPopupView.reviewFeedbackTextView.delegate = self
+            reviewFeedbackPopupView.reviewFeedbackButton.addAction(
                 UIAction { [weak self] _ in
-                    guard let self, let rejectReason = viewModel.stringContent else { return }
-                    completion?(rejectReason)
+                    guard let self, let reviewFeedback = viewModel.stringContent else { return }
+                    completion?(reviewFeedback)
                     hidePopup()
                 }, for: .touchUpInside
             )
-            return rejectReasonPopupView
+            return reviewFeedbackPopupView
         }
     }
 }
@@ -109,8 +124,8 @@ extension PopupViewController: UITextViewDelegate {
         textView.updateTextInfo()
         viewModel.setStringContent(textView.text)
         
-        if let popupView = popupView as? RejectReasonPopupView, textView.text.count > 0 {
-            popupView.rejectReasonButton.setButtonStatus(status: .enabled)
+        if let popupView = popupView as? ReviewFeedbackPopupView, textView.text.count > 0 {
+            popupView.reviewFeedbackButton.setButtonStatus(status: .enabled)
         }
     }
     
@@ -118,7 +133,7 @@ extension PopupViewController: UITextViewDelegate {
         guard let textView = textView as? DogetherTextView else { return false }
         textView.focusOn()
         
-        if let popupView = popupView as? RejectReasonPopupView {
+        if let popupView = popupView as? ReviewFeedbackPopupView {
             popupView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard)))
         }
         return true
@@ -128,11 +143,49 @@ extension PopupViewController: UITextViewDelegate {
         guard let textView = textView as? DogetherTextView else { return false }
         textView.focusOff()
         
-        if let popupView = popupView as? RejectReasonPopupView {
+        if let popupView = popupView as? ReviewFeedbackPopupView {
             popupView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: nil))
         }
         return true
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
+    
+    
+    private func observeKeyboardNotifications() {
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .compactMap { notification -> CGFloat? in
+                guard let userInfo = notification.userInfo,
+                      let frameValue = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+                    return nil
+                }
+                return frameValue.cgRectValue.height
+            }
+            .sink { [weak self] height in
+                guard let self else { return }
+                updateUIForKeyboard(keyboardHeight: height)
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                updateUIForKeyboard(keyboardHeight: 0)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateUIForKeyboard(keyboardHeight: CGFloat) {
+        UIView.animate(withDuration: 0.35) { [weak self] in
+            guard let self = self else { return }
+            
+            let safeAreaTop = view.safeAreaInsets.top
+            let safeAreaHeight = view.frame.height - keyboardHeight - safeAreaTop
+            let newCenterY = safeAreaTop + safeAreaHeight / 2
+            
+            popupViewCenterYConstraint?.update(offset: newCenterY - view.bounds.midY)
+            
+            view.layoutIfNeeded()
+        }
+    }
 }

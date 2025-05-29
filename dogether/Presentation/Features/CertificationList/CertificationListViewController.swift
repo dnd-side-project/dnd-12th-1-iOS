@@ -51,6 +51,7 @@ extension CertificationListViewController {
             let contentView = CertificationListContentView(viewModel: viewModel)
             self.certificationListContentView = contentView
             self.certificationListContentView?.delegate = self
+            self.certificationListContentView?.filterView.delegate = self
             view.addSubview(contentView)
             contentView.snp.makeConstraints {
                 $0.top.equalTo(navigationHeader.snp.bottom)
@@ -97,6 +98,7 @@ extension CertificationListViewController {
             
             if let sortOption = selected.value as? CertificationSortOption {
                 self.viewModel.executeSort(option: sortOption)
+                self.certificationListContentView?.makeContentOffset()
             }
         }
     }
@@ -106,7 +108,6 @@ extension CertificationListViewController {
 extension CertificationListViewController: CertificationListViewModelDelegate {
     func didFetchSucceed() {
         displayViewForCurrentStatus()
-        self.certificationListContentView?.filterView.sortButton.delegate = self
         certificationListContentView?.reloadData()
     }
 }
@@ -118,6 +119,12 @@ extension CertificationListViewController: CertificationListContentViewDelegate 
     }
     
     func didTapCertificationFilterView() {
+    }
+    
+    func didTapCertification(_ certification: TodoInfo) {
+        let certificationInfoViewController = CertificationInfoViewController()
+        certificationInfoViewController.todoInfo = certification
+        navigationController?.pushViewController(certificationInfoViewController, animated: true)
     }
 }
 

@@ -31,3 +31,18 @@ struct SystemManager {
         }
     }
 }
+
+extension SystemManager {
+    static func inviteGroup(groupName: String, joinCode: String) -> [Any] {
+        ["""
+        ✨ [\(groupName)]에서 당신의 참여를 기다리고 있어요
+
+        작심삼일도 괜찮아요.
+        투두 챌린지 서비스 두게더에서
+        팀원들과 함께 목표 달성을 시작해보세요 💪
+
+        초대코드: \(joinCode) (복사해서 붙여넣기)
+        https://apps.apple.com/kr/app/id\(SystemManager.appleID)
+        """]
+    }
+}

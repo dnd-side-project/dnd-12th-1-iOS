@@ -8,6 +8,7 @@
 import Foundation
 
 struct GetMyGroupResponse: Decodable {
+    let lastSelectedGroupIndex: Int?
     let joiningChallengeGroups: [ChallengeGroup]
 }
 

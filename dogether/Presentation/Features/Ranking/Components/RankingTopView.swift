@@ -69,14 +69,9 @@ final class RankingTopView: BaseView {
         if let ranking {
             rankingImageView.image = ranking.rank == 1 ? .crown1 : ranking.rank == 2 ? .crown2 : .crown3
             profileImageView.setReadStatus(readStatus: ranking.historyReadStatus)
+            profileImageView.loadImage(url: ranking.profileImageUrl)
             nameLabel.text = ranking.name
             certificationLabel.text = "달성률 \(ranking.achievementRate)%"
-            
-            Task { [weak self] in
-                guard let self, let url = URL(string: ranking.profileImageUrl) else { return }
-                let (data, _) = try await URLSession.shared.data(from: url)
-                profileImageView.setImage(image: UIImage(data: data))
-            }
         }
     }
     

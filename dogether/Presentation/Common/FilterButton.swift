@@ -69,7 +69,7 @@ final class FilterButton: BaseButton {
 
 extension FilterButton {
     private func updateUI() {
-        backgroundColor = isColorful ? type.backgroundColor : .grey800
+        backgroundColor = isColorful ? type.backgroundColor : .clear
         layer.borderColor = isColorful ? type.backgroundColor.cgColor : UIColor.grey500.cgColor
         icon.tintColor = isColorful ? .grey900 : .grey400
         label.textColor = isColorful ? .grey900 : .grey400

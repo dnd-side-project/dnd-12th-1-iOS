@@ -9,10 +9,10 @@ import Foundation
 
 struct ReviewTodoRequest: Encodable {
     let result: String
-    let rejectReason: String?
+    let reviewFeedback: String
     
-    init(result: ReviewResults, rejectReason: String? = nil) {
+    init(result: ReviewResults, reviewFeedback: String) {
         self.result = result.rawValue
-        self.rejectReason = rejectReason
+        self.reviewFeedback = reviewFeedback
     }
 }

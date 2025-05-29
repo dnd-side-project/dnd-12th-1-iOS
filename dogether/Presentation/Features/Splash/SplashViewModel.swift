@@ -25,8 +25,8 @@ final class SplashViewModel {
     func getDestination() async throws -> BaseViewController {
         if UserDefaultsManager.shared.accessToken == nil { return await OnboardingViewController() }
         
-        let challengeGroupInfos = try await groupUseCase.getChallengeGroupInfos()
-        let destination = try await appLaunchUseCase.getDestination(challengeGroupInfos: challengeGroupInfos)
+        let isParticipating = try await groupUseCase.getIsParticipating()
+        let destination = try await appLaunchUseCase.getDestination(isParticipating: isParticipating)
         return destination
     }
 }

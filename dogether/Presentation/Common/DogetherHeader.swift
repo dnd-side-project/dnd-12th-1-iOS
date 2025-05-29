@@ -25,7 +25,7 @@ final class DogetherHeader: BaseView {
     
     private let myPageButton = {
         let button = UIButton()
-        button.setImage(.profile.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.setImage(.myPage.withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = .grey0
         return button
     }()

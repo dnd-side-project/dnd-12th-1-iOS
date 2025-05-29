@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-final class StatsGroupInfoView: UIView {
+final class StatsGroupInfoView: BaseView {
     private let groupNameLabel: UILabel = {
         let label = UILabel()
         label.font = Fonts.head1B
@@ -20,8 +20,16 @@ final class StatsGroupInfoView: UIView {
     
     private let groupSelectorButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "chevron-down"), for: .normal)
+        button.setImage(.chevronDown, for: .normal)
         return button
+    }()
+    
+    let groupSelectorStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 4
+        stackView.alignment = .center
+        return stackView
     }()
     
     private let memberTitleLabel: UILabel = {
@@ -41,8 +49,8 @@ final class StatsGroupInfoView: UIView {
         return label
     }()
     
-    private lazy var memberStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [memberTitleLabel, memberDataLabel])
+    private let memberStackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.alignment = .leading
@@ -70,8 +78,8 @@ final class StatsGroupInfoView: UIView {
         return label
     }()
     
-    private lazy var joinCodeStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [joinCodeTitleLabel, joinCodeLabel])
+    private let joinCodeStackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.alignment = .leading
@@ -99,16 +107,16 @@ final class StatsGroupInfoView: UIView {
         return label
     }()
     
-    private lazy var endDateStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [endDateTitleLabel, endDateLabel])
+    private let endDateStackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.alignment = .leading
         return stackView
     }()
     
-    private lazy var infoStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [memberStackView, joinCodeStackView, endDateStackView])
+    private let infoStackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 16
         stackView.distribution = .fillProportionally
@@ -117,41 +125,28 @@ final class StatsGroupInfoView: UIView {
     
     var onGroupSelectorTapped: (() -> Void)?
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupViews()
-        setupConstraints()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupViews()
-        setupConstraints()
-    }
-    
-    private func setupViews() {
+    override func configureView() {
         backgroundColor = .clear
-        addSubview(groupNameLabel)
-        addSubview(groupSelectorButton)
-        addSubview(infoStackView)
-        
-        groupSelectorButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                onGroupSelectorTapped?()
-            }, for: .touchUpInside
-        )
     }
     
-    private func setupConstraints() {
-        groupNameLabel.snp.makeConstraints {
-            $0.top.leading.equalToSuperview()
-        }
+    override func configureHierarchy() {
+        [groupNameLabel, groupSelectorButton].forEach { groupSelectorStackView.addArrangedSubview($0) }
+        [memberTitleLabel, memberDataLabel].forEach { memberStackView.addArrangedSubview($0) }
+        [joinCodeTitleLabel, joinCodeLabel].forEach { joinCodeStackView.addArrangedSubview($0) }
+        [endDateTitleLabel, endDateLabel].forEach { endDateStackView.addArrangedSubview($0) }
+        [memberStackView, joinCodeStackView, endDateStackView].forEach { infoStackView.addArrangedSubview($0) }
+        
+        addSubview(groupSelectorStackView)
+        addSubview(infoStackView)
+    }
+    
+    override func configureConstraints() {
+        groupSelectorStackView.snp.makeConstraints {
+               $0.top.leading.equalToSuperview()
+           }
         
         groupSelectorButton.snp.makeConstraints {
-            $0.centerY.equalTo(groupNameLabel) // groupNameLabel과 세로 중심 맞추기
-            $0.leading.equalTo(groupNameLabel.snp.trailing).offset(4) // groupNameLabel의 trailing으로부터 4pt 떨어지게 설정
-            $0.width.height.equalTo(20) // 크기 고정
+            $0.width.height.equalTo(20)
         }
         
         infoStackView.snp.makeConstraints {

@@ -90,12 +90,12 @@ extension StatsViewModel {
                     GroupSortOption(groupId: $0.groupId, groupName: $0.groupName)
                 }
                 
-                if let firstGroup = challengeGroups.first {
-                    let selectedOption = GroupSortOption(groupId: firstGroup.groupId, groupName: firstGroup.groupName)
-                        selectedGroup = selectedOption
-                    fetchStats(groupId: firstGroup.groupId)
-                } else {
+                if challengeGroups.isEmpty {
                     statsViewStatus = .empty
+                } else if let currentGroupIndex = response.lastSelectedGroupIndex {
+                    let currentGroup = challengeGroups[currentGroupIndex]
+                    selectedGroup = GroupSortOption(groupId: currentGroup.groupId, groupName: currentGroup.groupName)
+                    fetchStats(groupId: currentGroup.groupId)
                 }
             } catch {
                 statsViewStatus = .empty

@@ -2,17 +2,20 @@
 //  CertificationFilterView.swift
 //  dogether
 //
-//  Created by yujaehong on 4/23/25.
+//  Created by yujaehong on 5/19/25.
 //
 
 import UIKit
 import SnapKit
 
 final class CertificationFilterView: BaseView {
+    
+    weak var delegate: BottomSheetDelegate?
+    
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
-    let sortButton = CertificationSortButton() // 투두 완료일순, 그룹 생성일순
-    private var filterButtons: [FilterButton] = [] // 검사대기, 인정, 노인정
+    let sortButton = CertificationSortButton()
+    private var filterButtons: [FilterButton] = []
     
     var filterSelected: ((FilterTypes) -> Void)?
     
@@ -27,14 +30,7 @@ final class CertificationFilterView: BaseView {
     override func configureView() {
         setupScrollView()
         setupContentStackView()
-        setupFilterButtons()
-    }
-    
-    override func configureAction() {
-        // 뷰 초기화가 끝난 뒤, sortButton을 눌린 상태로 세팅
-        DispatchQueue.main.async { [weak self] in
-            self?.sortButtonTapped()
-        }
+        setupButtons()
     }
     
     override func configureHierarchy() {
@@ -67,15 +63,15 @@ extension CertificationFilterView {
         contentStackView.distribution = .fillProportionally
     }
     
-    private func setupFilterButtons() {
+    private func setupButtons() {
         let filterTypes: [FilterTypes] = [.wait, .approve, .reject]
         
         filterButtons = filterTypes.map { type in
-            let button = FilterButton(type: type)
+            let button = FilterButton(type: type, isColorful: false)
             button.addAction(
                 UIAction { [weak self] _ in
                     guard let self else { return }
-                    self.handleFilterButtonTapped(button)
+                    handleFilterButtonTapped(button)
                 }, for: .touchUpInside
             )
             return button
@@ -84,7 +80,7 @@ extension CertificationFilterView {
         sortButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                self.sortButtonTapped()
+                delegate?.presentBottomSheet()
             }, for: .touchUpInside
         )
         
@@ -95,25 +91,14 @@ extension CertificationFilterView {
     }
     
     private func handleFilterButtonTapped(_ sender: FilterButton) {
-        updateButtonStates(except: sender)
-        filterSelected?(sender.type) // // 필터 상태 선택 시, 해당 타입 반환
-    }
-    
-    private func sortButtonTapped() {
-        updateButtonStates(except: sortButton)
-    }
-    
-    private func updateButtonStates(except selectedButton: UIButton) {
-        // 모든 버튼의 활성화 상태를 해제하고, 색상을 기본으로 설정
-        filterButtons.forEach { $0.setIsColorful(false) }
-        sortButton.setIsSelectedFilter(false)
-        
-        // 선택된 버튼은 활성화 상태로 설정
-        if let selectedFilterButton = selectedButton as? FilterButton {
-            selectedFilterButton.setIsColorful(true)
-        } else if let selectedSortButton = selectedButton as? CertificationSortButton {
-            filterSelected?(.all) // '전체' 필터 상태로 변경
-            selectedSortButton.setIsSelectedFilter(true)
-        }
+        let isCurrentlyActive = sender.isColorful
+          if isCurrentlyActive {
+              sender.setIsColorful(false)
+              filterSelected?(.all)
+          } else {
+              filterButtons.forEach { $0.setIsColorful(false) }
+              sender.setIsColorful(true)
+              filterSelected?(sender.type)
+          }
     }
 }

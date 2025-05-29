@@ -9,7 +9,7 @@ import UIKit
 import SnapKit
 
 final class MainViewController: BaseViewController {
-    var viewModel = MainViewModel()
+    let viewModel = MainViewModel()
     
     private var dogetherPanGesture: UIPanGestureRecognizer!
     private var dogetherSheetTopConstraint: Constraint?
@@ -117,6 +117,9 @@ final class MainViewController: BaseViewController {
         
         let groupNameTapGesture = UITapGestureRecognizer(target: self, action: #selector(tappedGroupNameStackView))
         groupInfoView.groupNameStackView.addGestureRecognizer(groupNameTapGesture)
+        
+        let joinCodeTapGesture = UITapGestureRecognizer(target: self, action: #selector(tappedJoinCodeStackView))
+        groupInfoView.joinCodeStackView.addGestureRecognizer(joinCodeTapGesture)
         
         rankingButton.addAction(
             UIAction { [weak self] _ in
@@ -231,10 +234,13 @@ final class MainViewController: BaseViewController {
 }
 
 extension MainViewController {
-    private func loadMainView() {
+    private func loadMainView(selectedIndex: Int? = nil) {
         Task { [weak self] in
             guard let self else { return }
-            try await viewModel.loadMainView()
+            try await viewModel.loadMainView(
+                selectedIndex: selectedIndex,
+                noGroupAction: { self.coordinator?.setNavigationController(StartViewController()) }
+            )
             
             configureBottomSheetViewController()
             
@@ -346,6 +352,11 @@ extension MainViewController {
     @objc private func tappedGroupNameStackView() {
         presentBottomSheet()
     }
+    
+    @objc private func tappedJoinCodeStackView() {
+        let inviteGroup = SystemManager.inviteGroup(groupName: viewModel.currentGroup.name, joinCode: viewModel.currentGroup.joinCode)
+        present(UIActivityViewController(activityItems: inviteGroup, applicationActivities: nil), animated: true)
+    }
 }
 
 // MARK: - about pan gesture
@@ -403,8 +414,8 @@ extension MainViewController: BottomSheetDelegate {
         let bottomSheetItem = viewModel.challengeGroupInfos.map { $0.bottomSheetItem }
         
         if viewModel.selectedGroup == nil {
-              viewModel.selectedGroup = viewModel.challengeGroupInfos.first
-          }
+            viewModel.selectedGroup = viewModel.currentGroup
+        }
         
         let selectedItem = viewModel.selectedGroup?.bottomSheetItem
         
@@ -425,9 +436,10 @@ extension MainViewController: BottomSheetDelegate {
                   let selectedIndex = viewModel.challengeGroupInfos.firstIndex(of: selectedGroup) else { return }
             
             viewModel.selectedGroup = selectedItem.value as? ChallengeGroupInfo
+            viewModel.saveLastSelectedGroup()
             viewModel.setChallengeIndex(index: selectedIndex)
             viewModel.setDateOffset(offset: 0)
-            loadMainView()
+            loadMainView(selectedIndex: selectedIndex)
         }
     }
     

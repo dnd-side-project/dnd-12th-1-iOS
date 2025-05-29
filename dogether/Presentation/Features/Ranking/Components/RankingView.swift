@@ -85,13 +85,8 @@ extension RankingView {
     func setExtraInfo(ranking: RankingModel) {
         rankingLabel.text = String(ranking.rank)
         profileImageView.setReadStatus(readStatus: ranking.historyReadStatus)
+        profileImageView.loadImage(url: ranking.profileImageUrl)
         nameLabel.text = ranking.name
         certificationLabel.text = "\(ranking.achievementRate)%"
-        
-        Task { [weak self] in
-            guard let self, let url = URL(string: ranking.profileImageUrl) else { return }
-            let (data, _) = try await URLSession.shared.data(from: url)
-            profileImageView.setImage(image: UIImage(data: data))
-        }
     }
 }

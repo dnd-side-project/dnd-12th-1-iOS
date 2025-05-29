@@ -8,9 +8,15 @@
 import UIKit
 
 extension UIImageView {
-    func loadImage(url: String?) async throws {
-        guard let url, let url = URL(string: url) else { throw NSError() }
-        let (data, _) = try await URLSession.shared.data(from: url)
-        await MainActor.run { self.image = UIImage(data: data) }
+    func loadImage(url: String?, successAction: (() -> Void)? = nil) {
+        guard let url, let url = URL(string: url) else { return }
+        self.kf.setImage(with: url) { result in
+            switch result {
+            case .success(_):
+                successAction?()
+            default:
+                return
+            }
+        }
     }
 }

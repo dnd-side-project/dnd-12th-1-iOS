@@ -11,7 +11,7 @@ import SnapKit
 final class StatsSummaryView: BaseView {
     private let titleIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "chart3")
+        imageView.image = .summary
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -35,7 +35,7 @@ final class StatsSummaryView: BaseView {
     // 달성 Row
     private let achievedIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "certification2")
+        imageView.image = .certification2
         imageView.contentMode = .scaleAspectFit
         imageView.snp.makeConstraints { $0.size.equalTo(24) }
         return imageView
@@ -69,7 +69,7 @@ final class StatsSummaryView: BaseView {
     // 인정 Row
     private let acknowledgedIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "approve")
+        imageView.image = .approve
         imageView.contentMode = .scaleAspectFit
         imageView.snp.makeConstraints { $0.size.equalTo(24) }
         return imageView
@@ -103,7 +103,7 @@ final class StatsSummaryView: BaseView {
     // 노인정 Row
     private let notAcknowledgedIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "reject")
+        imageView.image = .reject
         imageView.contentMode = .scaleAspectFit
         imageView.snp.makeConstraints { $0.size.equalTo(24) }
         return imageView

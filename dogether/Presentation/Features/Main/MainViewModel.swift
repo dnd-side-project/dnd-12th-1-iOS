@@ -15,7 +15,7 @@ final class MainViewModel {
     
     private(set) var rankings: [RankingModel]?
     
-    var challengeGroupInfos: [ChallengeGroupInfo] = []
+    private(set) var challengeGroupInfos: [ChallengeGroupInfo] = []
     
     var currentGroup: ChallengeGroupInfo {
         challengeGroupInfos[currentChallengeIndex]
@@ -52,8 +52,15 @@ final class MainViewModel {
 
 // MARK: - load view
 extension MainViewModel {
-    func loadMainView() async throws {
-        challengeGroupInfos = try await groupUseCase.getChallengeGroupInfos()
+    func loadMainView(selectedIndex: Int? = nil, noGroupAction: @escaping () -> Void) async throws {
+        let (groupIndex, newChallengeGroupInfos) = try await groupUseCase.getChallengeGroupInfos()
+        
+        if let groupIndex {
+            currentChallengeIndex = selectedIndex ?? groupIndex
+            challengeGroupInfos = newChallengeGroupInfos
+        } else {
+            noGroupAction()
+        }
     }
     
     func getReviews() async throws -> [ReviewModel] {
@@ -148,5 +155,13 @@ extension MainViewModel {
             sheetStatus = translation < -100 ? .expand : .normal
         }
         return sheetStatus
+    }
+}
+
+extension MainViewModel {
+    func saveLastSelectedGroup() {
+        Task {
+            try await groupUseCase.saveLastSelectedGroup(groupId: selectedGroup?.id)
+        }
     }
 }

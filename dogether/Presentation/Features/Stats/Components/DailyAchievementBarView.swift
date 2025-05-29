@@ -15,7 +15,7 @@ final class DailyAchievementBarView: BaseView {
     
     private let titleIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "today2")
+        imageView.image = .today2
         imageView.tintColor = .grey0
         imageView.contentMode = .scaleAspectFit
         return imageView
@@ -81,7 +81,6 @@ final class DailyAchievementBarView: BaseView {
         backgroundColor = .grey800
         layer.cornerRadius = 12
         clipsToBounds = true
-        configureBars()
     }
     
     override func configureAction() {}
@@ -105,14 +104,14 @@ final class DailyAchievementBarView: BaseView {
         
         yAxisStackView.snp.makeConstraints {
             $0.top.equalTo(titleStackView.snp.bottom).offset(57)
-            $0.leading.equalToSuperview().offset(16)
+            $0.leading.equalToSuperview().offset(25)
             $0.width.equalTo(16)
             $0.height.equalTo(201)
         }
         
         barStackView.snp.makeConstraints {
             $0.top.equalTo(titleStackView.snp.bottom).offset(68)
-            $0.leading.equalTo(yAxisStackView.snp.trailing).offset(19)
+            $0.leading.equalTo(yAxisStackView.snp.trailing).offset(20)
             $0.height.equalTo(barMaxHeight)
         }
         
@@ -125,41 +124,49 @@ final class DailyAchievementBarView: BaseView {
 }
 
 extension DailyAchievementBarView {
-    // 막대 그래프 구성
     private func configureBars() {
+        barStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        dayLabelStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
         let data = dailyAchievements.suffix(4)
         
         for (index, achievement) in data.enumerated() {
             let barContainer = UIView()
             barContainer.snp.makeConstraints {
-                $0.size.equalTo(CGSize(width: 50, height: barMaxHeight))
+                $0.width.equalTo(50)
+                $0.height.equalTo(barMaxHeight)
             }
             
             let backgroundBar = UIView()
+            backgroundBar.layer.cornerRadius = 4
+            backgroundBar.clipsToBounds = true
+            barContainer.addSubview(backgroundBar)
+            
+            backgroundBar.snp.makeConstraints {
+                $0.leading.trailing.bottom.equalToSuperview()
+                $0.height.equalTo(barMaxHeight * CGFloat(achievement.createdCount) / 10.0)
+            }
+            
             let backgroundImageView = UIImageView()
-            backgroundImageView.image = UIImage(named:"background2")
+            backgroundImageView.image = .background2
             backgroundImageView.contentMode = .scaleAspectFill
             backgroundImageView.clipsToBounds = true
             backgroundBar.addSubview(backgroundImageView)
             backgroundImageView.snp.makeConstraints { $0.edges.equalToSuperview() }
-            backgroundBar.layer.cornerRadius = 4
-            backgroundBar.clipsToBounds = true
-            barContainer.addSubview(backgroundBar)
-            backgroundBar.snp.makeConstraints { $0.edges.equalToSuperview() }
             
             let filledBar = UIView()
-            let ratio = CGFloat(achievement.certificationRate) / 100.0
             filledBar.backgroundColor = (index == data.count - 1) ? .blue300 : .blue200
             filledBar.layer.cornerRadius = 4
             filledBar.clipsToBounds = true
             backgroundBar.addSubview(filledBar)
+            
             filledBar.snp.makeConstraints {
                 $0.leading.trailing.bottom.equalToSuperview()
-                $0.height.equalTo(barMaxHeight * ratio)
+                $0.height.equalToSuperview().multipliedBy(CGFloat(achievement.certificationRate) / 100.0)
             }
             
             if index == data.count - 1 {
-                addSpeechBubble(to: barContainer, ratio: ratio)
+                addSpeechBubble(to: barContainer, ratio: CGFloat(achievement.certificationRate) / 100.0)
             }
             
             barStackView.addArrangedSubview(barContainer)
@@ -172,7 +179,6 @@ extension DailyAchievementBarView {
             dayLabel.snp.makeConstraints {
                 $0.width.equalTo(50)
             }
-            
             dayLabelStackView.addArrangedSubview(dayLabel)
         }
     }
@@ -184,7 +190,7 @@ extension DailyAchievementBarView {
         container.addSubview(bubbleContainer)
         
         let bubbleLabel = UILabel()
-        bubbleLabel.text = "\(Int(ratio * 100))% 달성"
+        bubbleLabel.text = "\(Int(ratio * 100))% 달성중"
         bubbleLabel.font = Fonts.body2S
         bubbleLabel.textColor = .grey0
         bubbleLabel.textAlignment = .center
@@ -198,12 +204,12 @@ extension DailyAchievementBarView {
             $0.centerX.equalTo(container)
             $0.bottom.equalTo(container.subviews[0].snp.top).offset(-20)
             $0.height.equalTo(30)
-            $0.width.equalTo(89)
+            $0.width.greaterThanOrEqualTo(89)
         }
         
         bubbleContainer.layer.cornerRadius = 15
         
-        let tailImageView = UIImageView(image: UIImage(named: "blueTail"))
+        let tailImageView = UIImageView(image: .blueTail)
         tailImageView.tintColor = .blue300
         tailImageView.contentMode = .scaleAspectFit
         container.addSubview(tailImageView)
@@ -214,7 +220,7 @@ extension DailyAchievementBarView {
             $0.size.equalTo(12)
         }
         
-        let pointCircleImageView = UIImageView(image: UIImage(named: "pointCircle"))
+        let pointCircleImageView = UIImageView(image: .pointCircle)
         pointCircleImageView.contentMode = .scaleAspectFit
         container.addSubview(pointCircleImageView)
         

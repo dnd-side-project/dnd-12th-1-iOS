@@ -56,14 +56,6 @@ final class BottomSheetViewController: BaseViewController {
         return label
     }()
     
-    private let confirmButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("확인", for: .normal)
-        button.titleLabel?.font = Fonts.body1S
-        button.setTitleColor(.grey0, for: .normal)
-        return button
-    }()
-    
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.separatorStyle = .none
@@ -84,8 +76,7 @@ final class BottomSheetViewController: BaseViewController {
         button.backgroundColor = .clear
         button.contentHorizontalAlignment = .leading
         
-        let image = UIImage(named: "plus2")
-        button.setImage(image, for: .normal)
+        button.setImage(.plus2, for: .normal)
         button.tintColor = .grey200
         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
@@ -137,14 +128,6 @@ final class BottomSheetViewController: BaseViewController {
     }
     
     override func configureAction() {
-        confirmButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self, let selectedItem else { return }
-                didSelectOption?(selectedItem)
-                dismiss(animated: true)
-            }, for: .touchUpInside
-        )
-        
         addGroupButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
@@ -161,7 +144,6 @@ final class BottomSheetViewController: BaseViewController {
         view.addSubview(containerView)
         containerView.addSubview(handleView)
         containerView.addSubview(titleLabel)
-        containerView.addSubview(confirmButton)
         containerView.addSubview(tableView)
         if shouldShowAddGroupButton {
             containerView.addSubview(addGroupButton)
@@ -189,11 +171,6 @@ final class BottomSheetViewController: BaseViewController {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(containerView).inset(24)
             $0.leading.equalTo(containerView).inset(24)
-        }
-        
-        confirmButton.snp.makeConstraints {
-            $0.top.equalTo(containerView).inset(23)
-            $0.trailing.equalTo(containerView).inset(24)
         }
         
         tableView.snp.makeConstraints {
@@ -278,8 +255,15 @@ extension BottomSheetViewController: UITableViewDataSource, UITableViewDelegate 
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedItem = bottomSheetItem[indexPath.row]
+        let item = bottomSheetItem[indexPath.row]
+        selectedItem = item
         tableView.reloadData()
+
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            didSelectOption?(item)
+            dismiss(animated: true)
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

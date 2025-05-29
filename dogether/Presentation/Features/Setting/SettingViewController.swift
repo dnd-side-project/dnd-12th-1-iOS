@@ -23,7 +23,7 @@ final class SettingViewController: BaseViewController {
         titleLabel.font = Fonts.body1R
         
         let versionLabel = UILabel()
-        versionLabel.text = "1.0.0" // 앱버전 넣기
+        versionLabel.text = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
         versionLabel.textColor = .grey0
         versionLabel.font = Fonts.body1R
         

@@ -12,12 +12,8 @@ final class AppLaunchUseCase {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
     }
     
-    func getDestination(challengeGroupInfos: [ChallengeGroupInfo]) async throws -> BaseViewController {
-        if challengeGroupInfos.isEmpty { return await StartViewController() }
-        else {
-            let mainViewController = await MainViewController()
-            await mainViewController.viewModel.challengeGroupInfos = challengeGroupInfos
-            return mainViewController
-        }
+    func getDestination(isParticipating: Bool) async throws -> BaseViewController {
+        if isParticipating { return await MainViewController() }
+        else { return await StartViewController() }
     }
 }

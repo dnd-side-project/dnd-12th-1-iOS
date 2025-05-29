@@ -16,13 +16,7 @@ final class CertificationImageView: BaseImageView {
         
         super.init(image: image)
         
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await loadImage(url: imageUrl)
-                updateCertificationContentLabelConstraints()
-            }
-        }
+        loadImage(url: imageUrl, successAction: updateCertificationContentLabelConstraints)
     }
     required init?(coder: NSCoder) { fatalError() }
     

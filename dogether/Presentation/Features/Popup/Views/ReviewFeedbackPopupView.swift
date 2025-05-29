@@ -1,5 +1,5 @@
 //
-//  RejectReasonPopupView.swift
+//  ReviewFeedbackPopupView.swift
 //  dogether
 //
 //  Created by seungyooooong on 2/17/25.
@@ -8,12 +8,12 @@
 import UIKit
 import SnapKit
 
-final class RejectReasonPopupView: BasePopupView {
+final class ReviewFeedbackPopupView: BasePopupView {
     // MARK: - PopupViewController에서 action handling
-    let rejectReasonButton = DogetherButton(title: "등록하기", status: .disabled)
+    let reviewFeedbackButton = DogetherButton(title: "등록하기", status: .disabled)
     
     // MARK: - PopupViewController에서 delegate 지정
-    let rejectReasonTextView = DogetherTextView(type: .rejectReason)
+    let reviewFeedbackTextView = DogetherTextView(type: .reviewFeedback)
     
     init() {
         super.init(frame: .zero)
@@ -45,7 +45,7 @@ final class RejectReasonPopupView: BasePopupView {
         let imageView = UIImageView(image: .notice)
         
         let label = UILabel()
-        label.text = "한번 등록한 피드백은 바꿀 수 없어요"
+        label.text = "검사가 완료된 피드백은 바꿀 수 없어요"
         label.textColor = .grey400
         label.font = Fonts.body2S
         
@@ -78,7 +78,7 @@ final class RejectReasonPopupView: BasePopupView {
     }
      
     override func configureHierarchy() {
-        [closeButton, descriptionLabel, descriptionView, rejectReasonTextView, rejectReasonButton].forEach { addSubview($0) }
+        [closeButton, descriptionLabel, descriptionView, reviewFeedbackTextView, reviewFeedbackButton].forEach { addSubview($0) }
     }
      
     override func configureConstraints() {
@@ -100,14 +100,14 @@ final class RejectReasonPopupView: BasePopupView {
             $0.height.equalTo(40)
         }
         
-        rejectReasonTextView.snp.makeConstraints {
+        reviewFeedbackTextView.snp.makeConstraints {
             $0.top.equalTo(descriptionView.snp.bottom).offset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
             $0.height.equalTo(160)
         }
         
-        rejectReasonButton.snp.makeConstraints {
-            $0.top.equalTo(rejectReasonTextView.snp.bottom).offset(20)
+        reviewFeedbackButton.snp.makeConstraints {
+            $0.top.equalTo(reviewFeedbackTextView.snp.bottom).offset(20)
             $0.bottom.equalToSuperview().inset(24)
             $0.horizontalEdges.equalToSuperview().inset(20)
         }

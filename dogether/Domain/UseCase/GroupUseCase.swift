@@ -30,9 +30,14 @@ final class GroupUseCase {
         )
     }
     
-    func getChallengeGroupInfos() async throws -> [ChallengeGroupInfo] {
+    func getIsParticipating() async throws -> Bool {
+        let response = try await repository.getIsParticipating()
+        return response.isParticipating
+    }
+    
+    func getChallengeGroupInfos() async throws -> (groupIndex: Int?, challengeGroupInfos: [ChallengeGroupInfo]) {
         let response = try await repository.getGroups()
-        return response.joiningChallengeGroups.map {
+        return (response.lastSelectedGroupIndex , response.joiningChallengeGroups.map {
             ChallengeGroupInfo(
                 id: $0.groupId,
                 name: $0.groupName,
@@ -45,7 +50,13 @@ final class GroupUseCase {
                 duration: $0.progressDay,
                 progress: $0.progressRate
             )
-        }
+        })
+    }
+    
+    func saveLastSelectedGroup(groupId: Int?) async throws {
+        guard let groupId  else { return }
+        let saveLastSelectedGroupRequest = SaveLastSelectedGroupRequest(groupId: String(groupId))
+        try await repository.saveLastSelectedGroup(saveLastSelectedGroupRequest: saveLastSelectedGroupRequest)
     }
     
     func getRankings(groupId: Int) async throws -> [RankingModel] {

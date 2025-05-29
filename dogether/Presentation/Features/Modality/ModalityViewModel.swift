@@ -13,7 +13,7 @@ final class ModalityViewModel {
     private(set) var reviews: [ReviewModel] = []
     private(set) var current: Int = 0
     private(set) var result: ReviewResults? = nil
-    private(set) var rejectReason: String = ""
+    private(set) var reviewFeedback: String = ""
     
     init() {
         let todoCertificationsRepository = DIManager.shared.getTodoCertificationsRepository()
@@ -34,13 +34,13 @@ final class ModalityViewModel {
         self.result = result
     }
     
-    func setRejectReason(_ rejectReason: String = "") {
-        self.rejectReason = rejectReason
+    func setReviewFeedback(_ reviewFeedback: String = "") {
+        self.reviewFeedback = reviewFeedback
     }
     
     func reviewTodo() async throws {
         guard let result else { return }
-        let reviewTodoRequest = ReviewTodoRequest(result: result, rejectReason: result == .reject ? rejectReason : nil)
+        let reviewTodoRequest = ReviewTodoRequest(result: result, reviewFeedback: reviewFeedback)
         try await todoCertificationsUseCase.reviewTodo(todoId: String(reviews[current].id), reviewTodoRequest: reviewTodoRequest)
     }
 }
