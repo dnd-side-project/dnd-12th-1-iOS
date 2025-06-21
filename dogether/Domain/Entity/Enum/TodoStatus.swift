@@ -39,16 +39,42 @@ enum TodoStatus: String, CaseIterable {
         }
     }
     
-    var filterType: FilterTypes {
+    var text: String {
         switch self {
         case .waitCertification:
-            return .all // FIXME: 추후 미인증으로 수정
+            return "미인증"
         case .waitExamination:
-            return .wait
-        case .approve:
-            return .approve
+            return "검사 대기"
         case .reject:
-            return .reject
+            return "노인정"
+        case .approve:
+            return "인정"
+        }
+    }
+    
+    var backgroundColor: UIColor {
+        switch self {
+        case .waitCertification:
+            return .grey300
+        case .waitExamination:
+            return .dogetherYellow
+        case .reject:
+            return .dogetherRed
+        case .approve:
+            return .blue300
+        }
+    }
+    
+    var width: CGFloat {
+        switch self {
+        case .waitCertification:
+            return 52
+        case .waitExamination:
+            return 93
+        case .reject:
+            return 78
+        case .approve:
+            return 66
         }
     }
 }

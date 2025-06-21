@@ -13,6 +13,7 @@ struct MemberCertificationInfo {
     let status: TodoStatus
     let certificationContent: String?
     let certificationMediaUrl: String?
+    let feedback: String?
     var thumbnailStatus: ThumbnailStatus
     
     init(
@@ -21,6 +22,7 @@ struct MemberCertificationInfo {
         status: TodoStatus = .waitExamination,
         certificationContent: String? = nil,
         certificationMediaUrl: String? = nil,
+        feedback: String? = nil,
         thumbnailStatus: ThumbnailStatus = .yet
     ) {
         self.id = id
@@ -28,6 +30,7 @@ struct MemberCertificationInfo {
         self.status = status
         self.certificationContent = certificationContent
         self.certificationMediaUrl = certificationMediaUrl
+        self.feedback = feedback
         self.thumbnailStatus = thumbnailStatus
     }
 }

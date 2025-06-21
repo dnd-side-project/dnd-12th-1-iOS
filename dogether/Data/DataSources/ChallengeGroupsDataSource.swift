@@ -12,8 +12,8 @@ final class ChallengeGroupsDataSource {
     
     private init() { }
     
-    func getMyTodos(groupId: String, date: String, status: String?) async throws -> GetMyTodosResponse {
-        try await NetworkManager.shared.request(ChallengeGroupsRouter.getMyTodos(groupId: groupId, date: date, status: status))
+    func getMyTodos(groupId: String, date: String) async throws -> GetMyTodosResponse {
+        try await NetworkManager.shared.request(ChallengeGroupsRouter.getMyTodos(groupId: groupId, date: date))
     }
     
     func getMemberTodos(groupId: String, memberId: String) async throws -> GetMemberTodosResponse {

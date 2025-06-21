@@ -88,6 +88,7 @@ final class MainViewController: BaseViewController {
         super.viewDidLoad()
         
         checkAuthorization()
+        coordinator?.updateViewController = loadMainView
         
         // ???: 화면 전환을 고려하면 일부러 강한 참조를 걸어야할까
         // TODO: 알림 권한을 거부한 사용자에 대한 로직은 추후에 추가
@@ -160,21 +161,23 @@ final class MainViewController: BaseViewController {
                     guard let self, let button else { return }
                     Task {
                         self.viewModel.setFilter(filter: button.type)
-                        try await self.viewModel.updateListInfo()
                         await MainActor.run { self.updateList() }
                     }
                 }, for: .touchUpInside
             )
         }
         
-        todayEmptyView.todoButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                let todoWriteViewController = TodoWriteViewController()
-                todoWriteViewController.viewModel.groupId = viewModel.currentGroup.id
-                coordinator?.pushViewController(todoWriteViewController)
-            }, for: .touchUpInside
-        )
+        [todoListView.addTodoButton, todayEmptyView.todoButton].forEach { button in
+            button.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    let todoWriteViewController = TodoWriteViewController()
+                    todoWriteViewController.viewModel.groupId = viewModel.currentGroup.id
+                    todoWriteViewController.viewModel.todos = viewModel.todoList.map { WriteTodoInfo(content: $0.content, enabled: false) }
+                    coordinator?.pushViewController(todoWriteViewController)
+                }, for: .touchUpInside
+            )
+        }
     }
     
     override func configureHierarchy() {
@@ -234,24 +237,33 @@ final class MainViewController: BaseViewController {
 }
 
 extension MainViewController {
-    private func loadMainView(selectedIndex: Int? = nil) {
+    // MARK: () -> Void 타입이어야 updateViewController지정 가능
+    private func loadMainView() {
+        loadMainView(selectedIndex: nil)
+    }
+    
+    private func loadMainView(selectedIndex: Int?) {
         Task { [weak self] in
             guard let self else { return }
-            try await viewModel.loadMainView(
-                selectedIndex: selectedIndex,
-                noGroupAction: { self.coordinator?.setNavigationController(StartViewController()) }
-            )
+            let (groupIndex, newChallengeGroupInfos) = try await viewModel.getChallengeGroupInfos()
             
-            configureBottomSheetViewController()
-            
-            if viewModel.currentGroup.status == .ready {
-                viewModel.startCountdown(updateTimer: updateTimer, updateList: updateList)
-            }
-            
-            try await viewModel.updateListInfo()
-            await MainActor.run {
-                self.updateView()
-                self.updateList()
+            if newChallengeGroupInfos.isEmpty {
+                await MainActor.run { self.coordinator?.setNavigationController(StartViewController()) }
+            } else {
+                viewModel.setChallengeIndex(index: selectedIndex ?? groupIndex ?? 0)
+                viewModel.setChallengeGroupInfos(challengegroupInfos: newChallengeGroupInfos)
+                
+                configureBottomSheetViewController()
+                
+                if viewModel.currentGroup.status == .ready {
+                    viewModel.startCountdown(updateTimer: updateTimer, updateList: updateList)
+                }
+                
+                try await viewModel.updateListInfo()
+                await MainActor.run {
+                    self.updateView()
+                    self.updateList()
+                }
             }
         }
     }
@@ -412,12 +424,7 @@ extension MainViewController: UIScrollViewDelegate {
 extension MainViewController: BottomSheetDelegate {
     private func configureBottomSheetViewController() {
         let bottomSheetItem = viewModel.challengeGroupInfos.map { $0.bottomSheetItem }
-        
-        if viewModel.selectedGroup == nil {
-            viewModel.selectedGroup = viewModel.currentGroup
-        }
-        
-        let selectedItem = viewModel.selectedGroup?.bottomSheetItem
+        let selectedItem = viewModel.currentGroup.bottomSheetItem
         
         if bottomSheetItem.isEmpty { return }
 
@@ -435,9 +442,8 @@ extension MainViewController: BottomSheetDelegate {
                   let selectedGroup = selectedItem.value as? ChallengeGroupInfo,
                   let selectedIndex = viewModel.challengeGroupInfos.firstIndex(of: selectedGroup) else { return }
             
-            viewModel.selectedGroup = selectedItem.value as? ChallengeGroupInfo
-            viewModel.saveLastSelectedGroup()
             viewModel.setChallengeIndex(index: selectedIndex)
+            viewModel.saveLastSelectedGroup()
             viewModel.setDateOffset(offset: 0)
             loadMainView(selectedIndex: selectedIndex)
         }

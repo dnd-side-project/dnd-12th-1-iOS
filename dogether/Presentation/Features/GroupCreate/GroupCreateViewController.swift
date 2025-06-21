@@ -193,6 +193,7 @@ final class GroupCreateViewController: BaseViewController {
                             let completeViewController = CompleteViewController()
                             completeViewController.viewModel.groupType = .create
                             completeViewController.viewModel.joinCode = joinCode
+                            completeViewController.viewModel.groupInfo = ChallengeGroupInfo(name: self.viewModel.currentGroupName)
                             self.coordinator?.setNavigationController(completeViewController)
                         }
                     }

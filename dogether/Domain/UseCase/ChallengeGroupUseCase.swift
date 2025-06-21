@@ -14,13 +14,13 @@ final class ChallengeGroupUseCase {
         self.repository = repository
     }
     
-    func createTodos(groupId: Int, todos: [String]) async throws {
-        let createTodosRequest = CreateTodosRequest(todos: todos)
+    func createTodos(groupId: Int, todos: [WriteTodoInfo]) async throws {
+        let createTodosRequest = CreateTodosRequest(todos: todos.filter { $0.enabled }.map { $0.content })
         try await repository.createTodos(groupId: String(groupId), createTodosRequest: createTodosRequest)
     }
     
-    func getMyTodos(groupId: Int, date: String, status: TodoStatus?) async throws -> [TodoInfo] {
-        let response = try await repository.getMyTodos(groupId: String(groupId), date: date, status: status?.rawValue)
+    func getMyTodos(groupId: Int, date: String) async throws -> [TodoInfo] {
+        let response = try await repository.getMyTodos(groupId: String(groupId), date: date)
         return response.todos
     }
     
@@ -34,7 +34,9 @@ final class ChallengeGroupUseCase {
                 status: TodoStatus(rawValue: $0.status) ?? .waitExamination,
                 certificationContent: $0.certificationContent,
                 certificationMediaUrl: $0.certificationMediaUrl,
-                thumbnailStatus: $0.isRead ? .done : .yet)
+                feedback: $0.reviewFeedback,
+                thumbnailStatus: $0.isRead ? .done : .yet
+            )
         }
         return (currentIndex, memberTodos)
     }

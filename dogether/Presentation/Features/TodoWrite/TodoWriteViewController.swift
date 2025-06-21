@@ -292,7 +292,7 @@ extension TodoWriteViewController: UITableViewDelegate, UITableViewDataSource {
             for: indexPath
         ) as? TodoWriteTableViewCell else { return UITableViewCell() }
         
-        cell.setExtraInfo(text: viewModel.todos[indexPath.row], index: indexPath.row) { [weak self] index in
+        cell.setExtraInfo(todo: viewModel.todos[indexPath.row], index: indexPath.row) { [weak self] index in
             guard let self else { return }
             viewModel.removeTodo(index)
             todoTableView.reloadData()

@@ -61,16 +61,14 @@ final class RankingViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        coordinator?.updateViewController = loadRankingView
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        Task { [weak self] in
-            guard let self else { return }
-            try await viewModel.loadRankingView()
-            await MainActor.run { self.updateView() }
-        }
+        loadRankingView()
     }
     
     override func configureView() {
@@ -115,6 +113,14 @@ final class RankingViewController: BaseViewController {
 }
 
 extension RankingViewController {
+    private func loadRankingView() {
+        Task { [weak self] in
+            guard let self else { return }
+            try await viewModel.loadRankingView()
+            await MainActor.run { self.updateView() }
+        }
+    }
+    
     private func updateView() {
         rankingTopStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 

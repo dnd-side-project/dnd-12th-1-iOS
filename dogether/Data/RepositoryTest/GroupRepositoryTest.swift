@@ -71,7 +71,7 @@ final class GroupRepositoryTest: GroupProtocol {
                 profileImageUrl: "",
                 name: "testName \($0)",
                 historyReadStatus: $0 % 3 == 0 ? "NULL" : $0 % 3 == 1 ? "READ_YET" : "READ_ALL",
-                achievementRate: $0)
+                achievementRate: $0 > 10 ? 100 : $0 > 5 ? 44 : 0)
         }
         return GetRankingResponse(ranking: rankings)
     }

@@ -23,7 +23,6 @@ final class TodoWriteTableViewCell: BaseTableViewCell, ReusableProtocol {
     private let todoLabel = {
         let label = UILabel()
         label.font = Fonts.body1S
-        label.textColor = .grey50
         return label
     }()
     
@@ -67,15 +66,19 @@ final class TodoWriteTableViewCell: BaseTableViewCell, ReusableProtocol {
 }
 
 extension TodoWriteTableViewCell {
-    func setExtraInfo(text: String, index: Int, deleteAction: @escaping (Int) -> Void) {
-        todoLabel.text = text
+    func setExtraInfo(todo: WriteTodoInfo, index: Int, deleteAction: @escaping (Int) -> Void) {
+        todoLabel.text = todo.content
+        todoLabel.textColor = todo.enabled ? .grey50 : .grey500
         deleteButton.tag = index
         deleteButton.removeTarget(nil, action: nil, for: .touchUpInside)
-        deleteButton.addAction(
-            UIAction { [weak deleteButton] _ in
-                guard let deleteButton else { return }
-                deleteAction(deleteButton.tag)
-            }, for: .touchUpInside
-        )
+        deleteButton.isHidden = !todo.enabled
+        if todo.enabled {
+            deleteButton.addAction(
+                UIAction { [weak deleteButton] _ in
+                    guard let deleteButton else { return }
+                    deleteAction(deleteButton.tag)
+                }, for: .touchUpInside
+            )
+        }
     }
 }

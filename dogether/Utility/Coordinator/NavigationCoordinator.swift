@@ -16,8 +16,19 @@ final class NavigationCoordinator: NSObject {
     private let navigationController: UINavigationController
     private var modalityWindow: UIWindow? = nil
     
+    var updateViewController: (() -> Void)? = nil
+    
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
+        super.init()
+        
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(updateLastAccessDate), name: .NSCalendarDayChanged, object: nil
+        )
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .NSCalendarDayChanged, object: nil)
     }
 }
 
@@ -27,16 +38,22 @@ extension NavigationCoordinator {
 
     func setNavigationController(_ viewController: BaseViewController, animated: Bool = true) {
         viewController.coordinator = self
+        updateViewController = nil
+        
         navigationController.setViewControllers([viewController], animated: animated)
         navigationController.interactivePopGestureRecognizer?.delegate = self
     }
     
     func pushViewController(_ viewController: BaseViewController, animated: Bool = true) {
         viewController.coordinator = self
+        updateViewController = nil
+        
         navigationController.pushViewController(viewController, animated: animated)
     }
     
     func popViewController(animated: Bool = true) {
+        updateViewController = nil
+        
         navigationController.popViewController(animated: animated)
     }
 }
@@ -124,16 +141,20 @@ extension NavigationCoordinator: NotificationHandler {
             
         case .review:
             guard let currentViewController = navigationController.viewControllers.last,
-                  let mainViewController = currentViewController as? MainViewController else { return }
-            // FIXME: 추후 메인화면 개편과 함께 수정, 자정 새로고침에 대해 고려
-            Task { [weak mainViewController] in
-                guard let self = mainViewController else { return }
-                try await self.viewModel.updateListInfo()
-                await MainActor.run { self.updateList() }
-            }
+                  let _ = currentViewController as? MainViewController else { return }
+            
+            updateViewController?()
             
         default:
             return
+        }
+    }
+    
+    @objc func updateLastAccessDate() {
+        if UserDefaultsManager.shared.lastAccessDate != Date().toString() {
+            UserDefaultsManager.shared.lastAccessDate = Date().toString()
+            
+            updateViewController?()
         }
     }
 }

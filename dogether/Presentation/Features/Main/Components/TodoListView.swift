@@ -55,6 +55,22 @@ final class TodoListView: BaseView {
         return stackView
     }()
     
+    let addTodoButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(.grey200, for: .normal)
+        button.titleLabel?.font = Fonts.body1S
+        button.backgroundColor = .clear
+        button.contentHorizontalAlignment = .center
+        
+        button.setImage(.plus2, for: .normal)
+        button.tintColor = .grey200
+        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
+        button.imageView?.contentMode = .scaleAspectFit
+        
+        return button
+    }()
+    
     override func configureView() {
         [allButton, waitButton, rejectButton, approveButton].forEach { filterStackView.addArrangedSubview($0) }
         [emptyListImageView, emptyListLabel].forEach { emptyListStackView.addArrangedSubview($0) }
@@ -107,13 +123,19 @@ extension TodoListView {
         rejectButton.setIsColorful(filter == .reject)
         approveButton.setIsColorful(filter == .approve)
         
-        todoListStackView.isHidden = todoList.isEmpty
-        emptyListStackView.isHidden = !todoList.isEmpty
+        let currentTodoList = todoList.filter { filter == .all || filter == FilterTypes(status: $0.status) }
+        todoListStackView.isHidden = currentTodoList.isEmpty
+        emptyListStackView.isHidden = !currentTodoList.isEmpty
         
         todoListStackView.subviews.forEach { todoListStackView.removeArrangedSubview($0) }
-        todoList
+        currentTodoList
             .map { TodoListItemButton(todo: $0, isToday: isToday) }
             .forEach { todoListStackView.addArrangedSubview($0) }
+        
+        if todoList.count < 10 && isToday {
+            addTodoButton.setTitle("투두 추가하기 (\(todoList.count)/10)", for: .normal)
+            todoListStackView.addArrangedSubview(addTodoButton)
+        }
         
         emptyListLabel.text = filter.emptyDescription
     }

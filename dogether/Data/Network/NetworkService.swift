@@ -8,10 +8,13 @@
 import Foundation
 
 class NetworkService {
-    static let shared = NetworkService()
-    private init () { }
+    private let serverURL: URL?
     
-    private let serverURL: URL? = URL(string: "https://api-dev.dogether.site")
+    // MARK: 배포마다 releaseMode 수정 (추후 자동화)
+    static let shared = NetworkService(releaseMode: .prod)
+    private init (releaseMode: ReleaseModes) {
+        self.serverURL = URL(string: releaseMode.urlString)
+    }
 
     private func configureURL(_ endpoint: NetworkEndpoint) -> URL? {
         guard let baseURL = serverURL else { return nil }

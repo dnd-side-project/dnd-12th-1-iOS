@@ -16,7 +16,7 @@ final class TodoWriteViewModel {
     let todoMaxLength: Int = 20
     
     private(set) var todo: String = ""
-    private(set) var todos: [String] = []
+    var todos: [WriteTodoInfo] = []
     
     init() {
         let challengeGroupsRepository = DIManager.shared.getChallengeGroupsRepository()
@@ -37,7 +37,7 @@ extension TodoWriteViewModel {
     func addTodo() -> Bool {
         if todo.isEmpty || todos.count >= maximumTodoCount { return false }
         
-        todos.insert(todo, at: 0)
+        todos.insert(WriteTodoInfo(content: todo), at: 0)
         return true
     }
     

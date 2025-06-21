@@ -19,13 +19,23 @@ struct MemberTodo: Decodable {
     let certificationContent: String?
     let certificationMediaUrl: String?
     let isRead: Bool
+    let reviewFeedback: String?
     
-    init(id: Int, content: String, status: String, certificationContent: String? = nil, certificationMediaUrl: String? = nil, isRead: Bool) {
+    init(
+        id: Int,
+        content: String,
+        status: String,
+        certificationContent: String? = nil,
+        certificationMediaUrl: String? = nil,
+        isRead: Bool,
+        reviewFeedback: String? = nil
+    ) {
         self.id = id
         self.content = content
         self.status = status
         self.certificationContent = certificationContent
         self.certificationMediaUrl = certificationMediaUrl
         self.isRead = isRead
+        self.reviewFeedback = reviewFeedback
     }
 }

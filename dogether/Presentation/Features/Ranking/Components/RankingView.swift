@@ -69,14 +69,14 @@ final class RankingView: BaseView {
         
         certificationImageView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.right.equalTo(certificationLabel.snp.left).offset(-4)
+            $0.right.equalToSuperview().offset(-42)
             $0.width.height.equalTo(24)
         }
         
         certificationLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.right.equalToSuperview()
-            $0.width.equalTo(31)
+            $0.left.equalTo(certificationImageView.snp.right).offset(4)
+            $0.width.equalTo(38)
         }
     }
 }

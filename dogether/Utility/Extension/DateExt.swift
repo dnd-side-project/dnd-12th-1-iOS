@@ -13,4 +13,11 @@ extension Date {
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: self)!
         return calendar.startOfDay(for: tomorrow).timeIntervalSince(self)
     }
+    
+    func toString(format: String = "yyyy.MM.dd") -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = format
+        return formatter.string(from: self)
+    }
 }
