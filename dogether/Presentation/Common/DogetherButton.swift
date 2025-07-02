@@ -11,7 +11,7 @@ final class DogetherButton: BaseButton {
     private(set) var title: String
     private(set) var status: ButtonStatus
     
-    init(title: String, status: ButtonStatus) {
+    init(title: String, status: ButtonStatus = .enabled) {
         self.title = title
         self.status = status
         

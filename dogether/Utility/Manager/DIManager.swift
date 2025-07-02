@@ -21,6 +21,15 @@ final class DIManager {
 }
 
 extension DIManager {
+    func getAppInfoRepository(buildMode: BuildModes? = nil) -> AppInfoProtocol {
+        switch buildMode ?? defaultBuildMode {
+        case .debug:
+            return AppInfoRepositoryTest()
+        case .live:
+            return AppInfoRepository()
+        }
+    }
+    
     func getAuthRepository(buildMode: BuildModes? = nil) -> AuthProtocol {
         switch buildMode ?? defaultBuildMode {
         case .debug:
