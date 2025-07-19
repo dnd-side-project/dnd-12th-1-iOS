@@ -18,15 +18,17 @@ class NetworkManager {
         do {
             let response: ServerResponse<T> = try await NetworkService.shared.request(endpoint)
             
-            if response.code == "99" {
-                throw NetworkError.server
-            } else if let data = response.data {
-                return data
-            } else {
-                throw NetworkError.parse
+            guard response.code != "99" else {
+                throw NetworkError.serverError(message: response.message)
             }
+            
+            guard let data = response.data else {
+                throw NetworkError.noData
+            }
+            
+            return data
         } catch {
-           throw mapError(error)
+            throw mapError(error)
         }
     }
     
@@ -36,10 +38,6 @@ class NetworkManager {
         
         do {
             let response: ServerResponse<EmptyData> = try await NetworkService.shared.request(endpoint)
-            
-            if response.code == "99" {
-                throw NetworkError.server
-            }
         } catch {
             throw mapError(error)
         }
@@ -49,7 +47,7 @@ class NetworkManager {
         if let networkError = error as? NetworkError {
             return networkError
         } else {
-            return NetworkError.unknown
+            return NetworkError.unknown(error)
         }
     }
 }

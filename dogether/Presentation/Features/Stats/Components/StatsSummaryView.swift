@@ -35,7 +35,7 @@ final class StatsSummaryView: BaseView {
     // 달성 Row
     private let achievedIconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = .certification2
+        imageView.image = .certificationGray
         imageView.contentMode = .scaleAspectFit
         imageView.snp.makeConstraints { $0.size.equalTo(24) }
         return imageView

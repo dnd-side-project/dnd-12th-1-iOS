@@ -87,7 +87,7 @@ final class CertificationListContentView: BaseView {
         
         filterView.snp.makeConstraints {
             $0.top.equalTo(summaryView.snp.bottom).offset(32)
-            $0.leading.equalToSuperview().inset(16)
+            $0.leading.equalToSuperview()
             $0.trailing.equalToSuperview()
         }
         

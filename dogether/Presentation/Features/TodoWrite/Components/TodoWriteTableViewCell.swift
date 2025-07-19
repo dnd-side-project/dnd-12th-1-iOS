@@ -55,6 +55,7 @@ final class TodoWriteTableViewCell: BaseTableViewCell, ReusableProtocol {
         todoLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.leading.equalToSuperview().offset(16)
+            $0.trailing.equalTo(deleteButton.snp.leading)
         }
         
         deleteButton.snp.makeConstraints {

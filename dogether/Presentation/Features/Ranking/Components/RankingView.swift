@@ -34,7 +34,7 @@ final class RankingView: BaseView {
     private let certificationLabel = {
         let label = UILabel()
         label.textColor = .blue300
-        label.font = Fonts.body2S
+        label.font = Fonts.body1S
         return label
     }()
     
@@ -69,14 +69,14 @@ final class RankingView: BaseView {
         
         certificationImageView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.right.equalToSuperview().offset(-42)
+            $0.right.equalToSuperview().offset(-50)
             $0.width.height.equalTo(24)
         }
         
         certificationLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.left.equalTo(certificationImageView.snp.right).offset(4)
-            $0.width.equalTo(38)
+            $0.width.equalTo(42)
         }
     }
 }

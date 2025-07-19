@@ -15,7 +15,12 @@ final class CertificationFilterView: BaseView {
     private let scrollView = UIScrollView()
     private let contentStackView = UIStackView()
     let sortButton = CertificationSortButton()
-    private var filterButtons: [FilterButton] = []
+    
+    private var currentFilter: FilterTypes = .all   // FIXME: View에서 변수를 관리하는 건 좋지 않은 것 같아요 나중에 CertificationListViewModel로 빼주세요
+    private var allButton = FilterButton(type: .all)
+    private var waitButton = FilterButton(type: .wait)
+    private var rejectButton = FilterButton(type: .reject)
+    private var approveButton = FilterButton(type: .approve)
     
     var filterSelected: ((FilterTypes) -> Void)?
     
@@ -28,9 +33,25 @@ final class CertificationFilterView: BaseView {
     }
     
     override func configureView() {
+        setFilter(filter: .all)
         setupScrollView()
         setupContentStackView()
         setupButtons()
+    }
+    
+    override func configureAction() {
+        // FIXME: View에서 Action을 들고있는 건 좋지 않은 것 같아요 나중에 CertificationListViewController로 빼주세요
+        // ???: 다만, filterSelected에 넣지 않은 이유는 View -> ViewController 형태의 역방향 호출 방법에 대해 논의하고 싶어서입니다
+        [allButton, waitButton, approveButton, rejectButton].forEach { button in
+            button.addAction(
+                UIAction { [weak self, weak button] _ in
+                    guard let self, let button else { return }
+                    Task { @MainActor in
+                        self.setFilter(filter: button.type)
+                    }
+                }, for: .touchUpInside
+            )
+        }
     }
     
     override func configureHierarchy() {
@@ -45,7 +66,8 @@ final class CertificationFilterView: BaseView {
         }
         
         contentStackView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+            $0.verticalEdges.equalToSuperview()
+            $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalToSuperview()
         }
     }
@@ -64,19 +86,6 @@ extension CertificationFilterView {
     }
     
     private func setupButtons() {
-        let filterTypes: [FilterTypes] = [.wait, .approve, .reject]
-        
-        filterButtons = filterTypes.map { type in
-            let button = FilterButton(type: type, isColorful: false)
-            button.addAction(
-                UIAction { [weak self] _ in
-                    guard let self else { return }
-                    handleFilterButtonTapped(button)
-                }, for: .touchUpInside
-            )
-            return button
-        }
-        
         sortButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
@@ -85,20 +94,20 @@ extension CertificationFilterView {
         )
         
         contentStackView.addArrangedSubview(sortButton)
-        filterButtons.forEach {
-            contentStackView.addArrangedSubview($0)
-        }
+        [allButton, waitButton, approveButton, rejectButton].forEach { contentStackView.addArrangedSubview($0) }
     }
     
-    private func handleFilterButtonTapped(_ sender: FilterButton) {
-        let isCurrentlyActive = sender.isColorful
-          if isCurrentlyActive {
-              sender.setIsColorful(false)
-              filterSelected?(.all)
-          } else {
-              filterButtons.forEach { $0.setIsColorful(false) }
-              sender.setIsColorful(true)
-              filterSelected?(sender.type)
-          }
+    private func setFilter(filter: FilterTypes) {
+        if currentFilter == filter {
+            currentFilter = .all
+        } else {
+            currentFilter = filter
+        }
+        
+        filterSelected?(currentFilter)
+        allButton.setIsColorful(currentFilter == .all)
+        waitButton.setIsColorful(currentFilter == .wait)
+        rejectButton.setIsColorful(currentFilter == .reject)
+        approveButton.setIsColorful(currentFilter == .approve)
     }
 }

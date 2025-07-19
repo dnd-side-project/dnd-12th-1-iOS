@@ -48,7 +48,7 @@ extension AuthUseCase: ASAuthorizationControllerDelegate {
                   let idToken = String(data: idTokenData, encoding: .utf8),
                   let authorizationCodeData = appleIDCredential.authorizationCode,
                   let authorizationCode = String(data: authorizationCodeData, encoding: .utf8) else {
-                continuation?.resume(throwing: NetworkError.unknown)
+                continuation?.resume(throwing: NetworkError.unauthorized) // fix me
                 return
             }
             
@@ -60,7 +60,7 @@ extension AuthUseCase: ASAuthorizationControllerDelegate {
             }
         } else {
             // FIXME: 추후 iCloud 키체인 로그인 케이스 추가
-            continuation?.resume(throwing: NetworkError.unknown)
+            continuation?.resume(throwing: NetworkError.unauthorized) // fix me
         }
     }
 }

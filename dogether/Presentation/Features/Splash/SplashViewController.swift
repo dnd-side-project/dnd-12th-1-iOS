@@ -42,7 +42,7 @@ final class SplashViewController: BaseViewController {
         let titleLabel = UILabel()
         titleLabel.text = "두게더가 새로워졌어요!"
         titleLabel.textColor = .grey0
-        titleLabel.font = Fonts.head1B // FIXME: 추후 폰트 수정
+        titleLabel.font = Fonts.head1B
         
         let descriptionLabel = UILabel()
         descriptionLabel.attributedText = NSAttributedString(
@@ -64,7 +64,7 @@ final class SplashViewController: BaseViewController {
         stackView.setCustomSpacing(44, after: descriptionLabel)
         
         typoImage.snp.makeConstraints {
-            $0.height.equalTo(30)   // FIXME: 제안 확인 후 수정
+            $0.height.equalTo(30)
         }
         
         titleLabel.snp.makeConstraints {

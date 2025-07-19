@@ -186,17 +186,7 @@ final class GroupCreateViewController: BaseViewController {
             UIAction { [weak self] _ in
                 guard let self else { return }
                 if viewModel.currentStep.rawValue == viewModel.maxStep {
-                    Task {
-                        try await self.viewModel.createGroup()
-                        guard let joinCode = self.viewModel.joinCode else { return }
-                        await MainActor.run {
-                            let completeViewController = CompleteViewController()
-                            completeViewController.viewModel.groupType = .create
-                            completeViewController.viewModel.joinCode = joinCode
-                            completeViewController.viewModel.groupInfo = ChallengeGroupInfo(name: self.viewModel.currentGroupName)
-                            self.coordinator?.setNavigationController(completeViewController)
-                        }
-                    }
+                    tryCreateGroup()
                 } else {
                     guard let nextStep = CreateGroupSteps(rawValue: viewModel.currentStep.rawValue + 1) else { return }
                     viewModel.updateStep(step: nextStep)
@@ -340,6 +330,34 @@ final class GroupCreateViewController: BaseViewController {
             $0.top.equalToSuperview()
             $0.width.equalToSuperview()
             $0.height.equalTo(267)
+        }
+    }
+}
+
+extension GroupCreateViewController {
+    private func tryCreateGroup() {
+        Task {
+            do {
+                try await viewModel.createGroup()
+                guard let joinCode = viewModel.joinCode else { return }
+                await MainActor.run {
+                    let completeViewController = CompleteViewController()
+                    completeViewController.viewModel.groupType = .create
+                    completeViewController.viewModel.joinCode = joinCode
+                    completeViewController.viewModel.groupInfo = ChallengeGroupInfo(name: viewModel.currentGroupName)
+                    coordinator?.setNavigationController(completeViewController)
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: coordinator,
+                    retryHandler: { [weak self] in
+                        guard let self else { return }
+                        tryCreateGroup()
+                    }
+                )
+            }
         }
     }
 }

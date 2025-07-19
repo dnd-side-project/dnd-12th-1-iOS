@@ -56,6 +56,8 @@ final class MemberCertificationViewController: BaseViewController {
     
     private var statusView = TodoStatusButton(type: .waitCertification)
     
+    private var errorView: ErrorView?
+    
     private let contentLabel = {
         let label = UILabel()
         label.textColor = .grey0
@@ -68,11 +70,7 @@ final class MemberCertificationViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        Task {
-            try await viewModel.loadMemberCertificationView()
-            await MainActor.run { setUI() }
-        }
+        loadMemberCertificationView()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -152,6 +150,25 @@ extension MemberCertificationViewController: UIScrollViewDelegate {
 }
 
 extension MemberCertificationViewController {
+    private func loadMemberCertificationView() {
+        Task {
+            do {
+                try await viewModel.loadMemberCertificationView()
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    showMainContentViews()
+                    setUI()
+                }
+            } catch let error as NetworkError {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    hideMainContentViews()
+                    showErrorView(error: error)
+                }
+            }
+        }
+    }
+    
     private func setUI() {
         viewModel.todos
             .enumerated().map {
@@ -190,7 +207,11 @@ extension MemberCertificationViewController {
     }
     
     private func updateView() {
-        if viewModel.todos[viewModel.currentIndex].thumbnailStatus == .yet { viewModel.readTodo() }
+        guard !viewModel.todos.isEmpty, viewModel.currentIndex < viewModel.todos.count else { return }
+        
+        if viewModel.todos[viewModel.currentIndex].thumbnailStatus == .yet {
+            viewModel.readTodo()
+        }
         
         thumbnailStackView.arrangedSubviews.enumerated().forEach { index, view in
             guard let view = view as? ThumbnailView else { return }
@@ -259,5 +280,30 @@ extension MemberCertificationViewController {
         
         let newOffset = CGPoint(x: scrollViewWidth * CGFloat(nextIndex), y: 0)
         certificationScrollView.setContentOffset(newOffset, animated: true)
+    }
+}
+
+// MARK: - ErrorView
+extension MemberCertificationViewController {
+    private func showErrorView(error: NetworkError) {
+        errorView?.removeFromSuperview()
+        errorView = ErrorHandlingManager.embedErrorView(
+            in: self,
+            under: navigationHeader,
+            error: error,
+            retryHandler: { [weak self] in
+                guard let self else { return }
+                loadMemberCertificationView()
+            }
+        )
+    }
+    
+    private func hideMainContentViews() {
+        [thumbnailScrollView, certificationScrollView, statusContentView].forEach { $0.isHidden = true }
+    }
+
+    private func showMainContentViews() {
+        [thumbnailScrollView, certificationScrollView, statusContentView].forEach { $0.isHidden = false }
+        errorView = nil
     }
 }

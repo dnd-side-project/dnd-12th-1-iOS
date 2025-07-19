@@ -72,7 +72,7 @@ final class TodoListView: BaseView {
     }()
     
     override func configureView() {
-        [allButton, waitButton, rejectButton, approveButton].forEach { filterStackView.addArrangedSubview($0) }
+        [allButton, waitButton, approveButton, rejectButton].forEach { filterStackView.addArrangedSubview($0) }
         [emptyListImageView, emptyListLabel].forEach { emptyListStackView.addArrangedSubview($0) }
     }
     

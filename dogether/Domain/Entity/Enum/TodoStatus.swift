@@ -70,11 +70,11 @@ enum TodoStatus: String, CaseIterable {
         case .waitCertification:
             return 52
         case .waitExamination:
-            return 93
+            return 89
         case .reject:
-            return 78
+            return 74
         case .approve:
-            return 66
+            return 62
         }
     }
 }

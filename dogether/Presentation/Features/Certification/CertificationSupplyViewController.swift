@@ -85,19 +85,10 @@ final class CertificationSupplyViewController: BaseViewController {
         certificationButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                Task {
-                    guard let content = self.todoInfo.certificationContent, let mediaUrl = self.todoInfo.certificationMediaUrl else { return }
-                    let certifyTodoRequest = CertifyTodoRequest(content: content, mediaUrl: mediaUrl)
-                    try await NetworkManager.shared.request(    // FIXME: 추후 수정
-                        ChallengeGroupsRouter.certifyTodo(todoId: String(self.todoInfo.id), certifyTodoRequest: certifyTodoRequest)
-                    )
-                    await MainActor.run {
-                        self.coordinator?.popViewController()
-                        self.coordinator?.popViewController()   // FIXME: 추후 수정
-                    }
-                }
+                tryCertifyTodo()
             }, for: .touchUpInside
         )
+
     }
     
     override func configureHierarchy() {
@@ -221,4 +212,37 @@ extension CertificationSupplyViewController: UITextViewDelegate {
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
+}
+
+extension CertificationSupplyViewController {
+    private func tryCertifyTodo() {
+        Task {
+            guard
+                let content = self.todoInfo.certificationContent,
+                let mediaUrl = self.todoInfo.certificationMediaUrl
+            else { return }
+            
+            let certifyTodoRequest = CertifyTodoRequest(content: content, mediaUrl: mediaUrl)
+            
+            do {
+                try await NetworkManager.shared.request(
+                    ChallengeGroupsRouter.certifyTodo(todoId: String(self.todoInfo.id), certifyTodoRequest: certifyTodoRequest)
+                )
+                
+                await MainActor.run {
+                    self.coordinator?.popViewController()
+                    self.coordinator?.popViewController() // FIXME: 추후 수정
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: self.coordinator,
+                    retryHandler: { [weak self] in
+                        self?.tryCertifyTodo()
+                    }
+                )
+            }
+        }
+    }
 }

@@ -128,7 +128,6 @@ final class TodoWriteViewController: BaseViewController {
     
     override func configureView() {
         updateView()
-        
         todoTextField.attributedPlaceholder = NSAttributedString(
             string: "예) 30분 걷기, 책 20페이지 읽기",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.grey500]
@@ -165,17 +164,13 @@ final class TodoWriteViewController: BaseViewController {
         saveButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                coordinator?.showPopup(self, type: .alert, alertType: .saveTodo) { _ in
-                    Task {
-                        try await self.viewModel.createTodos()
-                        await MainActor.run {
-                            self.coordinator?.popViewController()
-                        }
-                    }
+                self.coordinator?.showPopup(self, type: .alert, alertType: .saveTodo) { [weak self] _ in
+                    guard let self else { return }
+                    trySaveTodo()
                 }
             }, for: .touchUpInside
         )
-        
+
         todoTableView.delegate = self
         todoTableView.dataSource = self
         todoTableView.register(TodoWriteTableViewCell.self, forCellReuseIdentifier: TodoWriteTableViewCell.identifier)
@@ -324,4 +319,27 @@ extension TodoWriteViewController: UITextFieldDelegate {
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
+}
+
+extension TodoWriteViewController {
+    private func trySaveTodo() {
+        Task {
+            do {
+                try await self.viewModel.createTodos()
+                await MainActor.run {
+                    self.coordinator?.popViewController()
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: self.coordinator,
+                    retryHandler: { [weak self] in
+                        guard let self else { return }
+                        trySaveTodo()  // 다시 시도 시, 팝업 없이 저장만 재시도
+                    }
+                )
+            }
+        }
+    }
 }

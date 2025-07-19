@@ -85,29 +85,11 @@ final class GroupJoinViewController: BaseViewController {
             },
             for: .editingChanged
         )
-
+        
         joinButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                Task {
-                    do {
-                        try await self.viewModel.joinGroup()
-                        guard let groupInfo = self.viewModel.challengeGroupInfo else { return }
-                        await MainActor.run {
-                            let completeViewController = CompleteViewController()
-                            completeViewController.viewModel.groupType = .join
-                            completeViewController.viewModel.groupInfo = groupInfo
-                            self.coordinator?.setNavigationController(completeViewController)
-                        }
-                    } catch {
-                        self.viewModel.handleCodeError()
-                        
-                        self.updateSubTitleLabel()
-                        self.updateCodetextField()
-                        
-                        self.joinButton.setButtonStatus(status: .disabled)
-                    }
-                }
+                tryJoinGroup()
             }, for: .touchUpInside
         )
     }
@@ -143,6 +125,33 @@ final class GroupJoinViewController: BaseViewController {
         joinButton.snp.makeConstraints {
             joinButtonBottomConstraint = $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(buttonBottomInset).constraint
             $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+    }
+}
+
+extension GroupJoinViewController {
+    private func tryJoinGroup() {
+        Task {
+            do {
+                try await viewModel.joinGroup()
+                guard let groupInfo = viewModel.challengeGroupInfo else { return }
+                await MainActor.run {
+                    let completeViewController = CompleteViewController()
+                    completeViewController.viewModel.groupType = .join
+                    completeViewController.viewModel.groupInfo = groupInfo
+                    coordinator?.setNavigationController(completeViewController)
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: coordinator,
+                    retryHandler: { [weak self] in
+                        guard let self else { return }
+                        tryJoinGroup()
+                    }
+                )
+            }
         }
     }
 }

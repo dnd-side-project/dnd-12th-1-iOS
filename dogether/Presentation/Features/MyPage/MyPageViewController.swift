@@ -29,7 +29,7 @@ final class MyPageViewController: BaseViewController {
     }()
     
     private let statsImageView: UIImageView = {
-        let imageView = UIImageView(image: .happyDusik)
+        let imageView = UIImageView(image: .happyDosik)
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()

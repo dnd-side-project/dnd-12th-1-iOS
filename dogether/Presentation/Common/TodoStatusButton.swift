@@ -60,7 +60,7 @@ final class TodoStatusButton: BaseButton {
         }
         
         icon.snp.makeConstraints {
-            $0.width.height.equalTo(type == .waitExamination ? 18 : type == .reject ? 22 : 24)    // MARK: 임의로 사이즈 조정
+            $0.width.height.equalTo(18)
         }
     }
 }
@@ -81,7 +81,7 @@ extension TodoStatusButton {
         }
         
         icon.snp.updateConstraints {
-            $0.width.height.equalTo(type == .waitExamination ? 18 : type == .reject ? 22 : 24)
+            $0.width.height.equalTo(18)
         }
     }
 }

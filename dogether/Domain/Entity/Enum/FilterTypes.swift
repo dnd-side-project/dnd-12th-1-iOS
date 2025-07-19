@@ -55,11 +55,11 @@ enum FilterTypes: String, CaseIterable {
         case .all:
             return 48
         case .wait:
-            return 93
+            return 89
         case .reject:
-            return 78
+            return 74
         case .approve:
-            return 66
+            return 62
         }
     }
     

@@ -59,6 +59,8 @@ final class RankingViewController: BaseViewController {
         return tableView
     }()
     
+    private var errorView: ErrorView?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -116,8 +118,18 @@ extension RankingViewController {
     private func loadRankingView() {
         Task { [weak self] in
             guard let self else { return }
-            try await viewModel.loadRankingView()
-            await MainActor.run { self.updateView() }
+            do {
+                try await viewModel.loadRankingView()
+                await MainActor.run {
+                    self.showMainContentViews()
+                    self.updateView()
+                }
+            } catch let error as NetworkError {
+                await MainActor.run {
+                    self.hideMainContentViews()
+                    self.showErrorView(error: error)
+                }
+            }
         }
     }
     
@@ -172,5 +184,34 @@ extension RankingViewController {
         memberCertificationViewController.viewModel.groupId = viewModel.groupId
         memberCertificationViewController.viewModel.memberInfo = viewModel.rankings[rankingIndex]
         coordinator?.pushViewController(memberCertificationViewController)
+    }
+}
+
+// MARK: - ErrorView
+extension RankingViewController {
+    private func showErrorView(error: NetworkError) {
+        errorView?.removeFromSuperview()
+        errorView = ErrorHandlingManager.embedErrorView(
+            in: self,
+            under: navigationHeader,
+            error: error,
+            retryHandler: { [weak self] in
+                guard let self else { return }
+                loadRankingView()
+            }
+        )
+    }
+    
+    private func showMainContentViews() {
+        [rankingTopStackView, descriptionView, rankingTableView].forEach {
+            $0.isHidden = false
+        }
+        errorView = nil
+    }
+    
+    private func hideMainContentViews() {
+        [rankingTopStackView, descriptionView, rankingTableView].forEach {
+            $0.isHidden = true
+        }
     }
 }

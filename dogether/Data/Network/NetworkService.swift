@@ -43,19 +43,47 @@ class NetworkService {
         return request
     }
     
-    func request<T: Decodable>(_ endpoint: NetworkEndpoint) async throws -> T {
+    func request<T: Decodable>(_ endpoint: NetworkEndpoint) async throws -> ServerResponse<T> {
         guard let url = configureURL(endpoint) else {
-            throw NetworkError.request
+            throw NetworkError.invalidURL
         }
         
         let request = configureRequest(url: url, endpoint)
         
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let decodeData = try JSONDecoder().decode(T.self, from: data)
-            return decodeData
-        } catch {
-            throw NetworkError.parse
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.unknown(NSError(domain: "", code: -1, userInfo: nil))
+            }
+            
+            let decoded = try JSONDecoder().decode(ServerResponse<T>.self, from: data)
+            
+            let statusCode = httpResponse.statusCode
+            switch statusCode {
+            case 200:
+                return decoded
+            case 400:
+                if let errorCode = DogetherCodes(rawValue: decoded.code) {
+                    throw NetworkError.dogetherError(code: errorCode, message: decoded.message)
+                } else {
+                    throw NetworkError.badRequest
+                }
+            case 401:
+                throw NetworkError.unauthorized
+            case 403:
+                throw NetworkError.forbidden
+            case 404:
+                throw NetworkError.notFound
+            default:
+                throw NetworkError.serverError(message: "서버 오류가 발생했습니다. (코드: \(statusCode))")
+            }
+        } catch let error as DecodingError {
+            throw NetworkError.decodingFailed
+        }  catch let error as NetworkError {
+            throw error
+         } catch {
+            throw NetworkError.unknown(error)
         }
     }
 }

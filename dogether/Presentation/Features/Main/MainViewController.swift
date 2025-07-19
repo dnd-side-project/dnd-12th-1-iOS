@@ -22,6 +22,8 @@ final class MainViewController: BaseViewController {
     
     private let groupInfoView = GroupInfoView()
     
+    private var errorView: ErrorView?
+    
     private var bottomSheetViewController: BottomSheetViewController?
     
     private let rankingButton = {
@@ -159,9 +161,9 @@ final class MainViewController: BaseViewController {
             button.addAction(
                 UIAction { [weak self, weak button] _ in
                     guard let self, let button else { return }
-                    Task {
-                        self.viewModel.setFilter(filter: button.type)
-                        await MainActor.run { self.updateList() }
+                    self.viewModel.setFilter(filter: button.type)
+                    Task { @MainActor in
+                        self.updateList()
                     }
                 }, for: .touchUpInside
             )
@@ -245,26 +247,41 @@ extension MainViewController {
     private func loadMainView(selectedIndex: Int?) {
         Task { [weak self] in
             guard let self else { return }
-            let (groupIndex, newChallengeGroupInfos) = try await viewModel.getChallengeGroupInfos()
-            
-            if newChallengeGroupInfos.isEmpty {
-                await MainActor.run { self.coordinator?.setNavigationController(StartViewController()) }
-            } else {
+            do {
+                let (groupIndex, newChallengeGroupInfos) = try await viewModel.getChallengeGroupInfos()
+
+                if newChallengeGroupInfos.isEmpty {
+                    await MainActor.run {
+                        self.coordinator?.setNavigationController(StartViewController())
+                    }
+                    return
+                }
+
                 viewModel.setChallengeIndex(index: selectedIndex ?? groupIndex ?? 0)
                 viewModel.setChallengeGroupInfos(challengegroupInfos: newChallengeGroupInfos)
-                
+
                 configureBottomSheetViewController()
-                
+
                 if viewModel.currentGroup.status == .ready {
                     viewModel.startCountdown(updateTimer: updateTimer, updateList: updateList)
                 }
-                
+
                 try await viewModel.updateListInfo()
+
                 await MainActor.run {
+                    self.errorView?.removeFromSuperview()
+                    self.errorView = nil
+                    self.showMainContentViews()
                     self.updateView()
                     self.updateList()
                 }
+            } catch let error as NetworkError {
+                await MainActor.run {
+                    self.hideMainContentViews()
+                    self.showErrorView(error: error)
+                }
             }
+
         }
     }
 }
@@ -454,5 +471,33 @@ extension MainViewController: BottomSheetDelegate {
            let bottomSheetViewController {
             present(bottomSheetViewController, animated: true)
         }
+    }
+}
+
+// MARK: - ErrorView
+extension MainViewController {
+    private func showErrorView(error: NetworkError) {
+        errorView?.removeFromSuperview()
+        errorView = ErrorHandlingManager.embedErrorView(
+            in: self,
+            under: dogetherHeader,
+            error: error,
+            retryHandler: { [weak self] in
+                guard let self else { return }
+                self.loadMainView()
+            }
+        )
+    }
+    
+    private func showMainContentViews() {
+        [timerView, todoListView, todayEmptyView, pastEmptyView, doneView,
+         dogetherSheet, rankingButton, dosikCommentButton, dosikImageView, groupInfoView]
+            .forEach { $0.isHidden = false }
+    }
+    
+    private func hideMainContentViews() {
+        [timerView, todoListView, todayEmptyView, pastEmptyView, doneView,
+         dogetherSheet, rankingButton, dosikCommentButton, dosikImageView, groupInfoView]
+            .forEach { $0.isHidden = true }
     }
 }

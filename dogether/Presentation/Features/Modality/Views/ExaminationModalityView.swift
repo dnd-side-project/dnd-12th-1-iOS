@@ -67,7 +67,7 @@ final class ExaminationModalityView: BaseView {
         }
         
         icon.snp.makeConstraints {
-            $0.width.height.equalTo(type == .reject ? 22 : 24)    // MARK: 임의로 사이즈 조정
+            $0.width.height.equalTo(24)
         }
         
         return button

@@ -10,9 +10,9 @@ import UIKit
 final class StatsViewController: BaseViewController {
     var viewModel = StatsViewModel()
     private let navigationHeader = NavigationHeader(title: "통계")
-    private let statsEmptyView = GroupEmptyView()
-    private var statsContentView: StatsContentView?
-    
+    private let emptyView = GroupEmptyView()
+    private var contentView: StatsContentView?
+    private var errorView: ErrorView?
     private var bottomSheetViewController: BottomSheetViewController?
     
     override func viewDidLoad() {
@@ -24,7 +24,7 @@ final class StatsViewController: BaseViewController {
         navigationHeader.delegate = self
         viewModel.delegate = self
         
-        statsEmptyView.createButtonTapHandler = { [weak self] in
+        emptyView.createButtonTapHandler = { [weak self] in
             guard let self else { return }
             coordinator?.pushViewController(GroupCreateViewController())
         }
@@ -32,7 +32,7 @@ final class StatsViewController: BaseViewController {
 
     override func configureHierarchy() {
         view.addSubview(navigationHeader)
-        view.addSubview(statsEmptyView)
+        view.addSubview(emptyView)
     }
 
     override func configureConstraints() {
@@ -41,7 +41,7 @@ final class StatsViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview()
         }
 
-        statsEmptyView.snp.makeConstraints {
+        emptyView.snp.makeConstraints {
             $0.top.equalTo(navigationHeader.snp.bottom)
             $0.left.right.bottom.equalToSuperview()
         }
@@ -51,15 +51,15 @@ final class StatsViewController: BaseViewController {
 extension StatsViewController {
     private func displayViewForCurrentStatus() {
         if viewModel.statsViewStatus == .hasData,
-           statsContentView == nil {
+           contentView == nil {
             let contentView = StatsContentView(viewModel: viewModel)
-            self.statsContentView = contentView
+            self.contentView = contentView
             view.addSubview(contentView)
             contentView.snp.makeConstraints {
                 $0.top.equalTo(navigationHeader.snp.bottom)
                 $0.left.right.bottom.equalToSuperview()
             }
-            statsContentView?.isHidden = false
+            contentView.isHidden = false
             
             configureBottomSheetViewController()
         }
@@ -91,11 +91,36 @@ extension StatsViewController {
 
 extension StatsViewController: StatsViewModelDelegate {
     func didFetchStatsSucceed() {
-        DispatchQueue.main.async {
-            self.statsContentView?.removeFromSuperview()
-            self.statsContentView = nil
-            self.displayViewForCurrentStatus()
-            self.statsContentView?.delegate = self
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+           contentView?.removeFromSuperview()
+           contentView = nil
+           displayViewForCurrentStatus()
+           contentView?.delegate = self
+           errorView?.removeFromSuperview()
+           errorView = nil
+        }
+    }
+    
+    func didFetchStatsFail(error: NetworkError) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+
+            contentView?.removeFromSuperview()
+            contentView = nil
+            emptyView.removeFromSuperview()
+            errorView?.removeFromSuperview()
+
+            let newErrorView = ErrorHandlingManager.embedErrorView(
+                in: self,
+                under: navigationHeader,
+                error: error,
+                retryHandler: { [weak self] in
+                    guard let self else { return }
+                    viewModel.fetchMyGroups()
+                }
+            )
+            errorView = newErrorView
         }
     }
 }

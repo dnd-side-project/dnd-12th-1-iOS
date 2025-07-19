@@ -73,7 +73,11 @@ extension MainViewModel {
     }
     
     func setFilter(filter: FilterTypes) {
-        self.currentFilter = filter
+        if self.currentFilter == filter {
+            self.currentFilter = .all
+        } else {
+            self.currentFilter = filter
+        }
     }
 }
 

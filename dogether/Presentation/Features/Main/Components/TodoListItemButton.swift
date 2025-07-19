@@ -75,18 +75,17 @@ final class TodoListItemButton: BaseButton {
         }
         
         if todo.status != TodoStatus.waitCertification.rawValue {
-            guard let status = TodoStatus(rawValue: todo.status) else { return }
-            let imageSize = status == .waitExamination ? 22 : status == .reject ? 26 : 28 // MARK: 임의로 사이즈 조정
             todoImageView.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.left.equalToSuperview().offset(16)
-                $0.width.height.equalTo(imageSize)
+                $0.width.height.equalTo(24)
             }
         }
         
         contentLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
             $0.left.equalTo(isUncertified ? self : todoImageView.snp.right).offset(isUncertified ? 16 : 8)
+            $0.right.equalTo(isUncertified ? certificationLabel.snp.left : checkImageView.snp.left)
         }
         
         if isUncertified {

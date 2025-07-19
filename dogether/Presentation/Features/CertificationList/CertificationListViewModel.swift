@@ -9,6 +9,7 @@ import UIKit
 
 protocol CertificationListViewModelDelegate: AnyObject {
     func didFetchSucceed()
+    func didFetchFail(error: NetworkError)
 }
 
 final class CertificationListViewModel {
@@ -51,9 +52,8 @@ extension CertificationListViewModel {
                 self.totalRejectedCount = result.stats.totalRejectedCount
                 self.applyFilter()
                 self.viewStatus = self.sections.isEmpty ? .empty : .hasData
-            } catch {
-                print("❌ 데이터 로딩 실패: \(error)")
-                self.viewStatus = .empty
+            } catch let error as NetworkError {
+                delegate?.didFetchFail(error: error)
             }
         }
     }

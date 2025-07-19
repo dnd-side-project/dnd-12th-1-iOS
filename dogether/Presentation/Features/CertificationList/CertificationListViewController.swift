@@ -10,8 +10,9 @@ import Foundation
 final class CertificationListViewController: BaseViewController {
     var viewModel = CertificationListViewModel()
     private let navigationHeader = NavigationHeader(title: "인증 목록")
-    private let certificationListEmptyView = CertificationListEmptyView()
-    private var certificationListContentView: CertificationListContentView?
+    private let emptyView = CertificationListEmptyView()
+    private var contentView: CertificationListContentView?
+    private var errorView: ErrorView?
     private var bottomSheetViewController: BottomSheetViewController?
     
     override func viewDidLoad() {
@@ -28,7 +29,7 @@ final class CertificationListViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
-        [navigationHeader, certificationListEmptyView].forEach { view.addSubview($0) }
+        [navigationHeader, emptyView].forEach { view.addSubview($0) }
     }
     
     override func configureConstraints() {
@@ -37,7 +38,7 @@ final class CertificationListViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview()
         }
         
-        certificationListEmptyView.snp.makeConstraints {
+        emptyView.snp.makeConstraints {
             $0.top.equalTo(navigationHeader.snp.bottom)
             $0.left.right.bottom.equalToSuperview()
         }
@@ -47,18 +48,18 @@ final class CertificationListViewController: BaseViewController {
 extension CertificationListViewController {
     private func displayViewForCurrentStatus() {
         if viewModel.viewStatus == .hasData,
-           certificationListContentView == nil {
+           contentView == nil {
             let contentView = CertificationListContentView(viewModel: viewModel)
-            self.certificationListContentView = contentView
-            self.certificationListContentView?.delegate = self
-            self.certificationListContentView?.filterView.delegate = self
+            self.contentView = contentView
+            self.contentView?.delegate = self
+            self.contentView?.filterView.delegate = self
             view.addSubview(contentView)
             contentView.snp.makeConstraints {
                 $0.top.equalTo(navigationHeader.snp.bottom)
                 $0.left.right.bottom.equalToSuperview()
             }
-            certificationListContentView?.isHidden = false
-            certificationListEmptyView.isHidden = true
+            contentView.isHidden = false
+            emptyView.isHidden = true
             
             configureSortButtonTitle()
             configureBottomSheetViewController()
@@ -67,7 +68,7 @@ extension CertificationListViewController {
     
     private func configureSortButtonTitle() {
         let defaultOption: CertificationSortOption = .todoCompletionDate
-        certificationListContentView?
+        contentView?
             .filterView
             .sortButton
             .updateSelectedOption(defaultOption.bottomSheetItem)
@@ -91,14 +92,14 @@ extension CertificationListViewController {
             
             viewModel.selectedGroup = selected.value as? CertificationSortOption
             
-            certificationListContentView?
+            contentView?
                 .filterView
                 .sortButton
                 .updateSelectedOption(selected)
             
             if let sortOption = selected.value as? CertificationSortOption {
                 viewModel.executeSort(option: sortOption)
-                certificationListContentView?.makeContentOffset()
+                contentView?.makeContentOffset()
             }
         }
     }
@@ -108,7 +109,31 @@ extension CertificationListViewController {
 extension CertificationListViewController: CertificationListViewModelDelegate {
     func didFetchSucceed() {
         displayViewForCurrentStatus()
-        certificationListContentView?.reloadData()
+        contentView?.reloadData()
+        errorView?.removeFromSuperview()
+        errorView = nil
+    }
+    
+    func didFetchFail(error: NetworkError) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            
+            contentView?.removeFromSuperview()
+            contentView = nil
+            emptyView.removeFromSuperview()
+            errorView?.removeFromSuperview()
+            
+            let newErrorView = ErrorHandlingManager.embedErrorView(
+                in: self,
+                under: navigationHeader,
+                error: error,
+                retryHandler: { [weak self] in
+                    guard let self else { return }
+                    viewModel.executeSort(option: .todoCompletionDate)
+                }
+            )
+            errorView = newErrorView
+        }
     }
 }
 

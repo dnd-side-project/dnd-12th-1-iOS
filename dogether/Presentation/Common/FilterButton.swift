@@ -62,7 +62,7 @@ final class FilterButton: BaseButton {
         }
         
         icon.snp.makeConstraints {
-            $0.width.height.equalTo(type == .wait ? 18 : type == .reject ? 22 : 24)    // MARK: 임의로 사이즈 조정
+            $0.width.height.equalTo(18)
         }
     }
 }
@@ -94,9 +94,8 @@ extension FilterButton {
         icon.tintColor = isColorful ? .grey900 : .grey400
         label.textColor = isColorful ? .grey900 : .grey400
         
-        // 아이콘 크기 바꾸기 (기존과 동일한 로직 유지)
         icon.snp.updateConstraints {
-            $0.width.height.equalTo(type == .wait ? 18 : type == .reject ? 22 : 24)
+            $0.width.height.equalTo(18)
         }
         
         // 너비도 갱신

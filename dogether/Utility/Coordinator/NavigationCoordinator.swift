@@ -51,10 +51,23 @@ extension NavigationCoordinator {
         navigationController.pushViewController(viewController, animated: animated)
     }
     
+    func presentViewController(_ viewController: BaseViewController, animated: Bool = true) {
+        viewController.coordinator = self
+        updateViewController = nil
+        
+        navigationController.present(viewController, animated: animated)
+    }
+
     func popViewController(animated: Bool = true) {
         updateViewController = nil
         
         navigationController.popViewController(animated: animated)
+    }
+    
+    func dismissViewController(animated: Bool = true) {
+        updateViewController = nil
+
+        navigationController.presentedViewController?.dismiss(animated: animated)
     }
 }
 

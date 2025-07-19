@@ -77,14 +77,9 @@ final class SettingViewController: BaseViewController {
         withdrawButton.addAction(
             UIAction { [weak self] _ in
                 guard let self else { return }
-                coordinator?.showPopup(self, type: .alert, alertType: .withdraw) { _ in
-                    Task {
-                        try await self.viewModel.withdraw()
-                        self.viewModel.logout()
-                        await MainActor.run {
-                            self.coordinator?.setNavigationController(OnboardingViewController())
-                        }
-                    }
+                coordinator?.showPopup(self, type: .alert, alertType: .withdraw) { [weak self] _ in
+                    guard let self else { return }
+                    tryWithdraw()
                 }
             }, for: .touchUpInside
         )
@@ -103,6 +98,30 @@ final class SettingViewController: BaseViewController {
         settingStackView.snp.makeConstraints {
             $0.top.equalTo(navigationHeader.snp.bottom).offset(4)
             $0.horizontalEdges.equalToSuperview().inset(16)
+        }
+    }
+}
+
+extension SettingViewController {
+    private func tryWithdraw() {
+        Task {
+            do {
+                try await viewModel.withdraw()
+                viewModel.logout()
+                await MainActor.run {
+                    coordinator?.setNavigationController(OnboardingViewController())
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: coordinator,
+                    retryHandler: { [weak self] in
+                        guard let self else { return }
+                        tryWithdraw()
+                    }
+                )
+            }
         }
     }
 }

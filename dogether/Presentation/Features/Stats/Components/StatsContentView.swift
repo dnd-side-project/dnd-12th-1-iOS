@@ -16,17 +16,17 @@ final class StatsContentView: BaseView {
     private let myRankView = MyRankView()
     private let statsSummaryView = StatsSummaryView()
     
-    private let dusikImageView: UIImageView = {
+    private let dosikImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = .glassDusik
+        imageView.image = .glassDosik
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
         return imageView
     }()
     
-    private let dusikArmView: UIImageView = {
+    private let dosikArmView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = .dusikArm
+        imageView.image = .dosikArm
         imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = false
         return imageView
@@ -60,10 +60,10 @@ final class StatsContentView: BaseView {
     }
     
     override func configureHierarchy() {
-        addSubview(dusikImageView)
+        addSubview(dosikImageView)
         addSubview(groupInfoView)
         addSubview(dailyAchievementBarView)
-        addSubview(dusikArmView)
+        addSubview(dosikArmView)
         addSubview(myRankView)
         addSubview(statsSummaryView)
     }
@@ -75,14 +75,14 @@ final class StatsContentView: BaseView {
             $0.height.equalTo(94)
         }
         
-        dusikImageView.snp.makeConstraints {
+        dosikImageView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(23.7)
             $0.trailing.equalToSuperview().inset(24)
             $0.width.equalTo(100)
             $0.height.equalTo(126)
         }
         
-        dusikArmView.snp.makeConstraints {
+        dosikArmView.snp.makeConstraints {
             $0.top.equalToSuperview().inset(95.53)
             $0.trailing.equalToSuperview().inset(27.07)
             $0.width.equalTo(91.5)
