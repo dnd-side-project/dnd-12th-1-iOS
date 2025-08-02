@@ -12,4 +12,5 @@ protocol ChallengeGroupsProtocol {
     func getMyTodos(groupId: String, date: String) async throws -> GetMyTodosResponse
     func getMemberTodos(groupId: String, memberId: String) async throws -> GetMemberTodosResponse
     func readTodo(todoId: String) async throws
+    func certifyTodo(todoId: String, certifyTodoRequest: CertifyTodoRequest) async throws
 }

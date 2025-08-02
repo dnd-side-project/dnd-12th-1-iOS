@@ -43,7 +43,6 @@ extension GroupJoinViewModel {
     }
     
     func joinGroup() async throws {
-        let joinGroupRequest = JoinGroupRequest(joinCode: code)
-        challengeGroupInfo = try await groupUseCase.joinGroup(joinGroupRequest: joinGroupRequest)
+        challengeGroupInfo = try await groupUseCase.joinGroup(joinCode: code)
     }
 }

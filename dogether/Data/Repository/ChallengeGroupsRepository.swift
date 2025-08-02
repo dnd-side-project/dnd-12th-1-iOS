@@ -29,4 +29,8 @@ final class ChallengeGroupsRepository: ChallengeGroupsProtocol {
     func readTodo(todoId: String) async throws {
         try await challengeGroupsDataSource.readTodo(todoId: todoId)
     }
+    
+    func certifyTodo(todoId: String, certifyTodoRequest: CertifyTodoRequest) async throws {
+        try await challengeGroupsDataSource.certifyTodo(todoId: todoId, certifyTodoRequest: certifyTodoRequest)
+    }
 }

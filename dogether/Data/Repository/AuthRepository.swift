@@ -26,5 +26,9 @@ final class AuthRepository: AuthProtocol {
     func saveNotiToken(saveNotiTokenRequest: SaveNotiTokenRequest) async throws {
         try await notificationDataSource.saveNotiToken(saveNotiTokenRequest: saveNotiTokenRequest)
     }
+    
+    func withdraw(withdrawRequest: WithdrawRequest) async throws {
+        try await authDataSource.withdraw(withdrawRequest: withdrawRequest)
+    }
 }
 

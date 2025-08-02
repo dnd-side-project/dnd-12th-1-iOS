@@ -78,9 +78,9 @@ final class MyPageViewController: BaseViewController {
         Task { [weak self] in
             guard let self else { return }
             
-            try await viewModel.getMyProfile()
-            nameLabel.text = viewModel.myProfile?.name
-            profileImageView.loadImage(url: viewModel.myProfile?.profileImageUrl)
+            try await viewModel.getProfileInfo()
+            nameLabel.text = viewModel.profile.name
+            profileImageView.loadImage(url: viewModel.profile.imageUrl)
         }
     }
     

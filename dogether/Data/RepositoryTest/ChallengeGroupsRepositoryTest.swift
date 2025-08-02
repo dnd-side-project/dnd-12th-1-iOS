@@ -49,4 +49,6 @@ final class ChallengeGroupsRepositoryTest: ChallengeGroupsProtocol {
     }
     
     func readTodo(todoId: String) async throws { }
+    
+    func certifyTodo(todoId: String, certifyTodoRequest: CertifyTodoRequest) async throws { }
 }

@@ -24,16 +24,16 @@ final class GroupsDataSource {
         )
     }
     
+    func leaveGroup(groupId: String) async throws {
+        try await NetworkManager.shared.request(GroupsRouter.leaveGroup(groupId: groupId))
+    }
+    
     func getIsParticipating() async throws -> GetIsParticipatingResponse {
         try await NetworkManager.shared.request(GroupsRouter.getIsParticipating)
     }
     
     func getGroups() async throws -> GetGroupsResponse {
         try await NetworkManager.shared.request(GroupsRouter.getGroups)
-    }
-    
-    func getMyGroup() async throws -> GetMyGroupResponse {
-        try await NetworkManager.shared.request(GroupsRouter.getMyGroups)
     }
     
     func saveLastSelectedGroup(saveLastSelectedGroupRequest: SaveLastSelectedGroupRequest) async throws {

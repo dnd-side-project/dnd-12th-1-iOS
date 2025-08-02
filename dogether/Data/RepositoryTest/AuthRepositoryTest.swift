@@ -13,4 +13,6 @@ final class AuthRepositoryTest: AuthProtocol {
     }
     
     func saveNotiToken(saveNotiTokenRequest: SaveNotiTokenRequest) async throws { }
+    
+    func withdraw(withdrawRequest: WithdrawRequest) async throws { }
 }

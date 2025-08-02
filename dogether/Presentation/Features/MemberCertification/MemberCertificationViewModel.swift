@@ -24,8 +24,6 @@ final class MemberCertificationViewModel {
 
 extension MemberCertificationViewModel {
     func setCurrentIndex(index: Int) {
-        todos[currentIndex].thumbnailStatus = .done
-        
         self.currentIndex = index
     }
 }
@@ -39,7 +37,13 @@ extension MemberCertificationViewModel {
     func readTodo() {
         Task { [weak self] in
             guard let self else { return }
-            try await challengeGroupsUseCase.readTodo(todoId: todos[currentIndex].id)
+            do {
+                try await challengeGroupsUseCase.readTodo(todo: todos[currentIndex])
+                todos[currentIndex].thumbnailStatus = .done
+            } catch {
+                // TODO: 예외 처리 추가
+            }
+            
         }
     }
 }

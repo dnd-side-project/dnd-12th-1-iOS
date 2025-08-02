@@ -11,7 +11,7 @@ import SnapKit
 import Combine
 
 final class CertificationSupplyViewController: BaseViewController {
-    var todoInfo = TodoInfo(id: 0, content: "", status: "")
+    var viewModel = CertificationViewModel()
     
     private let navigationHeader = NavigationHeader(title: "인증 하기")
     
@@ -190,7 +190,7 @@ extension CertificationSupplyViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         guard let textView = textView as? DogetherTextView else { return }
         textView.updateTextInfo()
-        todoInfo.certificationContent = textView.text
+        viewModel.setText(textView.text)
         
         certificationButton.setButtonStatus(status: textView.text.isEmpty ? .disabled : .enabled)
     }
@@ -217,21 +217,12 @@ extension CertificationSupplyViewController: UITextViewDelegate {
 extension CertificationSupplyViewController {
     private func tryCertifyTodo() {
         Task {
-            guard
-                let content = self.todoInfo.certificationContent,
-                let mediaUrl = self.todoInfo.certificationMediaUrl
-            else { return }
-            
-            let certifyTodoRequest = CertifyTodoRequest(content: content, mediaUrl: mediaUrl)
-            
             do {
-                try await NetworkManager.shared.request(
-                    ChallengeGroupsRouter.certifyTodo(todoId: String(self.todoInfo.id), certifyTodoRequest: certifyTodoRequest)
-                )
+                try await self.viewModel.certifyTodo()
                 
+                // FIXME: certifyTodo 함수 안에서 에러 케이스 핸들링 하시면서 수정해주세요, 아래 3라인은 성공했을 때 액션입니다
                 await MainActor.run {
-                    self.coordinator?.popViewController()
-                    self.coordinator?.popViewController() // FIXME: 추후 수정
+                    self.coordinator?.popViewControllers(num: 2)
                 }
             } catch let error as NetworkError {
                 ErrorHandlingManager.presentErrorView(

@@ -66,14 +66,14 @@ extension AuthUseCase: ASAuthorizationControllerDelegate {
 }
 
 extension AuthUseCase {
-    /// dogether server에 login 요청을 보내는 함수입니다.
-    ///
-    /// - Parameter appleLoginRequest: 로그인 API를 호출하기 위해 필요한
-    ///
-    /// API응답으로 받는 name, accessToken과 함께 fcmToken을 UserDefaults에 저장합니다.
-    func appleLogin(appleLoginRequest: AppleLoginRequest) async throws {
-        let response: AppleLoginResponse = try await repository.appleLogin(appleLoginRequest: appleLoginRequest)
-        try await setUserDefaults(userFullName: response.name, accessToken: response.accessToken)
+    func login(domain: LoginDomains) async throws {
+        switch domain {
+        case .apple:
+            guard let userInfo = try await userInfo else { return }
+            let appleLoginRequest = AppleLoginRequest(name: userInfo.name, idToken: userInfo.idToken)
+            let response: AppleLoginResponse = try await repository.appleLogin(appleLoginRequest: appleLoginRequest)
+            try await setUserDefaults(userFullName: response.name, accessToken: response.accessToken)
+        }
     }
     
     func setUserDefaults(userFullName: String, accessToken: String) async throws {
@@ -86,5 +86,13 @@ extension AuthUseCase {
         
         // FIXME: code NTS-0001 case handling
         UserDefaultsManager.shared.fcmToken = token
+    }
+}
+
+extension AuthUseCase {
+    func withdraw() async throws {
+        guard let userInfo = try await userInfo else { return }
+        let withdrawRequest = WithdrawRequest(authorizationCode: userInfo.authorizationCode)
+        try await repository.withdraw(withdrawRequest: withdrawRequest)
     }
 }

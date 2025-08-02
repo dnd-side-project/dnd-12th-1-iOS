@@ -13,10 +13,10 @@ struct CreateGroupRequest: Encodable {
     let startAt: String
     let duration: Int
     
-    init(groupName: String, maximumMemberCount: Int, startAt: GroupStartAts, duration: GroupChallengeDurations) {
+    init(groupName: String, maximumMemberCount: Int, startAt: String, duration: Int) {
         self.groupName = groupName
         self.maximumMemberCount = maximumMemberCount
-        self.startAt = startAt.rawValue
-        self.duration = duration.rawValue
+        self.startAt = startAt
+        self.duration = duration
     }
 }

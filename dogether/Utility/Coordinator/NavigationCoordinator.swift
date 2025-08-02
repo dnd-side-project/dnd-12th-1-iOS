@@ -64,6 +64,17 @@ extension NavigationCoordinator {
         navigationController.popViewController(animated: animated)
     }
     
+    func popViewControllers(num: Int = 1, animated: Bool = true) {
+        let currentIndex = navigationController.viewControllers.count - 1
+        if currentIndex - num < 0 { return }    // MARK: index가 마이너스로 넘어가는 잘못된 상황 필터링
+        
+        let targetViewController = navigationController.viewControllers[currentIndex - num]
+        
+        updateViewController = nil
+        
+        navigationController.popToViewController(targetViewController, animated: animated)
+    }
+    
     func dismissViewController(animated: Bool = true) {
         updateViewController = nil
 

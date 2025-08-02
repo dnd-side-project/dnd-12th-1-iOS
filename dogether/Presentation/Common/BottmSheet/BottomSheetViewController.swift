@@ -41,14 +41,6 @@ final class BottomSheetViewController: BaseViewController {
         return view
     }()
     
-    private let handleView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .grey600
-        view.layer.cornerRadius = 3
-        view.frame.size = CGSize(width: 40, height: 6)
-        return view
-    }()
-    
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .medium)
@@ -142,7 +134,6 @@ final class BottomSheetViewController: BaseViewController {
     
     override func configureHierarchy() {
         view.addSubview(containerView)
-        containerView.addSubview(handleView)
         containerView.addSubview(titleLabel)
         containerView.addSubview(tableView)
         if shouldShowAddGroupButton {
@@ -159,13 +150,6 @@ final class BottomSheetViewController: BaseViewController {
         containerView.snp.makeConstraints {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(containerHeight)
-        }
-        
-        handleView.snp.makeConstraints {
-            $0.top.equalTo(containerView).inset(8)
-            $0.centerX.equalTo(containerView)
-            $0.width.equalTo(40)
-            $0.height.equalTo(6)
         }
         
         titleLabel.snp.makeConstraints {

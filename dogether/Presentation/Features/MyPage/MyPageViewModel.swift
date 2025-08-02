@@ -8,7 +8,7 @@
 import Foundation
 
 final class MyPageViewModel {
-    private(set) var myProfile: MyProfileResponse?
+    private(set) var profile: ProfileInfo = ProfileInfo()
     private let myProfileUseCase: MyProfileUseCase
     
     init() {
@@ -18,8 +18,7 @@ final class MyPageViewModel {
 }
 
 extension MyPageViewModel {
-    func getMyProfile() async throws {
-        let response = try await myProfileUseCase.getMyProfile()
-        self.myProfile = response
+    func getProfileInfo() async throws {
+        self.profile = try await myProfileUseCase.getProfileInfo()
     }
 }

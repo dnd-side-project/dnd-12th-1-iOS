@@ -365,7 +365,7 @@ extension MainViewController {
                     if isCertification {
                         if button.isToday {
                             let certificationViewController = CertificationViewController()
-                            certificationViewController.todoInfo = button.todo
+                            certificationViewController.viewModel.todoInfo = button.todo
                             coordinator?.pushViewController(certificationViewController)
                         } else { return }
                     } else {

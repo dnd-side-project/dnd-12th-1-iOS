@@ -50,7 +50,7 @@ final class StatsViewModel {
     var totalMembers: Int = 0
     var statsSummary: Stats?
     
-    var myGroups: [ChallengeGroup] = [] // 받아온 그룹 아이디를 통해 특정 그룹 활동 통계 조회
+    var groups: [ChallengeGroupInfo] = [] // 받아온 그룹 아이디를 통해 특정 그룹 활동 통계 조회
     var groupSortOptions: [GroupSortOption] = []
     
     var selectedGroup: GroupSortOption? // 현재 선택된 그룹
@@ -69,7 +69,19 @@ extension StatsViewModel {
         Task {
             do {
                 let response = try await statsUseCase.fetchGroupStats(groupId: groupId)
-                apply(response: response)
+                // FIXME: 해당 변수들을 다 포함하는 모델을 하나 만드는 게 나을 것 같아요
+                statsViewStatus = .hasData
+                groupName = response.groupInfo.name
+                endDate = response.groupInfo.endAt
+                maximumMemberCount = response.groupInfo.maximumMemberCount
+                currentMemberCount = response.groupInfo.currentMemberCount
+                joinCode = response.groupInfo.joinCode
+                
+                myRank = response.ranking.myRank
+                totalMembers = response.ranking.totalMemberCount
+                statsSummary = response.stats
+                dailyAchievements = response.certificationPeriods
+                
                 delegate?.didFetchStatsSucceed()
             } catch {
                 statsViewStatus = .empty
@@ -82,21 +94,20 @@ extension StatsViewModel {
     func fetchMyGroups() {
         Task {
             do {
-                let response = try await groupUseCase.getMyGroup()
-                let challengeGroups = response.joiningChallengeGroups
-                self.myGroups = challengeGroups // 참여중인 그룹 목록 저장
+                let (groupIndex, challengeGroupInfos) = try await groupUseCase.getChallengeGroupInfos()
+                groups = challengeGroupInfos
                 
                 // GroupSortOption 배열로 변환
-                self.groupSortOptions = challengeGroups.map {
-                    GroupSortOption(groupId: $0.groupId, groupName: $0.groupName)
+                self.groupSortOptions = groups.map {
+                    GroupSortOption(groupId: $0.id, groupName: $0.name)
                 }
                 
-                if challengeGroups.isEmpty {
+                if groups.isEmpty {
                     statsViewStatus = .empty
-                } else if let currentGroupIndex = response.lastSelectedGroupIndex {
-                    let currentGroup = challengeGroups[currentGroupIndex]
-                    selectedGroup = GroupSortOption(groupId: currentGroup.groupId, groupName: currentGroup.groupName)
-                    fetchStats(groupId: currentGroup.groupId)
+                } else if let currentGroupIndex = groupIndex {
+                    let currentGroup = groups[currentGroupIndex]
+                    selectedGroup = GroupSortOption(groupId: currentGroup.id, groupName: currentGroup.name)
+                    fetchStats(groupId: currentGroup.id)
                 }
             } catch let error as NetworkError {                
                 delegate?.didFetchStatsFail(error: error)
@@ -108,22 +119,5 @@ extension StatsViewModel {
     func fetchStatsForSelectedGroup(_ option: GroupSortOption) {
         selectedGroup = option
         fetchStats(groupId: option.groupId)
-    }
-}
-
-extension StatsViewModel {
-    private func apply(response: GroupStatsResponse) {
-        let data = response
-        statsViewStatus = .hasData
-        groupName = data.groupInfo.name
-        endDate = data.groupInfo.endAt
-        maximumMemberCount = data.groupInfo.maximumMemberCount
-        currentMemberCount = data.groupInfo.currentMemberCount
-        joinCode = data.groupInfo.joinCode
-        
-        myRank = data.ranking.myRank
-        totalMembers = data.ranking.totalMemberCount
-        statsSummary = data.stats
-        dailyAchievements = data.certificationPeriods
     }
 }

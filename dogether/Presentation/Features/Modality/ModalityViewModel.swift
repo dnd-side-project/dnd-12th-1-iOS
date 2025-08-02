@@ -39,8 +39,8 @@ final class ModalityViewModel {
     }
     
     func reviewTodo() async throws {
-        guard let result else { return }
-        let reviewTodoRequest = ReviewTodoRequest(result: result, reviewFeedback: reviewFeedback)
-        try await todoCertificationsUseCase.reviewTodo(todoId: String(reviews[current].id), reviewTodoRequest: reviewTodoRequest)
+        try await todoCertificationsUseCase.reviewTodo(
+            todoId: String(reviews[current].id), result: result, reviewFeedback: reviewFeedback
+        )
     }
 }

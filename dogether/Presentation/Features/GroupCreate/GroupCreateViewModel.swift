@@ -54,12 +54,11 @@ extension GroupCreateViewModel {
 
 extension GroupCreateViewModel {
     func createGroup() async throws {
-        let createGroupRequest = CreateGroupRequest(
+        joinCode = try await groupUseCase.createGroup(
             groupName: currentGroupName,
             maximumMemberCount: memberCount,
             startAt: currentStartAt,
             duration: currentDuration
         )
-        joinCode = try await groupUseCase.createGroup(createGroupRequest: createGroupRequest)
     }
 }

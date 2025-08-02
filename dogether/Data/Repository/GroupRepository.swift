@@ -22,16 +22,16 @@ final class GroupRepository: GroupProtocol {
         try await groupsDataSource.joinGroup(joinGroupRequest: joinGroupRequest)
     }
     
+    func leaveGroup(groupId: String) async throws {
+        try await groupsDataSource.leaveGroup(groupId: groupId)
+    }
+    
     func getIsParticipating() async throws -> GetIsParticipatingResponse {
         try await groupsDataSource.getIsParticipating()
     }
     
     func getGroups() async throws -> GetGroupsResponse {
         try await groupsDataSource.getGroups()
-    }
-    
-    func getMyGroup() async throws -> GetMyGroupResponse {
-        try await groupsDataSource.getMyGroup()
     }
     
     func saveLastSelectedGroup(saveLastSelectedGroupRequest: SaveLastSelectedGroupRequest) async throws {

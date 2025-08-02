@@ -19,7 +19,10 @@ final class TodoCertificationsUseCase {
         return response.dailyTodoCertifications
     }
     
-    func reviewTodo(todoId: String, reviewTodoRequest: ReviewTodoRequest) async throws {
+    func reviewTodo(todoId: String, result: ReviewResults?, reviewFeedback: String) async throws {
+        guard let result else { return }
+        let reviewTodoRequest = ReviewTodoRequest(result: result, reviewFeedback: reviewFeedback)
         try await repository.reviewTodo(todoId: todoId, reviewTodoRequest: reviewTodoRequest)
     }
+    
 }

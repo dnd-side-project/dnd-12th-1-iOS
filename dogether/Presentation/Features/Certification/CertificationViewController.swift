@@ -11,7 +11,7 @@ import SnapKit
 import PhotosUI
 
 final class CertificationViewController: BaseViewController {
-    var todoInfo = TodoInfo(id: 0, content: "", status: "")
+    var viewModel = CertificationViewModel()
     
     private let navigationHeader = NavigationHeader(title: "인증 하기")
     
@@ -89,7 +89,7 @@ final class CertificationViewController: BaseViewController {
     
     override func configureView() {
         todoContentLabel.attributedText = NSAttributedString(
-            string: todoInfo.content,
+            string: viewModel.todoInfo.content,
             attributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .center)
         )
         
@@ -121,7 +121,7 @@ final class CertificationViewController: BaseViewController {
             UIAction { [weak self] _ in
                 guard let self else { return }
                 let certificationSupplyViewController = CertificationSupplyViewController()
-                certificationSupplyViewController.todoInfo = todoInfo
+                certificationSupplyViewController.viewModel = viewModel
                 coordinator?.pushViewController(certificationSupplyViewController)
             }, for: .touchUpInside
         )
@@ -286,10 +286,20 @@ extension CertificationViewController {
     private func pickerCompletion(image: UIImage) {
         imageView.image = image
         imageView.updateCertificationContent()
+        
+        // FIXME: 추후 S3Manager를 NetworkManager로 합치면서 loading 로직도 제거해요
         Task {
-            // TODO: 로딩 뷰 추가
-            todoInfo.certificationMediaUrl = try await S3Manager.shared.uploadImage(image: image)
-            certificationButton.setButtonStatus(status: .enabled)
+            certificationButton.setButtonStatus(status: .disabled)
+            
+            LoadingManager.shared.showLoading()
+            defer { LoadingManager.shared.hideLoading() }
+            
+            do {
+                try await viewModel.uploadImage(image: image)
+                certificationButton.setButtonStatus(status: .enabled)
+            } catch {
+                // TODO: 예외 케이스 핸들링
+            }
         }
     }
 }

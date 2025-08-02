@@ -58,6 +58,8 @@ final class GroupRepositoryTest: GroupProtocol {
         return JoinGroupResponse(groupName: "testGroup", duration: 3, maximumMemberCount: 10, startAt: "2025-01-01", endAt: "2025-01-04")
     }
     
+    func leaveGroup(groupId: String) { }
+    
     func getIsParticipating() async throws -> GetIsParticipatingResponse {
         return GetIsParticipatingResponse(isParticipating: true)
     }
@@ -91,14 +93,6 @@ final class GroupRepositoryTest: GroupProtocol {
                 )
             ]
         )
-    }
-    
-    func getMyGroup() async throws -> GetMyGroupResponse {
-        guard let url = Bundle.main.url(forResource: "GroupMock", withExtension: "json") else {
-            throw URLError(.fileDoesNotExist)
-        }
-        let data = try Data(contentsOf: url)
-        return try JSONDecoder().decode(GetMyGroupResponse.self, from: data)
     }
     
     func saveLastSelectedGroup(saveLastSelectedGroupRequest: SaveLastSelectedGroupRequest) async throws { }

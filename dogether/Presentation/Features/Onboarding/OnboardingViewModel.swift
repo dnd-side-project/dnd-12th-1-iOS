@@ -25,10 +25,7 @@ final class OnboardingViewModel {
 
     func signInWithApple() async throws {
         authUseCase.appleLogin()
-        guard let userInfo = try await authUseCase.userInfo else { return }
-        
-        let appleLoginRequest = AppleLoginRequest(name: userInfo.name, idToken: userInfo.idToken)
-        try await authUseCase.appleLogin(appleLoginRequest: appleLoginRequest)
+        try await authUseCase.login(domain: .apple)
     }
     
     func getDestination() async throws -> BaseViewController {

@@ -18,19 +18,20 @@ protocol GroupManagementViewModelDelegate: AnyObject {
 }
 
 final class GroupManagementViewModel {
-    private(set) var groups: [ChallengeGroup] = []
+    private(set) var groups: [ChallengeGroupInfo] = []
     
-    private let groupUseCase: GroupUseCase
     private let authUseCase: AuthUseCase
+    private let groupUseCase: GroupUseCase
     
     var viewStatus: GroupManagementViewStatus = .empty
     weak var delegate: GroupManagementViewModelDelegate?
     
     init() {
-        let groupRepository = DIManager.shared.getGroupRepository()
         let authRepository = DIManager.shared.getAuthRepository()
-        self.groupUseCase = GroupUseCase(repository: groupRepository)
+        let groupRepository = DIManager.shared.getGroupRepository()
+        
         self.authUseCase = AuthUseCase(repository: authRepository)
+        self.groupUseCase = GroupUseCase(repository: groupRepository)
     }
 }
 
@@ -39,9 +40,9 @@ extension GroupManagementViewModel {
         Task { @MainActor [weak self] in
             guard let self else { return }
             do {
-                let response = try await groupUseCase.getMyGroup()
-                groups = response.joiningChallengeGroups
-                viewStatus = groups.isEmpty == true ? .empty : .hasData
+                let (_, groups) = try await groupUseCase.getChallengeGroupInfos()
+                self.groups = groups
+                viewStatus = groups.isEmpty ? .empty : .hasData
                 delegate?.didFetchSucceed()
             } catch let error as NetworkError {
                 delegate?.didFetchFail(error: error)
@@ -52,7 +53,7 @@ extension GroupManagementViewModel {
 
 extension GroupManagementViewModel {
     func leaveGroup(groupId: Int) async throws {
-        try await NetworkManager.shared.request(GroupsRouter.leaveGroup(groupId: groupId))
+        try await groupUseCase.leaveGroup(groupId: groupId)
     }
 }
 

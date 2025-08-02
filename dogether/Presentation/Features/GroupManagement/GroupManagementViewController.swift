@@ -71,7 +71,7 @@ extension GroupManagementViewController: UITableViewDataSource, UITableViewDeleg
             guard let self else { return }
             coordinator?.showPopup(self, type: .alert, alertType: .leaveGroup) { [weak self] _ in
                 guard let self else { return }
-                tryLeaveGroup(groupId: group.groupId)
+                tryLeaveGroup(groupId: group.id)
             }
         }
         return cell
