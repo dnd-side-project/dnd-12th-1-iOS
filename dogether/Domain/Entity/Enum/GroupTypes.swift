@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum GroupTypes: Int {
+enum GroupTypes: Int, CaseIterable {
     case join
     case create
     

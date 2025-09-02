@@ -12,7 +12,7 @@ protocol GroupProtocol {
     func joinGroup(joinGroupRequest: JoinGroupRequest) async throws -> JoinGroupResponse
     func leaveGroup(groupId: String) async throws
     
-    func getIsParticipating() async throws -> GetIsParticipatingResponse
+    func checkParticipating() async throws -> CheckParticipatingResponse
     
     func getGroups() async throws -> GetGroupsResponse
     

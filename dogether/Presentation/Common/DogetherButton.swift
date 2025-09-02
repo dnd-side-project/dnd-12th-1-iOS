@@ -37,7 +37,7 @@ final class DogetherButton: BaseButton {
         }
     }
 }
- 
+
 extension DogetherButton {
     private func updateUI() {
         setTitleColor(status.textColor, for: .normal)

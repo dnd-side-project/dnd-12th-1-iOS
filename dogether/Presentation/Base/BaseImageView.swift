@@ -8,7 +8,7 @@
 import UIKit
 
 class BaseImageView: UIImageView {
-    override init(image: UIImage?) {
+    override init(image: UIImage? = nil) {
         super.init(image: image)
         
         configureView()

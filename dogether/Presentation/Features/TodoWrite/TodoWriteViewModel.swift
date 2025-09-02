@@ -47,6 +47,6 @@ extension TodoWriteViewModel {
     }
     
     func createTodos() async throws {
-        try await challengeGroupsUseCase.createTodos(groupId: groupId, todos: todos)
+        try await challengeGroupsUseCase.createTodos(groupId: groupId, todos: todos.reversed())
     }
 }

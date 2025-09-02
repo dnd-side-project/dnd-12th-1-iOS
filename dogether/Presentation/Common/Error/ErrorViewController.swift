@@ -13,6 +13,7 @@ final class ErrorViewController: BaseViewController {
 
     // MARK: - Config
     private let config: ErrorTemplateConfig
+    private let showCloseButton: Bool
 
     // MARK: - UI Components
     private let errorView: ErrorView
@@ -28,8 +29,9 @@ final class ErrorViewController: BaseViewController {
     var leftButtonAction: (() -> Void)?
     var rightButtonAction: (() -> Void)?
 
-    init(config: ErrorTemplateConfig) {
+    init(config: ErrorTemplateConfig, showCloseButton: Bool = true) {
         self.config = config
+        self.showCloseButton = showCloseButton
         self.errorView = ErrorView(config: config)
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .fullScreen
@@ -54,15 +56,19 @@ final class ErrorViewController: BaseViewController {
             $0.left.right.bottom.equalToSuperview()
         }
         
-        closeButton.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            $0.trailing.equalToSuperview().inset(16)
-            $0.size.equalTo(24)
+        if showCloseButton {
+            closeButton.snp.makeConstraints {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+                $0.trailing.equalToSuperview().inset(16)
+                $0.size.equalTo(24)
+            }
         }
     }
     
     override func configureAction() {
-        closeButton.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
+        if showCloseButton {
+            closeButton.addTarget(self, action: #selector(didTapClose), for: .touchUpInside)
+        }
         
         errorView.leftButtonAction = { [weak self] in
             guard let self else { return }

@@ -7,8 +7,16 @@
 
 import UIKit
 
+import Lottie
+
 final class LoadingViewController: BaseViewController {
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private let animationView: LottieAnimationView = {
+        let view = LottieAnimationView(name: "dogetherLoading")
+        view.loopMode = .loop
+        view.contentMode = .scaleAspectFit
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,22 +31,20 @@ final class LoadingViewController: BaseViewController {
             guard let self else { return }
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             view.isHidden = false
+            animationView.play()
         }
-        
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        activityIndicator.color = .white
-        activityIndicator.startAnimating()
     }
     
     override func configureAction() { }
     
     override func configureHierarchy() {
-        view.addSubview(activityIndicator)
+        view.addSubview(animationView)
     }
-
+    
     override func configureConstraints() {
-        activityIndicator.snp.makeConstraints {
+        animationView.snp.makeConstraints {
             $0.center.equalToSuperview()
+            $0.width.height.equalTo(120) 
         }
     }
 }

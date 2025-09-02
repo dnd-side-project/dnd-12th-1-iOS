@@ -35,10 +35,10 @@ final class TodoWriteViewController: BaseViewController {
         textField.textColor = .grey0
         textField.returnKeyType = .done
         textField.borderStyle = .none
-        textField.backgroundColor = .grey900
+        textField.backgroundColor = .grey800
         textField.layer.cornerRadius = 12
-        textField.layer.borderWidth = 1.5
-        textField.layer.borderColor = UIColor.grey600.cgColor
+        textField.layer.borderWidth = 0
+        textField.layer.borderColor = UIColor.blue300.cgColor
         
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = leftPaddingView
@@ -60,12 +60,11 @@ final class TodoWriteViewController: BaseViewController {
     
     private let addButton = {
         let button = UIButton()
-        button.backgroundColor = .blue300
+        button.backgroundColor = .grey600
         button.layer.cornerRadius = 8
-        
+        button.tintColor = .grey400
         let imageView = UIImageView()
         imageView.image = .plus.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = .grey900
         imageView.isUserInteractionEnabled = false
         
         button.addSubview(imageView)
@@ -128,10 +127,6 @@ final class TodoWriteViewController: BaseViewController {
     
     override func configureView() {
         updateView()
-        todoTextField.attributedPlaceholder = NSAttributedString(
-            string: "예) 30분 걷기, 책 20페이지 읽기",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.grey500]
-        )
     }
     
     override func configureAction() {
@@ -145,6 +140,7 @@ final class TodoWriteViewController: BaseViewController {
                 guard let self else { return }
                 viewModel.updateTodo(todo: todoTextField.text)
                 updateTextField()
+                updateAddButtonStatus()
             }, for: .editingChanged
         )
         
@@ -157,6 +153,7 @@ final class TodoWriteViewController: BaseViewController {
                     viewModel.updateTodo(todo: "")
                     updateTextField()
                     updateView()
+                    updateAddButtonStatus()
                 }
             }, for: .touchUpInside
         )
@@ -240,38 +237,75 @@ extension TodoWriteViewController {
     private func updateView() {
         updateTextField()
         updateTodoLimitLabel()
-        
         emptyListView.isHidden = !viewModel.todos.isEmpty
         todoTableView.isHidden = viewModel.todos.isEmpty
         todoTableView.reloadData()
         
-        saveButton.setButtonStatus(status: viewModel.todos.isEmpty ? .disabled : .enabled)
+        saveButton.setButtonStatus(status: viewModel.todos.isEmpty ? .disabled : .enabled) // FIXME: 새로 작성한 투두 없을땐 disable되게 수정필요 (기존에 작성된 투두가 있을 경우 항상 enable상태임)
     }
     
     private func updateTextField() {
         todoTextField.text = viewModel.todo
-        todoLimitTextCount.text = "\(viewModel.todo.count)/\(viewModel.todoMaxLength)"
+        let canAddTodo = viewModel.todos.count < viewModel.maximumTodoCount
+        todoTextField.isEnabled = canAddTodo
+        todoTextField.attributedPlaceholder = NSAttributedString(
+            string: canAddTodo ? "예) 30분 걷기, 책 20페이지 읽기" : "모든 투두를 작성했어요!",
+            attributes: [.foregroundColor: canAddTodo ? UIColor.grey300 : UIColor.grey400]
+        )
+        todoTextField.backgroundColor = canAddTodo ? .grey800 : .grey500
+        todoLimitTextCount.isHidden = !canAddTodo
+
+        todoLimitTextCount.attributedText = makeAttributedText(
+            current: "\(viewModel.todo.count)",
+            maximum: "/\(viewModel.todoMaxLength)",
+            currentColor: .blue300,
+            maximumColor: .grey500
+        )
     }
     
     private func updateTodoLimitLabel() {
         let current = "\(viewModel.todos.count)"
         let maximum = "/\(viewModel.maximumTodoCount)"
-        let fullText = "추가 가능 투두 \(current)\(maximum)"
+        
+        todoLimitLabel.attributedText = makeAttributedText(
+            prefix: "추가 가능 투두 ",
+            current: current,
+            maximum: maximum,
+            currentColor: .blue300,
+            maximumColor: .grey600,
+            baseAttributes: Fonts.getAttributes(for: Fonts.head1B, textAlignment: .left)
+        )
+    }
     
-        let baseAttributes = Fonts.getAttributes(for: Fonts.head1B, textAlignment: .left)
+    private func makeAttributedText(
+        prefix: String = "",
+        current: String,
+        maximum: String,
+        currentColor: UIColor,
+        maximumColor: UIColor,
+        baseAttributes: [NSAttributedString.Key: Any]? = nil
+    ) -> NSAttributedString {
+        let fullText = "\(prefix)\(current)\(maximum)"
         let attributedText = NSMutableAttributedString(string: fullText, attributes: baseAttributes)
-
-        if let currentRange = fullText.range(of: current) {
-            let nsRange = NSRange(currentRange, in: fullText)
-            attributedText.addAttribute(.foregroundColor, value: UIColor.blue300, range: nsRange)
+        
+        if let range = fullText.range(of: current) {
+            let nsRange = NSRange(range, in: fullText)
+            attributedText.addAttribute(.foregroundColor, value: currentColor, range: nsRange)
         }
-
-        if let maximumRange = fullText.range(of: maximum) {
-            let nsRange = NSRange(maximumRange, in: fullText)
-            attributedText.addAttribute(.foregroundColor, value: UIColor.grey600, range: nsRange)
+        
+        if let range = fullText.range(of: maximum) {
+            let nsRange = NSRange(range, in: fullText)
+            attributedText.addAttribute(.foregroundColor, value: maximumColor, range: nsRange)
         }
-
-        todoLimitLabel.attributedText = attributedText
+        
+        return attributedText
+    }
+    
+    private func updateAddButtonStatus() {
+        let trimmed = todoTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        addButton.isEnabled = !trimmed.isEmpty
+        addButton.backgroundColor = trimmed.isEmpty ? .grey600 : .blue300
+        addButton.tintColor = trimmed.isEmpty ? .grey400 : .grey900
     }
 }
 
@@ -301,21 +335,25 @@ extension TodoWriteViewController: UITableViewDelegate, UITableViewDataSource {
 // MARK: - abount keyboard (UITextFieldDelegate)
 extension TodoWriteViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard addButton.isEnabled else {
+            return false
+        }
         if viewModel.addTodo() {
-               todoTableView.reloadData()
-               viewModel.updateTodo(todo: "")
-               updateTextField()
-               updateView()
-           }
+            todoTableView.reloadData()
+            viewModel.updateTodo(todo: "")
+            updateTextField()
+            updateView()
+            updateAddButtonStatus()
+        }
         return true
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        todoTextField.layer.borderColor = UIColor.blue300.cgColor
+        todoTextField.layer.borderWidth = 1.5
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-        todoTextField.layer.borderColor = UIColor.grey600.cgColor
+        todoTextField.layer.borderWidth = 0
     }
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
@@ -336,7 +374,7 @@ extension TodoWriteViewController {
                     coordinator: self.coordinator,
                     retryHandler: { [weak self] in
                         guard let self else { return }
-                        trySaveTodo()  // 다시 시도 시, 팝업 없이 저장만 재시도
+                        trySaveTodo()
                     }
                 )
             }

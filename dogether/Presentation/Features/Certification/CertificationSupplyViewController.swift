@@ -191,8 +191,11 @@ extension CertificationSupplyViewController: UITextViewDelegate {
         guard let textView = textView as? DogetherTextView else { return }
         textView.updateTextInfo()
         viewModel.setText(textView.text)
-        
-        certificationButton.setButtonStatus(status: textView.text.isEmpty ? .disabled : .enabled)
+        certificationButton.setButtonStatus(
+            status: textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? .disabled
+            : .enabled
+        )
     }
     
     func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {

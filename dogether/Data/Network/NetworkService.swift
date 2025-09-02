@@ -75,14 +75,22 @@ class NetworkService {
                 throw NetworkError.forbidden
             case 404:
                 throw NetworkError.notFound
-            default:
+            case 500...599:
                 throw NetworkError.serverError(message: "서버 오류가 발생했습니다. (코드: \(statusCode))")
+            default:
+                throw NetworkError.unexpectedStatusCode(code: statusCode)
             }
         } catch let error as DecodingError {
             throw NetworkError.decodingFailed
-        }  catch let error as NetworkError {
+        } catch let error as URLError {
+            if error.code == .secureConnectionFailed || error.code == .serverCertificateUntrusted || error.code == .serverCertificateHasBadDate || error.code == .serverCertificateHasUnknownRoot {
+                throw NetworkError.sslError(error)
+            } else {
+                throw NetworkError.connectionFailed(error)
+            }
+        } catch let error as NetworkError {
             throw error
-         } catch {
+        } catch {
             throw NetworkError.unknown(error)
         }
     }

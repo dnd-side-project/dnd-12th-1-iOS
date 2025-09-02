@@ -14,15 +14,15 @@ final class CertificationListRepository: CertificationListProtocol {
         self.dataSource = dataSource
     }
     
-    func fetchByTodoCompletionDate() async throws -> CertificationListResult {
-        let response = try await dataSource.fetchByTodoCompletionDate()
-        return Self.transformDaily(response: response)
-    }
-    
-    func fetchByGroupCreationDate() async throws -> CertificationListResult {
-        let response = try await dataSource.fetchByGroupCreationDate()
-        return Self.transformGroup(response: response)
-    }
+    func fetchByTodoCompletionDate(sort: String, page: String) async throws -> CertificationListResult {
+         let response = try await dataSource.fetchByTodoCompletionDate(sort: sort, page: page)
+         return Self.transformDaily(response: response)
+     }
+     
+     func fetchByGroupCreationDate(sort: String, page: String) async throws -> CertificationListResult {
+         let response = try await dataSource.fetchByGroupCreationDate(sort: sort, page: page)
+         return Self.transformGroup(response: response)
+     }
 }
 
 // MARK: - 투두완료일순
@@ -57,7 +57,9 @@ extension CertificationListRepository {
             totalRejectedCount: response.dailyTodoStats.totalRejectedCount
         )
         
-        return CertificationListResult(sections: sections, stats: stats)
+        let hasNext = response.pageInfo.hasNext
+        
+        return CertificationListResult(sections: sections, stats: stats, hasNext: hasNext)
     }
 }
 
@@ -89,6 +91,8 @@ extension CertificationListRepository {
             totalRejectedCount: response.dailyTodoStats.totalRejectedCount
         )
         
-        return CertificationListResult(sections: sections, stats: stats)
+        let hasNext = response.pageInfo.hasNext
+        
+        return CertificationListResult(sections: sections, stats: stats, hasNext: hasNext)
     }
 }

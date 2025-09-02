@@ -26,8 +26,8 @@ final class GroupRepository: GroupProtocol {
         try await groupsDataSource.leaveGroup(groupId: groupId)
     }
     
-    func getIsParticipating() async throws -> GetIsParticipatingResponse {
-        try await groupsDataSource.getIsParticipating()
+    func checkParticipating() async throws -> CheckParticipatingResponse {
+        try await groupsDataSource.checkParticipating()
     }
     
     func getGroups() async throws -> GetGroupsResponse {

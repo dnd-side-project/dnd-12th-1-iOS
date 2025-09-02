@@ -99,7 +99,6 @@ extension CertificationListViewController {
             
             if let sortOption = selected.value as? CertificationSortOption {
                 viewModel.executeSort(option: sortOption)
-                contentView?.makeContentOffset()
             }
         }
     }
@@ -107,13 +106,16 @@ extension CertificationListViewController {
 
 // MARK: - ViewModel 로 부터 갱신된 데이터를 가져와서 ContentView 업데이트
 extension CertificationListViewController: CertificationListViewModelDelegate {
-    func didFetchSucceed() {
-        displayViewForCurrentStatus()
-        contentView?.reloadData()
-        errorView?.removeFromSuperview()
-        errorView = nil
+    func updateContentView() {
+        DispatchQueue.main.async {
+            self.displayViewForCurrentStatus()
+            self.contentView?.reloadData()
+            self.contentView?.makeContentOffset()
+            self.errorView?.removeFromSuperview()
+            self.errorView = nil
+        }
     }
-    
+
     func didFetchFail(error: NetworkError) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -150,6 +152,10 @@ extension CertificationListViewController: CertificationListContentViewDelegate 
         let certificationInfoViewController = CertificationInfoViewController()
         certificationInfoViewController.todoInfo = certification
         coordinator?.pushViewController(certificationInfoViewController, animated: true)
+    }
+    
+    func didScrollToBottom() {
+        viewModel.loadNextPage()
     }
 }
 

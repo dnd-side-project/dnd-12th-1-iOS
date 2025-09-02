@@ -10,21 +10,26 @@ import UIKit
 final class ErrorHandlingManager {
     // MARK: - 에러화면으로 전환
     static func presentErrorView(
-        error: NetworkError,
-        presentingViewController viewController: UIViewController, // 에러 화면을 띄울 기준이 되는 UIViewController
+        error: Error,
+        presentingViewController viewController: UIViewController,
         coordinator: NavigationCoordinator?,
-        retryHandler: (() -> Void)? = nil
+        retryHandler: (() -> Void)? = nil,
+        showCloseButton: Bool = true
     ) {
         let config: ErrorTemplateConfig = {
-            switch error {
-            case .dogetherError(let code, _):
-                return configForCode(code: code)
-            default:
-                return configForError(error: error)
+            if let networkError = error as? NetworkError {
+                switch networkError {
+                case .dogetherError(let code, _):
+                    return configForCode(code: code)
+                default:
+                    return configForError(error: networkError)
+                }
+            } else {
+                return configForUnexpectedError(error)
             }
         }()
         
-        let errorVC = ErrorViewController(config: config)
+        let errorVC = ErrorViewController(config: config, showCloseButton: showCloseButton)
         
         errorVC.leftButtonAction = {
             handleLeftAction(config.leftActionType,
@@ -48,10 +53,16 @@ final class ErrorHandlingManager {
     static func embedErrorView(
         in viewController: UIViewController,
         under navigationView: UIView,
-        error: NetworkError,
+        error: Error,
         retryHandler: (() -> Void)? = nil
     ) -> ErrorView {
-        let config = configForError(error: error)
+        let config: ErrorTemplateConfig = {
+            if let networkError = error as? NetworkError {
+                return configForError(error: networkError)
+            } else {
+                return configForUnexpectedError(error)
+            }
+        }()
         let errorView = ErrorView(config: config)
         
         viewController.view.addSubview(errorView)
@@ -169,11 +180,21 @@ extension ErrorHandlingManager {
     
     private static func configForError(error: NetworkError) -> ErrorTemplateConfig {
         switch error {
-        case .serverError, .unknown:
+        case .connectionFailed:
             return ErrorTemplateConfig(
                 image: .headacheDosik,
                 title: "네트워크 연결이 불안정해요.",
                 subtitle: "연결 상태를 확인한 후 다시 시도해주세요.",
+                leftButtonTitle: "다시 시도",
+                rightButtonTitle: nil,
+                leftActionType: .retry,
+                rightActionType: nil
+            )
+        case .serverError, .sslError:
+            return ErrorTemplateConfig(
+                image: .headacheDosik,
+                title: "서버에 문제가 발생했어요.", // FIXME: 문구 수정필요
+                subtitle: "잠시 후 다시 시도해주세요.",
                 leftButtonTitle: "다시 시도",
                 rightButtonTitle: nil,
                 leftActionType: .retry,
@@ -200,5 +221,17 @@ extension ErrorHandlingManager {
                 rightActionType: nil
             )
         }
+    }
+    
+    private static func configForUnexpectedError(_ error: Error) -> ErrorTemplateConfig {
+        return ErrorTemplateConfig(
+            image: .iceDosik,
+            title: "예기치 못한 문제가 발생했어요.",
+            subtitle: nil,
+            leftButtonTitle: "다시 시도",
+            rightButtonTitle: nil,
+            leftActionType: .retry,
+            rightActionType: nil
+        )
     }
 }

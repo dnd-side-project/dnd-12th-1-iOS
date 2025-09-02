@@ -16,6 +16,9 @@ enum NetworkError: Error {
     case serverError(message: String)
     case decodingFailed
     case noData
+    case sslError(URLError)
+    case connectionFailed(URLError)
+    case unexpectedStatusCode(code: Int)
     case unknown(Error)
     case dogetherError(code: DogetherCodes, message: String)
 }
@@ -39,6 +42,12 @@ extension NetworkError {
             return "응답 데이터를 해석할 수 없습니다."
         case .noData:
             return "데이터가 없습니다."
+        case .sslError(let error):
+            return "보안 연결 실패: \(error.localizedDescription)"
+        case .connectionFailed(let error):
+            return "네트워크 연결이 불안정합니다. \(error.localizedDescription)"
+        case .unexpectedStatusCode(let code):
+            return "예기치 못한 상태 코드가 반환되었습니다. (코드: \(code))"
         case .unknown(let error):
             return "\(error.localizedDescription)"
         case .dogetherError(code: let code, message: let message):

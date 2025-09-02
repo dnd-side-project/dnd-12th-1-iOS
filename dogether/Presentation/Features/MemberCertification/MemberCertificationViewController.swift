@@ -208,9 +208,31 @@ extension MemberCertificationViewController {
     
     private func updateView() {
         guard !viewModel.todos.isEmpty, viewModel.currentIndex < viewModel.todos.count else { return }
-        
-        viewModel.readTodo()
-        
+        tryReadTodo()
+    }
+    
+    private func tryReadTodo() {
+        Task {
+            do {
+                try await viewModel.readTodo()
+                await MainActor.run {
+                    self.updateUIAfterTodoRead()
+                }
+            } catch let error as NetworkError {
+                ErrorHandlingManager.presentErrorView(
+                    error: error,
+                    presentingViewController: self,
+                    coordinator: coordinator,
+                    retryHandler: { [weak self] in
+                        guard let self else { return }
+                        tryReadTodo()
+                    }
+                )
+            }
+        }
+    }
+    
+    private func updateUIAfterTodoRead() {
         thumbnailStackView.arrangedSubviews.enumerated().forEach { index, view in
             guard let view = view as? ThumbnailView else { return }
             // TODO: beforeIndex, currentIndex만 처리할지 고민해보기

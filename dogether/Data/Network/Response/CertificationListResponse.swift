@@ -26,6 +26,13 @@ struct CertificationStats: Codable {
     let totalRejectedCount: Int
 }
 
+struct PageInfo: Codable {
+    let totalPageCount: Int
+    let recentPageNumber: Int
+    let hasNext: Bool
+    let pageSize: Int
+}
+
 // MARK: - API 응답 모델
 
 // 🔴 [투두 완료일순 리스트 응답]
@@ -34,6 +41,7 @@ struct CertificationStats: Codable {
 struct CertificationDailyListResponse: Codable {
     let dailyTodoStats: CertificationStats
     let certificationsGroupedByTodoCompletedAt: [DailyTodoCertification]
+    let pageInfo: PageInfo
 }
 
 /// 인증 정보 + 생성일자
@@ -48,6 +56,7 @@ struct DailyTodoCertification: Codable {
 struct CertificationGroupListResponse: Codable {
     let dailyTodoStats: CertificationStats
     let certificationsGroupedByGroupCreatedAt: [GroupTodoCertification]
+    let pageInfo: PageInfo 
 }
 
 /// 그룹명 + 인증 정보 + 생성일자
@@ -85,4 +94,5 @@ struct CertificationSection {
 struct CertificationListResult {
     let sections: [CertificationSection]
     let stats: CertificationStats
+    let hasNext: Bool
 }

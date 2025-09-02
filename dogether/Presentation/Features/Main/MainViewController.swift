@@ -22,8 +22,6 @@ final class MainViewController: BaseViewController {
     
     private let groupInfoView = GroupInfoView()
     
-    private var errorView: ErrorView?
-    
     private var bottomSheetViewController: BottomSheetViewController?
     
     private let rankingButton = {
@@ -269,19 +267,23 @@ extension MainViewController {
                 try await viewModel.updateListInfo()
 
                 await MainActor.run {
-                    self.errorView?.removeFromSuperview()
-                    self.errorView = nil
-                    self.showMainContentViews()
                     self.updateView()
                     self.updateList()
                 }
             } catch let error as NetworkError {
                 await MainActor.run {
-                    self.hideMainContentViews()
-                    self.showErrorView(error: error)
+                    ErrorHandlingManager.presentErrorView(
+                        error: error,
+                        presentingViewController: self,
+                        coordinator: coordinator,
+                        retryHandler: { [weak self] in
+                            guard let self else { return }
+                            loadMainView()
+                        },
+                        showCloseButton: false
+                    )
                 }
             }
-
         }
     }
 }
@@ -471,33 +473,5 @@ extension MainViewController: BottomSheetDelegate {
            let bottomSheetViewController {
             present(bottomSheetViewController, animated: true)
         }
-    }
-}
-
-// MARK: - ErrorView
-extension MainViewController {
-    private func showErrorView(error: NetworkError) {
-        errorView?.removeFromSuperview()
-        errorView = ErrorHandlingManager.embedErrorView(
-            in: self,
-            under: dogetherHeader,
-            error: error,
-            retryHandler: { [weak self] in
-                guard let self else { return }
-                self.loadMainView()
-            }
-        )
-    }
-    
-    private func showMainContentViews() {
-        [timerView, todoListView, todayEmptyView, pastEmptyView, doneView,
-         dogetherSheet, rankingButton, dosikCommentButton, dosikImageView, groupInfoView]
-            .forEach { $0.isHidden = false }
-    }
-    
-    private func hideMainContentViews() {
-        [timerView, todoListView, todayEmptyView, pastEmptyView, doneView,
-         dogetherSheet, rankingButton, dosikCommentButton, dosikImageView, groupInfoView]
-            .forEach { $0.isHidden = true }
     }
 }

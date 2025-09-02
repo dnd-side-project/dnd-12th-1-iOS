@@ -34,25 +34,26 @@ final class NavigationCoordinator: NSObject {
 
 // MARK: view
 extension NavigationCoordinator {
-    // ???: 데이터를 더 안전하게 (coordinator를 통해) 전달하는 방식을 찾아보자
-
-    func setNavigationController(_ viewController: BaseViewController, animated: Bool = true) {
+    func setNavigationController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
         viewController.coordinator = self
+        viewController.datas = datas
         updateViewController = nil
         
         navigationController.setViewControllers([viewController], animated: animated)
         navigationController.interactivePopGestureRecognizer?.delegate = self
     }
     
-    func pushViewController(_ viewController: BaseViewController, animated: Bool = true) {
+    func pushViewController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
         viewController.coordinator = self
+        viewController.datas = datas
         updateViewController = nil
         
         navigationController.pushViewController(viewController, animated: animated)
     }
     
-    func presentViewController(_ viewController: BaseViewController, animated: Bool = true) {
+    func presentViewController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
         viewController.coordinator = self
+        viewController.datas = datas
         updateViewController = nil
         
         navigationController.present(viewController, animated: animated)

@@ -7,16 +7,11 @@
 
 import Foundation
 
-enum SortType: String {
-    case todoCompletedAt = "TODO_COMPLETED_AT"
-    case groupCreatedAt = "GROUP_CREATED_AT"
-}
-
 enum CertificationListRouter: NetworkEndpoint {
-    case getMyActivity(sort: SortType)
+    case getMyActivity(sort: String, page: String)
 
     var path: String {
-        return Path.api + Path.myActivity
+        return Path.api + Path.v1 + Path.myActivity
     }
 
     var method: NetworkMethod {
@@ -25,9 +20,10 @@ enum CertificationListRouter: NetworkEndpoint {
 
     var parameters: [URLQueryItem]? {
         switch self {
-        case .getMyActivity(let sort):
+        case let .getMyActivity(sort, page):
             return [
-                URLQueryItem(name: "sort", value: sort.rawValue)
+                URLQueryItem(name: "sortBy", value: sort),
+                URLQueryItem(name: "page", value: page)
             ]
         }
     }

@@ -46,9 +46,9 @@ final class GroupUseCase {
         try await repository.leaveGroup(groupId: String(groupId))
     }
     
-    func getIsParticipating() async throws -> Bool {
-        let response = try await repository.getIsParticipating()
-        return response.isParticipating
+    func checkParticipating() async throws -> Bool {
+        let response = try await repository.checkParticipating()
+        return response.checkParticipating
     }
     
     func getChallengeGroupInfos() async throws -> (groupIndex: Int?, challengeGroupInfos: [ChallengeGroupInfo]) {

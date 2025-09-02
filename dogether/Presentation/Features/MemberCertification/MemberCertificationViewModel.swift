@@ -34,16 +34,9 @@ extension MemberCertificationViewModel {
         (currentIndex, todos) = try await challengeGroupsUseCase.getMemberTodos(groupId: groupId, memberId: memberInfo.memberId)
     }
     
-    func readTodo() {
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await challengeGroupsUseCase.readTodo(todo: todos[currentIndex])
-                todos[currentIndex].thumbnailStatus = .done
-            } catch {
-                // TODO: 예외 처리 추가
-            }
-            
-        }
+    func readTodo() async throws {
+        if todos[currentIndex].thumbnailStatus == .done { return }
+        try await challengeGroupsUseCase.readTodo(todo: todos[currentIndex])
+        todos[currentIndex].thumbnailStatus = .done
     }
 }

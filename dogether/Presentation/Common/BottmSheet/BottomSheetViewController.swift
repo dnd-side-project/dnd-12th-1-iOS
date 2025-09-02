@@ -125,8 +125,8 @@ final class BottomSheetViewController: BaseViewController {
                 guard let self else { return }
                 dismiss(animated: true) {
                     let startViewController = StartViewController()
-                    startViewController.isFirst = false
-                    self.coordinator?.pushViewController(startViewController)
+                    let startViewDatas = StartViewDatas(isFirstGroup: false)
+                    self.coordinator?.pushViewController(startViewController, datas: startViewDatas)
                 }
             }, for: .touchUpInside
         )

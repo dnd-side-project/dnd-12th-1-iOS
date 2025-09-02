@@ -18,4 +18,18 @@ enum CertificationSortOption: String, CaseIterable, BottomSheetItemRepresentable
     var bottomSheetItem: BottomSheetItem {
         BottomSheetItem(displayName: displayName, value: self)
     }
+    
+    var sortType: SortType {
+        switch self {
+        case .todoCompletionDate:
+            return .todoCompletedAt
+        case .groupCreationDate:
+            return .groupCreatedAt
+        }
+    }
+}
+
+enum SortType: String {
+    case todoCompletedAt = "TODO_COMPLETED_AT"
+    case groupCreatedAt = "GROUP_CREATED_AT"
 }

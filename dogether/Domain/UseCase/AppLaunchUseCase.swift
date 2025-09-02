@@ -8,23 +8,18 @@
 import Foundation
 
 final class AppLaunchUseCase {
-    private let repository: AppInfoProtocol?
+    private let repository: AppInfoProtocol
     
-    init(repository: AppInfoProtocol? = nil) {
+    init(repository: AppInfoProtocol) {
         self.repository = repository
     }
     
     func launchApp() async throws {
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
     }
     
     func checkUpdate() async throws -> Bool {
-        let response = try await repository?.checkUpdate(appVersion: SystemManager.appVersion ?? "1.0.0")
-        return response?.forceUpdateRequired ?? false
-    }
-    
-    func getDestination(isParticipating: Bool) async throws -> BaseViewController {
-        if isParticipating { return await MainViewController() }
-        else { return await StartViewController() }
+        let response = try await repository.checkUpdate(appVersion: SystemManager.appVersion ?? "1.0.0")
+        return response.forceUpdateRequired
     }
 }

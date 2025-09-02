@@ -22,7 +22,7 @@ enum ChallengeGroupsRouter: NetworkEndpoint {
         case .certifyTodo(let todoId, _):   // FIXME: 추후 TodosRouter 분리
             return Path.api + Path.todos + "/\(todoId)/certify"
         case .getMyTodos(let groupId, _):
-            return Path.api + Path.challengeGroups + "/\(groupId)/my-todos"
+            return Path.api + Path.v1 + Path.challengeGroups + "/\(groupId)/my-todos"
         case .getMyYesterdayTodos:
             return Path.api + Path.challengeGroups + "/my/yesterday"
         case .getMemberTodos(let groupId, let memberId):

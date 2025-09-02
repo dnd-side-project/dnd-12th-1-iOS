@@ -11,11 +11,13 @@ protocol CertificationListContentViewDelegate: AnyObject {
     func didTapFilter(selectedFilter: FilterTypes)
     func didTapCertificationFilterView()
     func didTapCertification(_ certification: TodoInfo)
+    func didScrollToBottom()
 }
 
 final class CertificationListContentView: BaseView {
     weak var delegate: CertificationListContentViewDelegate?
     private let viewModel: CertificationListViewModel
+    private var isPagingRequestInProgress = false
     
     private let headerLabel: UILabel = {
         let label = UILabel()
@@ -181,5 +183,27 @@ extension CertificationListContentView: UICollectionViewDelegate {
         let certificationItem = viewModel.sections[indexPath.section].certifications[indexPath.item]
             let todoInfo = TodoInfo(from: certificationItem)
             delegate?.didTapCertification(todoInfo)
+    }
+}
+
+extension CertificationListContentView: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard !viewModel.isLastPage else {
+            isPagingRequestInProgress = false
+            return
+        }
+        
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let frameHeight = scrollView.frame.size.height
+
+        if offsetY > contentHeight - frameHeight - 100 {
+            if !isPagingRequestInProgress {
+                isPagingRequestInProgress = true
+                delegate?.didScrollToBottom()
+            }
+        } else {
+            isPagingRequestInProgress = false
+        }
     }
 }

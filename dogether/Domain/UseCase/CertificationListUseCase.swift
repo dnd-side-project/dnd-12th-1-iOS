@@ -14,16 +14,14 @@ final class CertificationListUseCase {
         self.repository = repository
     }
     
-    func fetchSortedList(option: CertificationSortOption) async throws -> CertificationListResult {
-        let result: CertificationListResult
-        
+    func fetchSortedList(option: CertificationSortOption, page: Int) async throws -> CertificationListResult {
+        let pageString = String(page)
+        let sortString = option.sortType.rawValue
         switch option {
         case .todoCompletionDate:
-            result = try await repository.fetchByTodoCompletionDate()
-            return result
+            return try await repository.fetchByTodoCompletionDate(sort: sortString, page: pageString)
         case .groupCreationDate:
-            result = try await repository.fetchByGroupCreationDate()
-            return result
+            return try await repository.fetchByGroupCreationDate(sort: sortString, page: pageString)
         }
     }
 }

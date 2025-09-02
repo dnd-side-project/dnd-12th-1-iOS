@@ -60,8 +60,8 @@ final class GroupRepositoryTest: GroupProtocol {
     
     func leaveGroup(groupId: String) { }
     
-    func getIsParticipating() async throws -> GetIsParticipatingResponse {
-        return GetIsParticipatingResponse(isParticipating: true)
+    func checkParticipating() async throws -> CheckParticipatingResponse {
+        return CheckParticipatingResponse(checkParticipating: true)
     }
     
     func getGroups() async throws -> GetGroupsResponse {

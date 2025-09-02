@@ -9,6 +9,6 @@ import Foundation
 
 final class AppInfoRepositoryTest: AppInfoProtocol {
     func checkUpdate(appVersion: String) async throws -> CheckUpdateResponse {
-        return CheckUpdateResponse(forceUpdateRequired: true)
+        return CheckUpdateResponse(forceUpdateRequired: false)
     }
 }
