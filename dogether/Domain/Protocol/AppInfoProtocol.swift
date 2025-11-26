@@ -8,5 +8,5 @@
 import Foundation
 
 protocol AppInfoProtocol {
-    func checkUpdate(appVersion: String) async throws -> CheckUpdateResponse
+    func checkUpdate(appVersion: String) async throws -> Bool
 }

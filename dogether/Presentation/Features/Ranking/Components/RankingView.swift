@@ -8,11 +8,6 @@
 import UIKit
 
 final class RankingView: BaseView {
-    init() {
-        super.init(frame: .zero)
-    }
-    required init?(coder: NSCoder) { fatalError() }
-    
     private let rankingLabel = {
         let label = UILabel()
         label.textColor = .grey0
@@ -82,7 +77,7 @@ final class RankingView: BaseView {
 }
 
 extension RankingView {
-    func setExtraInfo(ranking: RankingModel) {
+    func setExtraInfo(ranking: RankingEntity) {
         rankingLabel.text = String(ranking.rank)
         profileImageView.setReadStatus(readStatus: ranking.historyReadStatus)
         profileImageView.loadImage(url: ranking.profileImageUrl)

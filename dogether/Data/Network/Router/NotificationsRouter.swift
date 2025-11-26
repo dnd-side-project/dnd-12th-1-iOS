@@ -14,9 +14,9 @@ enum NotificationsRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .saveNotiToken:
-            return Path.api + Path.notification + Path.tokens
+            return Path.api + Path.v1 + Path.notification + Path.tokens
         case .removeNotiToken:
-            return Path.api + Path.notification + Path.tokens
+            return Path.api + Path.v1 + Path.notification + Path.tokens
         }
     }
     

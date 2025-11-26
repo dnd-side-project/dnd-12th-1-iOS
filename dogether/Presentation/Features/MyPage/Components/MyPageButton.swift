@@ -8,44 +8,35 @@
 import UIKit
 
 final class MyPageButton: BaseButton {
+    private let icon: UIImage?
+    private let title: String
+    
     init(icon: UIImage?, title: String) {
-        if let icon = icon {
-            iconImageView.image = icon
-            hasIcon = true
-        } else {
-            hasIcon = false
-        }
-        buttonTitleLabel.text = title
+        self.icon = icon
+        self.title = title
         
         super.init(frame: .zero)
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    private var hasIcon: Bool
-    
     private let iconImageView = UIImageView()
-    
-    private let buttonTitleLabel = {
-        let label = UILabel()
-        label.textColor = .grey100
-        label.font = Fonts.body1R
-        return label
-    }()
-    
+    private let buttonTitleLabel = UILabel()
     private let chevronImageView = UIImageView(image: .chevronRight.withRenderingMode(.alwaysTemplate))
     
     override func configureView() {
-        chevronImageView.tintColor = .grey100
+        iconImageView.image = icon
+        
+        buttonTitleLabel.text = title
+        buttonTitleLabel.textColor = .grey100
+        buttonTitleLabel.font = Fonts.body1R
+        
+        chevronImageView.tintColor = .grey200
     }
     
     override func configureAction() { }
     
     override func configureHierarchy() {
-        if hasIcon {
-                   [iconImageView, buttonTitleLabel, chevronImageView].forEach { addSubview($0) }
-               } else {
-                   [buttonTitleLabel, chevronImageView].forEach { addSubview($0) }
-               }
+        [iconImageView, buttonTitleLabel, chevronImageView].forEach { addSubview($0) }
     }
     
     override func configureConstraints() {
@@ -53,27 +44,20 @@ final class MyPageButton: BaseButton {
             $0.height.equalTo(48)
         }
         
-        if hasIcon {
-                iconImageView.snp.makeConstraints {
-                    $0.centerY.equalToSuperview()
-                    $0.left.equalToSuperview().inset(16)
-                    $0.width.height.equalTo(24)
-                }
-                
-                buttonTitleLabel.snp.makeConstraints {
-                    $0.centerY.equalToSuperview()
-                    $0.left.equalTo(iconImageView.snp.right).offset(8)
-                }
-            } else {
-                buttonTitleLabel.snp.makeConstraints {
-                    $0.centerY.equalToSuperview()
-                    $0.left.equalToSuperview().inset(8)
-                }
-            }
+        iconImageView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.left.equalToSuperview().inset(8)
+            $0.width.height.equalTo(24)
+        }
+        
+        buttonTitleLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.left.equalTo(iconImageView.snp.right).offset(8)
+        }
         
         chevronImageView.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.right.equalToSuperview().inset(16)
+            $0.right.equalToSuperview().inset(8)
             $0.width.height.equalTo(20)
         }
     }

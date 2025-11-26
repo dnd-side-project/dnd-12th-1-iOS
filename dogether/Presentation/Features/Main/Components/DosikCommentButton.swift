@@ -8,31 +8,11 @@
 import UIKit
 
 final class DosikCommentButton: BaseButton {
-    init() { super.init(frame: .zero) }
-    required init?(coder: NSCoder) { fatalError() }
+    private let commentLabel = UILabel()
+    private let closeImageView = UIImageView(image: .close)
     
     private let tailImageView = UIImageView(image: .tail)
-    
-    private let commentLabel = {
-        let label = UILabel()
-        label.textColor = .grey800
-        label.numberOfLines = 0
-        return label
-    }()
-
-    private let closeImageView = {
-        let imageView = UIImageView(image: .close)
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    private let commentStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 4
-        stackView.isUserInteractionEnabled = false
-        return stackView
-    }()
+    private let commentStackView = UIStackView()
     
     override func configureView() {
         isHidden = true
@@ -40,8 +20,16 @@ final class DosikCommentButton: BaseButton {
         layer.cornerRadius = 8
         layer.zPosition = 1
         
+        commentLabel.textColor = .grey800
+        commentLabel.numberOfLines = 0
         commentLabel.setContentHuggingPriority(.required, for: .vertical)
         commentLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        
+        closeImageView.contentMode = .scaleAspectFit
+        
+        commentStackView.axis = .horizontal
+        commentStackView.spacing = 4
+        commentStackView.isUserInteractionEnabled = false
         
         [commentLabel, closeImageView].forEach { commentStackView.addArrangedSubview($0) }
     }
@@ -74,17 +62,21 @@ final class DosikCommentButton: BaseButton {
             $0.edges.equalToSuperview().inset(8)
         }
     }
-}
-
-extension DosikCommentButton {
-    func updateUI(comment: String? = nil) {
-        isHidden = comment == nil
-        
-        guard let comment else { return }
-        
-        commentLabel.attributedText = NSAttributedString(
-            string: comment,
-            attributes: Fonts.getAttributes(for: Fonts.smallS, textAlignment: .left)
-        )
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let data = data as? GroupEntity {
+            let comment = data.status == .dDay ? "그룹이 종료됐어요!" :
+                data.progress >= 1.0 ? "마지막 인증일이에요!\n내일부터 인증이 불가능해요." : nil
+            
+            isHidden = comment == nil
+            
+            guard let comment else { return }
+            
+            commentLabel.attributedText = NSAttributedString(
+                string: comment,
+                attributes: Fonts.getAttributes(for: Fonts.smallS, textAlignment: .left)
+            )
+        }
     }
 }

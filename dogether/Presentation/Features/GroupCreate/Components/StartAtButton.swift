@@ -8,26 +8,33 @@
 import UIKit
 
 final class StartAtButton: BaseButton {
-    private(set) var startAt: GroupStartAts
-    private(set) var isColorful: Bool
+    var delegate: GroupCreateDelegate? {
+        didSet {
+            addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.updateStartAt(startAt: startAt)
+                }, for: .touchUpInside
+            )
+        }
+    }
     
-    init(startAt: GroupStartAts, isColorful: Bool = false) {
+    private let startAt: GroupStartAts
+    
+    init(startAt: GroupStartAts) {
         self.startAt = startAt
-        self.isColorful = isColorful
         
         super.init(frame: .zero)
     }
     required init?(coder: NSCoder) { fatalError() }
     
     private let icon = UIImageView()
-    
     private let label = UILabel()
-    
     private let descriptionLabel = UILabel()
     
+    private var currentStartAt: GroupStartAts?
+    
     override func configureView() {
-        updateUI()
-        
         backgroundColor = .grey800
         layer.cornerRadius = 12
         layer.borderWidth = 1.5
@@ -70,20 +77,19 @@ final class StartAtButton: BaseButton {
         }
     }
     
-    private func updateUI() {
-        layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
-        
-        icon.tintColor = isColorful ? .blue300 : .grey0
-        
-        label.textColor = isColorful ? .blue300 : .grey0
-        
-        descriptionLabel.textColor = isColorful ? .blue300 : .grey0
-    }
-    
-    func setColorful(isColorful: Bool) {
-        self.isColorful = isColorful
-        
-        updateUI()
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? GroupStartAts {
+            if currentStartAt != datas {
+                currentStartAt = datas
+                
+                let isColorful = startAt == datas
+                layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
+                icon.tintColor = isColorful ? .blue300 : .grey0
+                label.textColor = isColorful ? .blue300 : .grey0
+                descriptionLabel.textColor = isColorful ? .blue300 : .grey0
+            }
+        }
     }
 }
 

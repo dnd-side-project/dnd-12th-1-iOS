@@ -13,7 +13,7 @@ enum AppInfoRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .checkUpdate:
-            return Path.api + Path.appInfo + "/force-update-check"
+            return Path.api + Path.v1 + Path.appInfo + "/force-update-check"
         }
     }
     

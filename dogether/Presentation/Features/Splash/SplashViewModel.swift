@@ -11,10 +11,6 @@ final class SplashViewModel {
     private let appLaunchUseCase: AppLaunchUseCase
     private let groupUseCase: GroupUseCase
     
-    private(set) var needUpdate = BehaviorRelay<Bool>(value: false)
-    private(set) var needLogin = BehaviorRelay<Bool>(value: false)
-    private(set) var needParticipating = BehaviorRelay<Bool>(value: false)
-    
     init() {
         let groupRepository = DIManager.shared.getGroupRepository()
         let appInfoRepository = DIManager.shared.getAppInfoRepository()
@@ -26,18 +22,19 @@ final class SplashViewModel {
 
 extension SplashViewModel {
     func launchApp() async throws {
+        try await appLaunchUseCase.migrate()
         try await appLaunchUseCase.launchApp()
     }
     
-    func checkUpdate() async throws {
-        needUpdate.accept(try await appLaunchUseCase.checkUpdate())
+    func checkUpdate() async throws -> Bool {
+        try await appLaunchUseCase.checkUpdate()
     }
     
-    func checkLogin() async throws {
-        needLogin.accept(UserDefaultsManager.shared.accessToken == nil)
+    func checkLogin() -> Bool {
+        UserDefaultsManager.shared.accessToken == nil
     }
     
-    func checkParticipating() async throws {
-        needParticipating.accept(try await groupUseCase.checkParticipating())
+    func checkParticipating() async throws -> Bool {
+        try await groupUseCase.checkParticipating()
     }
 }

@@ -22,4 +22,13 @@ enum CreateGroupSteps: Int, CaseIterable {
             return "그룹 정보를 확인해주세요"
         }
     }
+    
+    var buttonTitle: String {
+        switch self {
+        case .one, .two:
+            return "다음"
+        case .three:
+            return "그룹 생성"
+        }
+    }
 }

@@ -8,9 +8,6 @@
 import UIKit
 
 final class TimerView: BaseView {
-    init() { super.init(frame: .zero) }
-    required init?(coder: NSCoder) { fatalError() }
-    
     private let timerView = {
         let view = UIView()
         view.backgroundColor = .grey700
@@ -54,37 +51,27 @@ final class TimerView: BaseView {
         return view
     }()
     
-    private let timerLabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.head1B
-        return label
-    }()
+    private let timerLabel = UILabel()
+    private let titleLabel = UILabel()
+    private let subTitleLabel = UILabel()
     
-    private let titleLabel = {
-        let label = UILabel()
-        label.text = "내일부터 투두를 시작할 수 있어요!"
-        label.textColor = .grey0
-        label.font = Fonts.head2B
-        return label
-    }()
-    
-    private let subTitleLabel = {
-        let label = UILabel()
-        label.text = "오늘은 계획을 세우고, 내일부터 실천해보세요!"
-        label.textColor = .grey300
-        label.font = Fonts.body2R
-        return label
-    }()
-    
-    private let timerStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        return stackView
-    }()
+    private let timerStackView = UIStackView()
     
     override func configureView() {
+        timerLabel.textColor = .grey0
+        timerLabel.font = Fonts.head1B
+        
+        titleLabel.text = "내일부터 투두를 시작할 수 있어요!"
+        titleLabel.textColor = .grey0
+        titleLabel.font = Fonts.head2B
+        
+        subTitleLabel.text = "오늘은 계획을 세우고, 내일부터 실천해보세요!"
+        subTitleLabel.textColor = .grey300
+        subTitleLabel.font = Fonts.body2R
+        
+        timerStackView.axis = .vertical
+        timerStackView.alignment = .center
+    
         [timerView, titleLabel, subTitleLabel].forEach { timerStackView.addArrangedSubview($0) }
         timerStackView.setCustomSpacing(16, after: timerView)
         timerStackView.setCustomSpacing(4, after: titleLabel)
@@ -123,11 +110,12 @@ final class TimerView: BaseView {
             $0.height.equalTo(36)
         }
     }
-}
-
-extension TimerView {
-    func updateTimer(time: String, timeProgress: CGFloat) {
-        timerLabel.text = time
-        (timeProgressView.layer.sublayers?.first as? CAShapeLayer)?.strokeEnd = timeProgress
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? TimerViewDatas {
+            timerLabel.text = datas.time
+            (timeProgressView.layer.sublayers?.first as? CAShapeLayer)?.strokeEnd = datas.timeProgress
+        }
     }
 }

@@ -8,5 +8,14 @@
 import Foundation
 
 struct GetMyTodosResponse: Decodable {
-    let todos: [TodoInfo]
+    let todos: [TodoEntityInGetMyTodos]
+}
+
+struct TodoEntityInGetMyTodos: Decodable {
+    let id: Int
+    let content: String
+    var status: String
+    var certificationContent: String?
+    var certificationMediaUrl: String?
+    var reviewFeedback: String?
 }

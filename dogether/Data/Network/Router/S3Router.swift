@@ -13,7 +13,7 @@ enum S3Router: NetworkEndpoint {
     var path: String {
         switch self {
         case .presignedUrls:
-            return Path.api + Path.s3 + "/presigned-urls"
+            return Path.api + Path.v1 + Path.s3 + "/presigned-urls"
         }
     }
     

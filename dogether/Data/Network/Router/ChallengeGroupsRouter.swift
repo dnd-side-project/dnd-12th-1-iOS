@@ -18,17 +18,17 @@ enum ChallengeGroupsRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .createTodos(let groupId, _):
-            return Path.api + Path.challengeGroups + "/\(groupId)/todos"
+            return Path.api + Path.v1 + Path.challengeGroups + "/\(groupId)/todos"
         case .certifyTodo(let todoId, _):   // FIXME: 추후 TodosRouter 분리
-            return Path.api + Path.todos + "/\(todoId)/certify"
+            return Path.api + Path.v1 + Path.todos + "/\(todoId)/certify"
         case .getMyTodos(let groupId, _):
             return Path.api + Path.v1 + Path.challengeGroups + "/\(groupId)/my-todos"
         case .getMyYesterdayTodos:
-            return Path.api + Path.challengeGroups + "/my/yesterday"
+            return Path.api + Path.v1 + Path.challengeGroups + "/my/yesterday"
         case .getMemberTodos(let groupId, let memberId):
-            return Path.api + Path.challengeGroups + "/\(groupId)/challenge-group-members/\(memberId)/today-todo-history"
+            return Path.api + Path.v1 + Path.challengeGroups + "/\(groupId)/challenge-group-members/\(memberId)/today-todo-history"
         case .readTodo(let todoId): // FIXME: 추후 TodoHistoryRouter 분리
-            return Path.api + Path.todoHistory + "/\(todoId)"
+            return Path.api + Path.v1 + Path.todoHistory + "/\(todoId)"
         }
     }
     

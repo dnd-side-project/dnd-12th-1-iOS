@@ -125,11 +125,12 @@ extension PopupViewController: UITextViewDelegate {
         viewModel.setStringContent(textView.text)
         
         if let popupView = popupView as? ReviewFeedbackPopupView {
-            popupView.reviewFeedbackButton.setButtonStatus(
-                status: textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                ? .disabled
-                : .enabled
-            )
+            // FIXME: 추후 수정
+            var viewDatas = popupView.reviewFeedbackButton.currentViewDatas ?? DogetherButtonViewDatas(status: .disabled)
+            viewDatas.status = textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? .disabled
+            : .enabled
+            popupView.reviewFeedbackButton.updateView(viewDatas)
         }
     }
     

@@ -14,7 +14,7 @@ final class ExaminationModalityView: BaseView {
     
     private let scrollView = UIScrollView()
     
-    var closeButton = DogetherButton(title: "보내기", status: .disabled)
+    var closeButton = DogetherButton("보내기")
     
     private let contentStackView = {
         let stackView = UIStackView()
@@ -95,6 +95,10 @@ final class ExaminationModalityView: BaseView {
         contentStackView.setCustomSpacing(60, after: titleLabel)
         contentStackView.setCustomSpacing(16, after: imageView)
         contentStackView.setCustomSpacing(16, after: contentLabel)
+        
+        // FIXME: 추후 수정
+        let dogetherButtonViewDatas = closeButton.currentViewDatas ?? DogetherButtonViewDatas(status: .disabled)
+        closeButton.updateView(dogetherButtonViewDatas)
     }
     
     override func configureAction() { }

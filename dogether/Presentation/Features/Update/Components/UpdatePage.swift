@@ -8,7 +8,16 @@
 import UIKit
 
 final class UpdatePage: BasePage {
-    var delegate: UpdateDelegate?
+    var delegate: UpdateDelegate? {
+        didSet {
+            updateButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.updateAction()
+                }, for: .touchUpInside
+            )
+        }
+    }
     
     private let typoImageView = UIImageView()
     private let titleLabel = UILabel()
@@ -17,7 +26,7 @@ final class UpdatePage: BasePage {
     private let updateStackView = UIStackView()
     private let updateContainerView = UIView()
     
-    private let updateButton = DogetherButton(title: "업데이트 하러가기")
+    private let updateButton = DogetherButton("업데이트 하러가기")
     
     override func configureView() {
         typoImageView.image = .logoTypo
@@ -45,16 +54,12 @@ final class UpdatePage: BasePage {
         updateStackView.setCustomSpacing(40, after: typoImageView)
         updateStackView.setCustomSpacing(8, after: titleLabel)
         updateStackView.setCustomSpacing(44, after: descriptionLabel)
+        
+        // FIXME: viewModel 생성 후 수정
+        updateButton.updateView(DogetherButtonViewDatas())
     }
     
-    override func configureAction() {
-        updateButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                delegate?.updateAction()
-            }, for: .touchUpInside
-        )
-    }
+    override func configureAction() { }
     
     override func configureHierarchy() {
         [updateContainerView, updateButton].forEach { addSubview($0) }

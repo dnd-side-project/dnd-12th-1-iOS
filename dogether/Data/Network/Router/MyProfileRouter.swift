@@ -13,7 +13,7 @@ enum MyProfileRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .getMyProfile:
-            return Path.api + Path.myProfile
+            return Path.api + Path.v1 + Path.myProfile
         }
     }
     

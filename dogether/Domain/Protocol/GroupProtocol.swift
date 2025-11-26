@@ -8,13 +8,15 @@
 import Foundation
 
 protocol GroupProtocol {
-    func createGroup(createGroupRequest: CreateGroupRequest) async throws -> CreateGroupResponse
+    func createGroup(groupCreateViewDatas: GroupCreateViewDatas) async throws -> String
     func joinGroup(joinGroupRequest: JoinGroupRequest) async throws -> JoinGroupResponse
     func leaveGroup(groupId: String) async throws
     
     func checkParticipating() async throws -> CheckParticipatingResponse
     
-    func getGroups() async throws -> GetGroupsResponse
+    // FIXME: 추후 삭제
+    func getGroupsBefore() async throws -> GetGroupsResponse
+    func getGroups() async throws -> GroupViewDatas
     
     func saveLastSelectedGroup(saveLastSelectedGroupRequest: SaveLastSelectedGroupRequest) async throws
     

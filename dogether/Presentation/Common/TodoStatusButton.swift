@@ -17,17 +17,10 @@ final class TodoStatusButton: BaseButton {
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    private var icon = UIImageView()
+    private let icon = UIImageView()
+    private let label = UILabel()
     
-    private var label = UILabel()
-    
-    private let stackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.spacing = 4
-        stackView.isUserInteractionEnabled = false
-        return stackView
-    }()
+    private let stackView = UIStackView()
     
     override func configureView() {
         backgroundColor = type.backgroundColor
@@ -40,6 +33,10 @@ final class TodoStatusButton: BaseButton {
         label.textColor = .grey900
         label.font = Fonts.body2S
         
+        stackView.axis = .horizontal
+        stackView.spacing = 4
+        stackView.isUserInteractionEnabled = false
+        
         let views = icon.image == nil ? [label] : [icon, label]
         views.forEach { stackView.addArrangedSubview($0) }
     }
@@ -51,16 +48,32 @@ final class TodoStatusButton: BaseButton {
     }
     
     override func configureConstraints() {
-        self.snp.makeConstraints {
-            $0.width.equalTo(type.width)
-        }
-        
         stackView.snp.makeConstraints {
+            $0.verticalEdges.equalToSuperview().inset(6)
+            $0.horizontalEdges.equalToSuperview().inset(12)
             $0.center.equalToSuperview()
         }
         
         icon.snp.makeConstraints {
-            $0.width.height.equalTo(18)
+            $0.width.height.equalTo(16)
+        }
+    }
+    
+    // MARK: - updateView
+    override func updateView(_ data: any BaseEntity) {
+        if let datas = data as? TodoStatus {
+            backgroundColor = datas.backgroundColor
+            icon.image = datas.image?.withRenderingMode(.alwaysTemplate)
+            label.text = datas.text
+            
+            stackView.arrangedSubviews.forEach { stackView.removeArrangedSubview($0) }
+            
+            let views = icon.image == nil ? [label] : [icon, label]
+            views.forEach { stackView.addArrangedSubview($0) }
+            
+            icon.snp.updateConstraints {
+                $0.width.height.equalTo(16)
+            }
         }
     }
 }
@@ -76,12 +89,8 @@ extension TodoStatusButton {
         let views = icon.image == nil ? [label] : [icon, label]
         views.forEach { stackView.addArrangedSubview($0) }
         
-        self.snp.updateConstraints {
-            $0.width.equalTo(type.width)
-        }
-        
         icon.snp.updateConstraints {
-            $0.width.height.equalTo(18)
+            $0.width.height.equalTo(16)
         }
     }
 }

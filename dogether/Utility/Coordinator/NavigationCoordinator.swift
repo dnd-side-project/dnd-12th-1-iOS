@@ -89,7 +89,7 @@ extension NavigationCoordinator {
         _ viewController: BaseViewController,
         type: PopupTypes,
         alertType: AlertTypes? = nil,
-        todoInfo: TodoInfo? = nil,
+        todoInfo: TodoEntity? = nil,
         animated: Bool = true,
         completion: ((Any) -> Void)? = nil
     ) {

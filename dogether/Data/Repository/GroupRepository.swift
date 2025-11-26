@@ -14,8 +14,15 @@ final class GroupRepository: GroupProtocol {
         self.groupsDataSource = groupsDataSource
     }
     
-    func createGroup(createGroupRequest: CreateGroupRequest) async throws -> CreateGroupResponse {
-        try await groupsDataSource.createGroup(createGroupRequest: createGroupRequest)
+    func createGroup(groupCreateViewDatas: GroupCreateViewDatas) async throws -> String {
+        let request = CreateGroupRequest(
+            groupName: groupCreateViewDatas.groupName,
+            maximumMemberCount: groupCreateViewDatas.memberCount,
+            startAt: groupCreateViewDatas.startAt.rawValue,
+            duration: groupCreateViewDatas.duration.rawValue
+        )
+        let response = try await groupsDataSource.createGroup(createGroupRequest: request)
+        return response.joinCode
     }
     
     func joinGroup(joinGroupRequest: JoinGroupRequest) async throws -> JoinGroupResponse {
@@ -30,8 +37,29 @@ final class GroupRepository: GroupProtocol {
         try await groupsDataSource.checkParticipating()
     }
     
-    func getGroups() async throws -> GetGroupsResponse {
+    func getGroupsBefore() async throws -> GetGroupsResponse {
         try await groupsDataSource.getGroups()
+    }
+    
+    func getGroups() async throws -> GroupViewDatas {
+        let response = try await groupsDataSource.getGroups()
+        return GroupViewDatas(
+            index: response.lastSelectedGroupIndex ?? 0,
+            groups: response.joiningChallengeGroups.map {
+                GroupEntity(
+                    id: $0.groupId,
+                    name: $0.groupName,
+                    currentMember: $0.currentMemberCount,
+                    maximumMember: $0.maximumMemberCount,
+                    joinCode: $0.joinCode,
+                    status: MainViewStatus(rawValue: $0.status) ?? .running,
+                    startDate: $0.startAt,
+                    endDate: $0.endAt,
+                    duration: $0.progressDay,
+                    progress: $0.progressRate
+                )
+            }
+        )
     }
     
     func saveLastSelectedGroup(saveLastSelectedGroupRequest: SaveLastSelectedGroupRequest) async throws {

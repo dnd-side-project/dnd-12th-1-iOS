@@ -9,7 +9,16 @@ import UIKit
 import SnapKit
 
 final class DogetherHeader: BaseView {
-    weak var delegate: CoordinatorDelegate?
+    weak var delegate: CoordinatorDelegate? {
+        didSet {
+            myPageButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.coordinator?.pushViewController(MyPageViewController())
+                }, for: .touchUpInside
+            )
+        }
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,14 +41,7 @@ final class DogetherHeader: BaseView {
     
     override func configureView() { }
     
-    override func configureAction() {
-        myPageButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                delegate?.coordinator?.pushViewController(MyPageViewController())
-            }, for: .touchUpInside
-        )
-    }
+    override func configureAction() { }
      
     override func configureHierarchy() {
         [dogetherIconTypo, myPageButton].forEach { addSubview($0) }

@@ -145,13 +145,10 @@ extension CertificationListViewController: CertificationListContentViewDelegate 
         viewModel.currentFilter = selectedFilter
     }
     
-    func didTapCertificationFilterView() {
-    }
-    
-    func didTapCertification(_ certification: TodoInfo) {
-        let certificationInfoViewController = CertificationInfoViewController()
-        certificationInfoViewController.todoInfo = certification
-        coordinator?.pushViewController(certificationInfoViewController, animated: true)
+    func didTapCertification(title: String, todos: [TodoEntity], index: Int) {
+        let certificationViewController = CertificationViewController()
+        let certificationViewDatas = CertificationViewDatas(title: title, todos: todos, index: index)
+        coordinator?.pushViewController(certificationViewController, datas: certificationViewDatas)
     }
     
     func didScrollToBottom() {

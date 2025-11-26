@@ -99,6 +99,7 @@ final class StatsContentView: BaseView {
             $0.top.equalTo(dailyAchievementBarView.snp.bottom).offset(16)
             $0.leading.equalToSuperview().inset(16)
             $0.height.equalTo(180)
+            $0.bottom.equalToSuperview().inset(22)
         }
 
         statsSummaryView.snp.makeConstraints {
@@ -107,6 +108,7 @@ final class StatsContentView: BaseView {
             $0.trailing.equalToSuperview().inset(16)
             $0.width.equalTo(myRankView.snp.width)
             $0.height.equalTo(180)
+            $0.bottom.equalToSuperview().inset(22)
         }
     }
     

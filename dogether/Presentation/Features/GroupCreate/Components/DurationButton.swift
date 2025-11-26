@@ -8,12 +8,21 @@
 import UIKit
 
 final class DurationButton: BaseButton {
-    private(set) var duration: GroupChallengeDurations
-    private(set) var isColorful: Bool
+    var delegate: GroupCreateDelegate? {
+        didSet {
+            addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.updateDuration(duration: duration)
+                }, for: .touchUpInside
+            )
+        }
+    }
     
-    init(duration: GroupChallengeDurations, isColorful: Bool = false) {
+    private let duration: GroupChallengeDurations
+    
+    init(duration: GroupChallengeDurations) {
         self.duration = duration
-        self.isColorful = isColorful
         
         super.init(frame: .zero)
     }
@@ -21,9 +30,9 @@ final class DurationButton: BaseButton {
     
     private let label = UILabel()
     
+    private var currentDuration: GroupChallengeDurations?
+    
     override func configureView() {
-        updateUI()
-        
         backgroundColor = .grey800
         layer.cornerRadius = 12
         layer.borderWidth = 1.5
@@ -43,19 +52,19 @@ final class DurationButton: BaseButton {
             $0.left.equalToSuperview().inset(16)
         }
     }
-}
- 
-extension DurationButton {
-    private func updateUI() {
-        layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
-        
-        label.textColor = isColorful ? .blue300 : .grey0
-        label.font = isColorful ? Fonts.body1B : Fonts.body1S
-    }
     
-    func setColorful(isColorful: Bool) {
-        self.isColorful = isColorful
-        
-        updateUI()
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? GroupChallengeDurations {
+            if currentDuration != datas {
+                currentDuration = datas
+                
+                let isColorful = duration == datas
+                layer.borderColor = isColorful ? UIColor.blue300.cgColor : UIColor.grey800.cgColor
+                
+                label.textColor = isColorful ? .blue300 : .grey0
+                label.font = isColorful ? Fonts.body1B : Fonts.body1S
+            }
+        }
     }
 }

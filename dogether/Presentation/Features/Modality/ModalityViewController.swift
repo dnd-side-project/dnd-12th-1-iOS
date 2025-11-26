@@ -37,13 +37,17 @@ final class ModalityViewController: BaseViewController {
                     
                     todoExaminationModalityView.removeFeedback()
                     todoExaminationModalityView.updateButtonBackgroundColor(type: type)
-                    todoExaminationModalityView.closeButton.setButtonStatus(status: type == .approve ? .enabled : .disabled)
+                    // FIXME: 추후 수정
+                    var viewDatas = todoExaminationModalityView.closeButton.currentViewDatas ?? DogetherButtonViewDatas(status: .disabled)
+                    viewDatas.status = type == .approve ? .enabled : .disabled
+                    todoExaminationModalityView.closeButton.updateView(viewDatas)
                     
                     coordinator?.showPopup(self, type: .reviewFeedback) { reviewFeedback in
                         guard let reviewFeedback = reviewFeedback as? String else { return }
                         self.viewModel.setReviewFeedback(reviewFeedback)
                         self.todoExaminationModalityView.addFeedback(feedback: reviewFeedback)
-                        self.todoExaminationModalityView.closeButton.setButtonStatus(status: .enabled)
+                        viewDatas.status = .enabled
+                        self.todoExaminationModalityView.closeButton.updateView(viewDatas)
                     }
                 }, for: .touchUpInside
             )
@@ -64,7 +68,10 @@ final class ModalityViewController: BaseViewController {
                             
                             self.todoExaminationModalityView.removeFeedback()
                             self.todoExaminationModalityView.updateButtonBackgroundColor(type: .all)
-                            self.todoExaminationModalityView.closeButton.setButtonStatus(status: .disabled)
+                            // FIXME: 추후 수정
+                            var viewDatas = self.todoExaminationModalityView.closeButton.currentViewDatas ?? DogetherButtonViewDatas(status: .disabled)
+                            viewDatas.status = .disabled
+                            self.todoExaminationModalityView.closeButton.updateView(viewDatas)
                             self.updateView()
                         }
                     }

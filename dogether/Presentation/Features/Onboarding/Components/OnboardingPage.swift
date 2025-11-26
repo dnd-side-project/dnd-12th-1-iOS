@@ -6,14 +6,24 @@
 //
 
 import AuthenticationServices
+import Lottie
 
 final class OnboardingPage: BasePage {
-    var delegate: OnboardingDelegate?
+    var delegate: OnboardingDelegate? {
+        didSet {
+            appleLoginButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.loginAction(loginType: .apple)
+                }, for: .touchUpInside
+            )
+        }
+    }
     
     private let scrollView = UIScrollView()
     private let onboardingStackView = UIStackView()
     private let pageControl = UIPageControl()
-    private let signInButton = ASAuthorizationAppleIDButton(type: .signIn, style: .white)
+    private let appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .white)
     
     private let onboardingStep: Int = 3
     private let pageControlHeight: CGFloat = 26
@@ -36,7 +46,7 @@ final class OnboardingPage: BasePage {
         
         pageControl.numberOfPages = onboardingStep
         
-        signInButton.cornerRadius = 12
+        appleLoginButton.cornerRadius = 12
     }
     
     override func configureAction() {
@@ -50,17 +60,10 @@ final class OnboardingPage: BasePage {
                 scrollView.setContentOffset(offset, animated: true)
             }, for: .valueChanged
         )
-        
-        signInButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                delegate?.signInAction()
-            }, for: .touchUpInside
-        )
     }
     
     override func configureHierarchy() {
-        [scrollView, pageControl, signInButton].forEach { self.addSubview($0) }
+        [scrollView, pageControl, appleLoginButton].forEach { self.addSubview($0) }
         
         [onboardingStackView].forEach { scrollView.addSubview($0) }
     }
@@ -80,7 +83,7 @@ final class OnboardingPage: BasePage {
             $0.top.equalTo(onboardingStackView.snp.bottom)
         }
         
-        signInButton.snp.makeConstraints {
+        appleLoginButton.snp.makeConstraints {
             $0.bottom.equalToSuperview().inset(buttonBottomPadding)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.height.equalTo(buttonHeight)
@@ -107,18 +110,22 @@ extension OnboardingPage {
         subTitleLabel.textColor = .grey200
         subTitleLabel.numberOfLines = 0
         
-        let imageView = UIImageView(image: step.image)
-        let aspectRatio = imageView.frame.height / imageView.frame.width
+        let animationView = LottieAnimationView(name: step.lottieFileName)
+        let aspectRatio = animationView.frame.height / animationView.frame.width
+        animationView.loopMode = .loop
+        animationView.contentMode = .scaleAspectFit
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        animationView.play()
         
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, subTitleLabel, imageView])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, subTitleLabel, animationView])
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.setCustomSpacing(8, after: titleLabel)
         
-        imageView.snp.makeConstraints {
+        animationView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)
-            $0.height.equalTo(imageView.snp.width).multipliedBy(aspectRatio)
+            $0.height.equalTo(animationView.snp.width).multipliedBy(aspectRatio)
         }
         
         return stackView

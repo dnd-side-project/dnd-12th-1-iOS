@@ -9,14 +9,33 @@ import UIKit
 import SnapKit
 
 final class TodoListItemButton: BaseButton {
-    private(set) var todo: TodoInfo
+    var delegate: MainDelegate? {
+        didSet {
+            addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    if isUncertified {
+                        if isToday {
+                            delegate?.goCertificateViewAction(todo: todo)
+                        } else { return }
+                    } else {
+                        delegate?.goCertificationViewAction(index: index)
+                    }
+                }, for: .touchUpInside
+            )
+        }
+    }
+    
+    private(set) var index: Int
+    private(set) var todo: TodoEntity
     private(set) var isToday: Bool
     private(set) var isUncertified: Bool
     
-    init(todo: TodoInfo, isToday: Bool) {
+    init(index: Int, todo: TodoEntity, isToday: Bool) {
+        self.index = index
         self.todo = todo
         self.isToday = isToday
-        self.isUncertified = todo.status == TodoStatus.waitCertification.rawValue
+        self.isUncertified = todo.status == .waitCertification
         
         super.init(frame: .zero)
     }
@@ -24,42 +43,33 @@ final class TodoListItemButton: BaseButton {
     
     private let todoImageView = UIImageView()
     
-    private let contentLabel = {
-        let label = UILabel()
-        label.font = Fonts.body1S
-        label.isUserInteractionEnabled = false
-        return label
-    }()
+    private let contentLabel = UILabel()
     
-    private let certificationLabel = {
-        let label = UILabel()
-        label.text = "인증하기"
-        label.textAlignment = .center
-        label.font = Fonts.body2S
-        label.layer.cornerRadius = 6
-        label.clipsToBounds = true
-        label.isUserInteractionEnabled = false
-        return label
-    }()
+    private let certificationLabel = UILabel()
     
-    private let checkImageView = {
-        let imageView = UIImageView()
-        imageView.image = .chevronRight.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = .grey200
-        return imageView
-    }()
+    private let checkImageView = UIImageView(image: .chevronRight.withRenderingMode(.alwaysTemplate))
     
     override func configureView() {
         backgroundColor = .grey700
         layer.cornerRadius = 8
         
-        todoImageView.image = TodoStatus(rawValue: todo.status)?.image
+        todoImageView.image = todo.status.image
         
         contentLabel.text = todo.content
-        contentLabel.textColor = isUncertified ? isToday ? .grey50 : .grey400 : .grey300
+        contentLabel.textColor = isUncertified ? isToday ? .grey0 : .grey400 : .grey300
+        contentLabel.font = Fonts.body1S
+        contentLabel.isUserInteractionEnabled = false
         
+        certificationLabel.text = "인증하기"
         certificationLabel.textColor = isToday ? .grey900 : .grey400
+        certificationLabel.textAlignment = .center
+        certificationLabel.font = Fonts.body2S
+        certificationLabel.layer.cornerRadius = 8
+        certificationLabel.clipsToBounds = true
+        certificationLabel.isUserInteractionEnabled = false
         certificationLabel.backgroundColor = isToday ? .blue300 : .grey500
+        
+        checkImageView.tintColor = .grey200
     }
     
     override func configureAction() { }
@@ -74,7 +84,7 @@ final class TodoListItemButton: BaseButton {
             $0.height.equalTo(64)
         }
         
-        if todo.status != TodoStatus.waitCertification.rawValue {
+        if todo.status != .waitCertification {
             todoImageView.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.left.equalToSuperview().offset(16)
@@ -99,7 +109,7 @@ final class TodoListItemButton: BaseButton {
             checkImageView.snp.makeConstraints {
                 $0.centerY.equalToSuperview()
                 $0.right.equalToSuperview().offset(-16)
-                $0.width.height.equalTo(20)
+                $0.width.height.equalTo(24)
             }
         }
     }

@@ -8,8 +8,12 @@
 import Foundation
 
 protocol AuthProtocol {
-    func appleLogin(appleLoginRequest: AppleLoginRequest) async throws -> AppleLoginResponse
+    func login(
+        loginType: LoginTypes,
+        providerId: String,
+        name: String?
+    ) async throws -> (userFullName: String, accessToken: String)
     func saveNotiToken(saveNotiTokenRequest: SaveNotiTokenRequest) async throws
-    func withdraw(withdrawRequest: WithdrawRequest) async throws
+    func withdraw(loginType: LoginTypes, authorizationCode: String?) async throws
 }
 

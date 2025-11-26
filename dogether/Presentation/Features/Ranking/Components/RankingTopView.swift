@@ -9,10 +9,13 @@ import UIKit
 import SnapKit
 
 final class RankingTopView: BaseView {
-    let ranking: RankingModel?
+    let ranking: RankingEntity?
+    let index: Int  // FIXME: 추후 삭제
     
-    init(ranking: RankingModel?) {
+    init(ranking: RankingEntity?, index: Int) {
         self.ranking = ranking
+        self.index = index
+        
         super.init(frame: .zero)
     }
     required init?(coder: NSCoder) { fatalError() }
@@ -120,7 +123,7 @@ final class RankingTopView: BaseView {
             }
         } else {
             rankingView.snp.makeConstraints {
-                $0.top.equalToSuperview().offset(40)
+                $0.top.equalToSuperview().offset(index == 0 ? 20 : 40)
                 $0.width.equalTo(107)
                 $0.height.equalTo(158)
             }

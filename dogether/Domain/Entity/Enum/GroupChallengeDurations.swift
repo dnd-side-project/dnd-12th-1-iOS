@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GroupChallengeDurations: Int {
+enum GroupChallengeDurations: Int, BaseEntity {
     case threeDays = 3
     case oneWeek = 7
     case twoWeeks = 14

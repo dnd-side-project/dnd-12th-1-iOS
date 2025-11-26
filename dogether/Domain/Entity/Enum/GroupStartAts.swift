@@ -7,7 +7,7 @@
 
 import UIKit
 
-enum GroupStartAts: String, CaseIterable {
+enum GroupStartAts: String, CaseIterable, BaseEntity {
     case today = "TODAY"
     case tomorrow = "TOMORROW"
     

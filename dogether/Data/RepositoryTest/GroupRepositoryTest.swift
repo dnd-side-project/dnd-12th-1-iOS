@@ -8,20 +8,20 @@
 import Foundation
 
 final class GroupRepositoryTest: GroupProtocol {
-    func createGroup(createGroupRequest: CreateGroupRequest) async throws -> CreateGroupResponse {
-        if createGroupRequest.groupName == "1" {
+    func createGroup(groupCreateViewDatas: GroupCreateViewDatas) async throws -> String {
+        if groupCreateViewDatas.groupName == "1" {
             throw NetworkError.badRequest
         }
         
-        if createGroupRequest.groupName == "2" {
+        if groupCreateViewDatas.groupName == "2" {
             throw NetworkError.noData
         }
         
-        if createGroupRequest.groupName == "3" {
+        if groupCreateViewDatas.groupName == "3" {
             throw NetworkError.serverError(message: "서버 에러가 발생했습니다.")
         }
             
-        return CreateGroupResponse(joinCode: "000000")
+        return "000000"
     }
     
     func joinGroup(joinGroupRequest: JoinGroupRequest) async throws -> JoinGroupResponse {
@@ -64,7 +64,7 @@ final class GroupRepositoryTest: GroupProtocol {
         return CheckParticipatingResponse(checkParticipating: true)
     }
     
-    func getGroups() async throws -> GetGroupsResponse {
+    func getGroupsBefore() async throws -> GetGroupsResponse {
         return GetGroupsResponse(
             lastSelectedGroupIndex: 0,
             joiningChallengeGroups: [
@@ -90,6 +90,26 @@ final class GroupRepositoryTest: GroupProtocol {
                     endAt: "25.05.04",
                     progressDay: 1,
                     progressRate: 0.3
+                )
+            ]
+        )
+    }
+    
+    func getGroups() async throws -> GroupViewDatas {
+        return GroupViewDatas(
+            index: 0,
+            groups: [
+                GroupEntity(
+                    id: 0,
+                    name: "폰트의 챌린지",
+                    currentMember: 1,
+                    maximumMember: 10,
+                    joinCode: "G3hIj4kLm",
+                    status: .running,
+                    startDate: "25.05.01",
+                    endDate: "25.05.04",
+                    duration: 5,
+                    progress: 0.3
                 )
             ]
         )

@@ -14,7 +14,8 @@ final class AppInfoRepository: AppInfoProtocol {
         self.appInfoDataSource = appInfoDataSource
     }
     
-    func checkUpdate(appVersion: String) async throws -> CheckUpdateResponse {
-        try await appInfoDataSource.checkUpdate(appVersion: appVersion)
+    func checkUpdate(appVersion: String) async throws -> Bool {
+        let response = try await appInfoDataSource.checkUpdate(appVersion: appVersion)
+        return response.forceUpdateRequired
     }
 }

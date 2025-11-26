@@ -5,15 +5,9 @@
 //  Created by seungyooooong on 2/9/25.
 //
 
-import UIKit
-
-import RxSwift
-import RxCocoa
-
 final class StartViewController: BaseViewController {
     private let startPage = StartPage()
     private let viewModel = StartViewModel()
-    private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         startPage.delegate = self
@@ -24,19 +18,11 @@ final class StartViewController: BaseViewController {
     }
     
     override func setViewDatas() {
-        guard let datas = datas as? StartViewDatas else { return }
-        viewModel.startViewDatas.accept(datas)
-    }
-    
-    override func bindViewModel() {
-        viewModel.startViewDatas
-            .distinctUntilChanged()
-            .asDriver(onErrorJustReturn: StartViewDatas())
-            .drive(onNext: { [weak self] datas in
-                guard let self else { return }
-                startPage.viewDidUpdate(datas)
-            })
-            .disposed(by: disposeBag)
+        if let datas = datas as? StartViewDatas {
+            viewModel.startViewDatas.accept(datas)
+        }
+        
+        bind(viewModel.startViewDatas)
     }
 }
 

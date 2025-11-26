@@ -8,21 +8,21 @@
 import Foundation
 
 enum AuthRouter: NetworkEndpoint {
-    case appleLogin(appleLoginRequest: AppleLoginRequest)
+    case login(loginRequest: LoginRequest)
     case withdraw(withdrawRequest: WithdrawRequest)
     
     var path: String {
         switch self {
-        case .appleLogin:
-            return Path.api + Path.auth + "/login"
+        case .login:
+            return Path.api + Path.v1 + Path.auth + "/login"
         case .withdraw:
-            return Path.api + Path.auth + "/withdraw"
+            return Path.api + Path.v1 + Path.auth + "/withdraw"
         }
     }
     
     var method: NetworkMethod {
         switch self {
-        case .appleLogin:
+        case .login:
             return .post
         case .withdraw:
             return .delete
@@ -38,7 +38,7 @@ enum AuthRouter: NetworkEndpoint {
     
     var header: [String : String]? {
         switch self {
-        case .appleLogin:
+        case .login:
             return [Header.Key.contentType: Header.Value.applicationJson]
         case .withdraw:
             return [
@@ -50,8 +50,8 @@ enum AuthRouter: NetworkEndpoint {
     
     var body: (any Encodable)? {
         switch self {
-        case .appleLogin(let appleLoginRequest):
-            return appleLoginRequest
+        case .login(let loginRequest):
+            return loginRequest
         case .withdraw(let withdrawRequest):
             return withdrawRequest
         }

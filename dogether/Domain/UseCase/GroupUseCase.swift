@@ -14,20 +14,8 @@ final class GroupUseCase {
         self.repository = repository
     }
     
-    func createGroup(
-        groupName: String,
-        maximumMemberCount: Int,
-        startAt: GroupStartAts,
-        duration: GroupChallengeDurations
-    ) async throws -> String {
-        let createGroupRequest = CreateGroupRequest(
-            groupName: groupName,
-            maximumMemberCount: maximumMemberCount,
-            startAt: startAt.rawValue,
-            duration: duration.rawValue
-        )
-        let response = try await repository.createGroup(createGroupRequest: createGroupRequest)
-        return response.joinCode
+    func createGroup(groupCreateViewDatas: GroupCreateViewDatas) async throws -> String {
+        try await repository.createGroup(groupCreateViewDatas: groupCreateViewDatas)
     }
     
     func joinGroup(joinCode: String) async throws -> ChallengeGroupInfo {
@@ -51,8 +39,13 @@ final class GroupUseCase {
         return response.checkParticipating
     }
     
+    func getGroups() async throws -> GroupViewDatas {
+        return try await repository.getGroups()
+    }
+    
+    // FIXME: 추후 삭제
     func getChallengeGroupInfos() async throws -> (groupIndex: Int?, challengeGroupInfos: [ChallengeGroupInfo]) {
-        let response = try await repository.getGroups()
+        let response = try await repository.getGroupsBefore()
         return (response.lastSelectedGroupIndex , response.joiningChallengeGroups.map {
             ChallengeGroupInfo(
                 id: $0.groupId,
@@ -75,10 +68,10 @@ final class GroupUseCase {
         try await repository.saveLastSelectedGroup(saveLastSelectedGroupRequest: saveLastSelectedGroupRequest)
     }
     
-    func getRankings(groupId: Int) async throws -> [RankingModel] {
+    func getRankings(groupId: Int) async throws -> [RankingEntity] {
         let response = try await repository.getRanking(groupId: String(groupId))
         return response.ranking.map {
-            RankingModel(
+            RankingEntity(
                 memberId: $0.memberId,
                 rank: $0.rank,
                 profileImageUrl: $0.profileImageUrl,
@@ -86,5 +79,12 @@ final class GroupUseCase {
                 historyReadStatus: HistoryReadStatus(rawValue: $0.historyReadStatus),
                 achievementRate: $0.achievementRate)
         }
+    }
+}
+
+// MARK: - group create
+extension GroupUseCase {
+    func validateMemberCount(count: Int, min: Int, max: Int) -> Bool {
+        return min <= count && count <= max
     }
 }

@@ -8,23 +8,21 @@
 import UIKit
 
 final class DogetherButton: BaseButton {
-    private(set) var title: String
-    private(set) var status: ButtonStatus
+    private let title: String
     
-    init(title: String, status: ButtonStatus = .enabled) {
+    init(_ title: String) {
         self.title = title
-        self.status = status
         
         super.init(frame: .zero)
     }
     required init?(coder: NSCoder) { fatalError() }
     
+    private(set) var currentViewDatas: DogetherButtonViewDatas?
+    
     override func configureView() {
-        updateUI()
-        
         setTitle(title, for: .normal)
         titleLabel?.font = Fonts.body1B
-        layer.cornerRadius = 12
+        layer.cornerRadius = 8
     }
     
     override func configureAction() { }
@@ -36,22 +34,30 @@ final class DogetherButton: BaseButton {
             $0.height.equalTo(50)
         }
     }
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        guard let datas = data as? DogetherButtonViewDatas else { return }
+        
+        if currentViewDatas != datas {
+            currentViewDatas = datas
+            
+            setTitleColor(datas.status.textColor, for: .normal)
+            backgroundColor = datas.status.backgroundColor
+            isEnabled = datas.status == .enabled
+            
+            isHidden = datas.isHidden
+        }
+    }
 }
 
-extension DogetherButton {
-    private func updateUI() {
-        setTitleColor(status.textColor, for: .normal)
-        backgroundColor = status.backgroundColor
-        isEnabled = status == .enabled
-    }
+// MARK: - ViewDatas
+struct DogetherButtonViewDatas: BaseEntity {
+    var status: ButtonStatus
+    var isHidden: Bool
     
-    func setTitle(_ title: String) {
-        self.title = title
-    }
-    
-    func setButtonStatus(status: ButtonStatus) {
+    init(status: ButtonStatus = .enabled, isHidden: Bool = false) {
         self.status = status
-        
-        updateUI()
+        self.isHidden = isHidden
     }
 }

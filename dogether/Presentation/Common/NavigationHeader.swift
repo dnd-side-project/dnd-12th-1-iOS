@@ -9,7 +9,16 @@ import UIKit
 import SnapKit
 
 final class NavigationHeader: BaseView{
-    weak var delegate: CoordinatorDelegate?
+    weak var delegate: CoordinatorDelegate? {
+        didSet {
+            prevButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    delegate?.coordinator?.popViewController()
+                }, for: .touchUpInside
+            )
+        }
+    }
     
     private(set) var title: String
     
@@ -38,14 +47,7 @@ final class NavigationHeader: BaseView{
         updateUI()
     }
     
-    override func configureAction() {
-        prevButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                delegate?.coordinator?.popViewController()
-            }, for: .touchUpInside
-        )
-    }
+    override func configureAction() { }
      
     override func configureHierarchy() {
         [prevButton, titleLabel].forEach { addSubview($0) }
@@ -65,6 +67,18 @@ final class NavigationHeader: BaseView{
         titleLabel.snp.makeConstraints {
             $0.center.equalToSuperview()
             $0.height.equalTo(28)
+        }
+    }
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? CertificationViewDatas {
+            if title != datas.title {
+                // FIXME: 추후에 title -> currentTitle로 수정 시 반영
+//            if currentTitle != datas.title {
+//                currentTitle = datas.title
+                
+                titleLabel.text = datas.title
+            }
         }
     }
 }

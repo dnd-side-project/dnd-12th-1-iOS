@@ -14,7 +14,7 @@ final class PopupViewModel {
     
     var popupType: PopupTypes?
     var alertType: AlertTypes?
-    var todoInfo: TodoInfo?
+    var todoInfo: TodoEntity?
     
     init() {
         let popupRepository = DIManager.shared.getPopupRepository()

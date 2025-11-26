@@ -9,8 +9,7 @@ import UIKit
 
 protocol CertificationListContentViewDelegate: AnyObject {
     func didTapFilter(selectedFilter: FilterTypes)
-    func didTapCertificationFilterView()
-    func didTapCertification(_ certification: TodoInfo)
+    func didTapCertification(title: String, todos: [TodoEntity], index: Int)
     func didScrollToBottom()
 }
 
@@ -180,9 +179,19 @@ extension CertificationListContentView: UICollectionViewDelegateFlowLayout {
 
 extension CertificationListContentView: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let certificationItem = viewModel.sections[indexPath.section].certifications[indexPath.item]
-            let todoInfo = TodoInfo(from: certificationItem)
-            delegate?.didTapCertification(todoInfo)
+        let section = viewModel.sections[indexPath.section]
+        let title: String
+        
+        switch section.type {
+        case .daily(let dateString):
+            title = dateString
+        case .group(let groupName):
+            title = groupName
+        }
+        
+        let todos = section.certifications.map { TodoEntity(from: $0) }
+        
+        delegate?.didTapCertification(title: title, todos: todos, index: indexPath.item)
     }
 }
 

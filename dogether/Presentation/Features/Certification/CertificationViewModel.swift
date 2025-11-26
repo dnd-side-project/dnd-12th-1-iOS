@@ -2,35 +2,37 @@
 //  CertificationViewModel.swift
 //  dogether
 //
-//  Created by seungyooooong on 7/13/25.
+//  Created by seungyooooong on 10/18/25.
 //
 
-import UIKit
+import RxRelay
 
 final class CertificationViewModel {
-    private let challengeGroupUseCase: ChallengeGroupUseCase
+    private let challengeGroupsUseCase: ChallengeGroupUseCase
     
-    var todoInfo = TodoInfo(id: 0, content: "", status: "")
-
+    private(set) var certificationViewDatas = BehaviorRelay<CertificationViewDatas>(value: CertificationViewDatas())
+    
     init() {
-        let repository = DIManager.shared.getChallengeGroupsRepository()
-        self.challengeGroupUseCase = ChallengeGroupUseCase(repository: repository)
+        let challengeGroupsRepository = DIManager.shared.getChallengeGroupsRepository()
+        self.challengeGroupsUseCase = ChallengeGroupUseCase(repository: challengeGroupsRepository)
     }
 }
 
 extension CertificationViewModel {
-    func setText(_ text: String) {
-        todoInfo.certificationContent = text
-    }
-}
-
-extension CertificationViewModel {
-    func certifyTodo() async throws {
-        guard let content = todoInfo.certificationContent, let mediaUrl = todoInfo.certificationMediaUrl else { return }
-        try await challengeGroupUseCase.certifyTodo(todoId: todoInfo.id, content: content, mediaUrl: mediaUrl)
+    func setIndex(index: Int) async throws {
+        if certificationViewDatas.value.rankingEntity == nil {
+            certificationViewDatas.update { $0.index = index }
+        } else {
+            // MARK: 이전에 보고 있던 thumbnailStatus를 수정하고 이동한 todo의 read API를 호출
+            certificationViewDatas.update { $0.todos[certificationViewDatas.value.index].thumbnailStatus = .done }
+            certificationViewDatas.update { $0.index = index }
+            try await readTodo(index: index)
+        }
     }
     
-    func uploadImage(image: UIImage) async throws{
-        todoInfo.certificationMediaUrl = try await S3Manager.shared.uploadImage(image: image)
+    func readTodo(index: Int? = nil) async throws {
+        try await challengeGroupsUseCase.readTodo(
+            todo: certificationViewDatas.value.todos[index ?? certificationViewDatas.value.index]
+        )
     }
 }

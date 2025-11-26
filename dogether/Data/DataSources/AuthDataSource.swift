@@ -12,8 +12,8 @@ final class AuthDataSource {
     
     private init() { }
     
-    func appleLogin(appleLoginRequest: AppleLoginRequest) async throws -> AppleLoginResponse {
-        try await NetworkManager.shared.request(AuthRouter.appleLogin(appleLoginRequest: appleLoginRequest))
+    func login(loginRequest: LoginRequest) async throws -> LoginResponse {
+        try await NetworkManager.shared.request(AuthRouter.login(loginRequest: loginRequest))
     }
     
     func withdraw(withdrawRequest: WithdrawRequest) async throws {

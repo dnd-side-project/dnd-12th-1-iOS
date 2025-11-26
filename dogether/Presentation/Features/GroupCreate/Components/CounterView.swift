@@ -8,103 +8,75 @@
 import UIKit
 
 final class CounterView: BaseView {
-    let min: Int
-    let max: Int
-    let unit: String
-    let changeCountAction: (Int) -> Void
-    private(set) var current: Int
-    
-    init(min: Int = 2, max: Int = 10, current: Int, unit: String, changeCountAction: @escaping (Int) -> Void) {
-        self.min = min
-        self.max = max
-        self.current = current
-        self.unit = unit
-        self.changeCountAction = changeCountAction
-        
-        super.init(frame: .zero)
-    }
-    required init?(coder: NSCoder) { fatalError() }
-    
-    private let dogetherCountView = {
-        let view = UIView()
-        view.backgroundColor = .grey800
-        view.layer.cornerRadius = 12
-        return view
-    }()
-    
-    private let minusButton = {
-        let button = UIButton()
-        button.tag = Directions.minus.tag
-        button.backgroundColor = .grey700
-        button.layer.cornerRadius = 8
-        return button
-    }()
-    
-    private let minusImageView = {
-        let imageView = UIImageView()
-        imageView.image = .minus.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = .grey0
-        imageView.isUserInteractionEnabled = false
-        return imageView
-    }()
-    
-    private let plusButton = {
-        let button = UIButton()
-        button.tag = Directions.plus.tag
-        button.backgroundColor = .grey700
-        button.layer.cornerRadius = 8
-        return button
-    }()
-    
-    private let plusImageView = {
-        let imageView = UIImageView()
-        imageView.image = .plus.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = .grey0
-        imageView.isUserInteractionEnabled = false
-        return imageView
-    }()
-    
-    private let currentLabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.body1S
-        return label
-    }()
-    
-    private let minLabel = {
-        let label = UILabel()
-        label.textColor = .grey300
-        label.font = Fonts.body2S
-        return label
-    }()
-    
-    private let maxLabel = {
-        let label = UILabel()
-        label.textColor = .grey300
-        label.font = Fonts.body2S
-        return label
-    }()
-    
-    override func configureView() {
-        currentLabel.text = "\(current)\(unit)"
-        minLabel.text = "\(min)\(unit)"
-        maxLabel.text = "\(max)\(unit)"
-    }
-    
-    override func configureAction() {
-        [minusButton, plusButton].forEach { button in
-            button.addAction(
-                UIAction { [weak self, weak button] _ in
-                    guard let self, let button else { return }
-                    changeCount(tag: button.tag)
-                }, for: .touchUpInside
-            )
+    var delegate: GroupCreateDelegate? {
+        didSet {
+            [minusButton, plusButton].forEach { button in
+                button.addAction(
+                    UIAction { [weak self, weak button] _ in
+                        guard let self, let currentCount, let button else { return }
+                        delegate?.updateCountAction(currentCount: currentCount + button.tag, min: min, max: max)
+                    }, for: .touchUpInside
+                )
+            }
         }
     }
     
+    private let dogetherCountView = UIView()
+    private let minusButton = UIButton()
+    private let minusImageView = UIImageView()
+    
+    private let plusButton = UIButton()
+    private let plusImageView = UIImageView()
+    
+    private let currentLabel = UILabel()
+    private let minLabel = UILabel()
+    private let maxLabel = UILabel()
+    
+    private let min: Int = 2
+    private let max: Int = 20
+    private let unit: String = "명"
+    
+    private var currentCount: Int?
+    
+    override func configureView() {
+        dogetherCountView.backgroundColor = .grey800
+        dogetherCountView.layer.cornerRadius = 12
+        
+        minusButton.tag = Directions.minus.tag
+        minusButton.backgroundColor = .grey700
+        minusButton.layer.cornerRadius = 8
+        
+        minusImageView.image = .minus.withRenderingMode(.alwaysTemplate)
+        minusImageView.tintColor = .grey0
+        minusImageView.isUserInteractionEnabled = false
+        
+        plusButton.tag = Directions.plus.tag
+        plusButton.backgroundColor = .grey700
+        plusButton.layer.cornerRadius = 8
+        
+        plusImageView.image = .plus.withRenderingMode(.alwaysTemplate)
+        plusImageView.tintColor = .grey0
+        plusImageView.isUserInteractionEnabled = false
+        
+        currentLabel.textColor = .grey0
+        currentLabel.font = Fonts.body1S
+        
+        minLabel.text = "\(min)\(unit)"
+        minLabel.textColor = .grey300
+        minLabel.font = Fonts.body2S
+        
+        maxLabel.text = "\(max)\(unit)"
+        maxLabel.textColor = .grey300
+        maxLabel.font = Fonts.body2S
+    }
+    
+    override func configureAction() { }
+    
     override func configureHierarchy() {
         [dogetherCountView, minLabel, maxLabel].forEach { addSubview($0) }
-        [minusButton, minusImageView, plusButton, plusImageView, currentLabel].forEach { dogetherCountView.addSubview($0) }
+        [minusButton, minusImageView, plusButton, plusImageView, currentLabel].forEach {
+            dogetherCountView.addSubview($0)
+        }
     }
     
     override func configureConstraints() {
@@ -150,19 +122,15 @@ final class CounterView: BaseView {
             $0.right.equalToSuperview()
         }
     }
-}
- 
-extension CounterView {
-    private func changeCount(tag direction: Int) {
-        let after = current + direction
-        if min <= after && after <= max {
-            self.setCurrent(after)
-            changeCountAction(current)
-        }
-    }
     
-    private func setCurrent(_ currentCount: Int) {
-        self.current = currentCount
-        currentLabel.text = "\(current)\(unit)"
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? GroupCreateViewDatas {
+            if currentCount != datas.memberCount {
+                currentCount = datas.memberCount
+                
+                currentLabel.text = "\(datas.memberCount)\(unit)"
+            }
+        }
     }
 }

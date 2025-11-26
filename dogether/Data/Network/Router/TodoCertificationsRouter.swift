@@ -14,9 +14,9 @@ enum TodoCertificationsRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .reviewTodo(let todoId, _):
-            return Path.api + Path.todoCertifications + "/\(todoId)/review"
+            return Path.api + Path.v1 + Path.todoCertifications + "/\(todoId)/review"
         case .getReviews:
-            return Path.api + Path.todoCertifications + "/pending-review"
+            return Path.api + Path.v1 + Path.todoCertifications + "/pending-review"
         }
     }
     

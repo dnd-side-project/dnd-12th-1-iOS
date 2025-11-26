@@ -8,5 +8,6 @@
 import Foundation
 
 struct WithdrawRequest: Encodable {
-    let authorizationCode: String
+    let loginType: String
+    let authorizationCode: String?
 }

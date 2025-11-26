@@ -8,62 +8,9 @@
 import UIKit
 
 final class DogetherGroupInfo: BaseView {
-    var groupName: String
-    var memberCount: Int
-    var duration: GroupChallengeDurations
-    var startAt: GroupStartAts?
-    var startAtString: String?
-    var endAtString: String?
-    
-    init(
-        groupName: String = "",
-        memberCount: Int = 0,
-        duration: GroupChallengeDurations = .threeDays,
-        startAt: GroupStartAts = .today
-    ) {
-        self.groupName = groupName
-        self.memberCount = memberCount
-        self.duration = duration
-        self.startAt = startAt
-        
-        super.init(frame: .zero)
-    }
-    init(
-        groupName: String = "",
-        memberCount: Int = 0,
-        duration: Int = 3,
-        startAtString: String,
-        endAtString: String
-    ) {
-        self.groupName = groupName
-        self.memberCount = memberCount
-        self.duration = GroupChallengeDurations(rawValue: duration) ?? .threeDays
-        self.startAtString = startAtString
-        self.endAtString = endAtString
-        
-        super.init(frame: .zero)
-    }
-    required init?(coder: NSCoder) { fatalError() }
-    
-    private let groupInfoView = {
-        let view = UIView()
-        view.backgroundColor = .grey700
-        view.layer.cornerRadius = 12
-        return view
-    }()
-    
-    private let groupNameLabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.head1B
-        return label
-    }()
-    
-    private let dividerView = {
-        let view = UIView()
-        view.backgroundColor = .grey600
-        return view
-    }()
+    private let groupInfoView = UIView()
+    private let groupNameLabel = UILabel()
+    private let dividerView = UIView()
     
     private func descriptionLabel() -> UILabel {
         let label = UILabel()
@@ -89,7 +36,21 @@ final class DogetherGroupInfo: BaseView {
     private var startDayInfoLabel = UILabel()
     private var endDayInfoLabel = UILabel()
     
+    private var currentGroupName: String?
+    private var currentMemberCount: Int?
+    private var currentDuration: GroupChallengeDurations?
+    private var currentStartAtString: String?
+    private var currentEndAtString: String?
+    
     override func configureView() {
+        groupInfoView.backgroundColor = .grey700
+        groupInfoView.layer.cornerRadius = 12
+        
+        groupNameLabel.textColor = .grey0
+        groupNameLabel.font = Fonts.head1B
+        
+        dividerView.backgroundColor = .grey600
+        
         durationDescriptionLabel = descriptionLabel()
         memberCountDescriptionLabel = descriptionLabel()
         startDayDescriptionLabel = descriptionLabel()
@@ -100,19 +61,10 @@ final class DogetherGroupInfo: BaseView {
         startDayInfoLabel = infoLabel()
         endDayInfoLabel = infoLabel()
         
-        groupNameLabel.text = groupName
-        
         durationDescriptionLabel.text = "활동 기간"
         memberCountDescriptionLabel.text = "그룹원"
         startDayDescriptionLabel.text = "시작일"
         endDayDescriptionLabel.text = "종료일"
-        
-        durationInfoLabel.text = duration.text
-        memberCountInfoLabel.text = "총 \(memberCount)명"
-        if let startAtString, let endAtString {
-            startDayInfoLabel.text = "\(startAtString)"
-            endDayInfoLabel.text = "\(endAtString)"
-        }
     }
     
     override func configureAction() { }
@@ -191,20 +143,30 @@ final class DogetherGroupInfo: BaseView {
             $0.height.equalTo(25)
         }
     }
-}
- 
-extension DogetherGroupInfo {
-    func setInfo(groupName: String, memberCount: Int, duration: GroupChallengeDurations, startAt: GroupStartAts) {
-        self.groupName = groupName
-        self.memberCount = memberCount
-        self.duration = duration
-        self.startAt = startAt
+    
+    override func updateView(_ data: any BaseEntity) {
+        guard let datas = data as? DogetherGroupInfoViewData else { return }
+        if currentGroupName != datas.name {
+            currentGroupName = datas.name
+            
+            groupNameLabel.text = datas.name
+        }
         
+        if currentMemberCount != datas.memberCount {
+            currentMemberCount = datas.memberCount
+            
+            memberCountInfoLabel.text = "총 \(datas.memberCount)명"
+        }
         
-        groupNameLabel.text = groupName
-        durationInfoLabel.text = duration.text
-        memberCountInfoLabel.text = "총 \(memberCount)명"
-        startDayInfoLabel.text = DateFormatterManager.formattedDate(startAt.daysFromToday)
-        endDayInfoLabel.text = DateFormatterManager.formattedDate(startAt.daysFromToday + duration.rawValue)
+        if currentDuration != datas.duration {
+            currentDuration = datas.duration
+            
+            durationInfoLabel.text = datas.duration.text
+        }
+        currentStartAtString = datas.startDay
+        currentEndAtString = datas.endDay
+
+        startDayInfoLabel.text = currentStartAtString
+        endDayInfoLabel.text = currentEndAtString
     }
 }

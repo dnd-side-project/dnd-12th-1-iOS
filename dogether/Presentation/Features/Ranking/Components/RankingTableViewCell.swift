@@ -35,7 +35,7 @@ final class RankingTableViewCell: BaseTableViewCell, ReusableProtocol {
 }
 
 extension RankingTableViewCell {
-    func setExtraInfo(ranking: RankingModel) {
+    func setExtraInfo(ranking: RankingEntity) {
         tableViewCell.setExtraInfo(ranking: ranking)
     }
 }

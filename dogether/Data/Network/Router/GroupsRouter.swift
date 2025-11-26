@@ -20,21 +20,21 @@ enum GroupsRouter: NetworkEndpoint {
     var path: String {
         switch self {
         case .createGroup:
-            return Path.api + Path.groups
+            return Path.api + Path.v1 + Path.groups
         case .joinGroup:
-            return Path.api + Path.groups + "/join"
+            return Path.api + Path.v1 + Path.groups + "/join"
         case .checkParticipating:
             return Path.api + Path.v1 + Path.groups + "/participating"
         case .getGroups:
-            return Path.api + Path.groups + "/my"
+            return Path.api + Path.v1 + Path.groups + "/my"
         case .getMySummary:
-            return Path.api + Path.groups + Path.summary + "/my"
+            return Path.api + Path.v1 + Path.groups + Path.summary + "/my"
         case .saveLastSelectedGroup:
-            return Path.api + Path.groups + "/last-selected"
+            return Path.api + Path.v1 + Path.groups + "/last-selected"
         case .getRanking(let groupId):
-            return Path.api + Path.groups + "/\(groupId)/ranking"
+            return Path.api + Path.v1 + Path.groups + "/\(groupId)/ranking"
         case .leaveGroup(let groupId):
-            return Path.api + Path.groups + "/\(groupId)/leave"
+            return Path.api + Path.v1 + Path.groups + "/\(groupId)/leave"
         }
     }
     
