@@ -16,7 +16,18 @@ final class NavigationCoordinator: NSObject {
     private let navigationController: UINavigationController
     private var modalityWindow: UIWindow? = nil
     
+    private var lastViewController: UIViewController? {
+        if let modalityWindow { return modalityWindow.rootViewController }
+        else { return navigationController.viewControllers.last }
+    }
+    
+    // MARK: 날짜 이동, pushNotice에 반응하여 viewController 자체를 update하는 임시 함수
     var updateViewController: (() -> Void)? = nil
+    private func updateIfNeeded(_ types: UIViewController.Type...) {
+        guard let lastViewController, types.contains(where: { lastViewController.isKind(of: $0) }) else { return }
+
+        updateViewController?()
+    }
     
     init(navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -50,14 +61,6 @@ extension NavigationCoordinator {
         
         navigationController.pushViewController(viewController, animated: animated)
     }
-    
-    func presentViewController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
-        viewController.coordinator = self
-        viewController.datas = datas
-        updateViewController = nil
-        
-        navigationController.present(viewController, animated: animated)
-    }
 
     func popViewController(animated: Bool = true) {
         updateViewController = nil
@@ -75,54 +78,50 @@ extension NavigationCoordinator {
         
         navigationController.popToViewController(targetViewController, animated: animated)
     }
-    
-    func dismissViewController(animated: Bool = true) {
-        updateViewController = nil
-
-        navigationController.presentedViewController?.dismiss(animated: animated)
-    }
 }
 
 // MARK: popup
 extension NavigationCoordinator {
     func showPopup(
-        _ viewController: BaseViewController,
         type: PopupTypes,
         alertType: AlertTypes? = nil,
-        todoInfo: TodoEntity? = nil,
         animated: Bool = true,
         completion: ((Any) -> Void)? = nil
     ) {
-        let popupViewController = PopupViewController()
-        
-        popupViewController.coordinator = self
-        popupViewController.completion = completion
-        popupViewController.modalPresentationStyle = .overFullScreen
-        popupViewController.modalTransitionStyle = .crossDissolve
-        
-        popupViewController.viewModel.popupType = type
-        popupViewController.viewModel.alertType = alertType
-        popupViewController.viewModel.todoInfo = todoInfo
-        
-        viewController.present(popupViewController, animated: animated)
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let popupViewController = PopupViewController()
+            
+            switch type {
+            case .alert:
+                let alertPopupViewDatas = AlertPopupViewDatas(type: alertType)
+                popupViewController.datas = alertPopupViewDatas
+                
+            case .examinate:
+                let examinatePopupViewDatas = ExaminatePopupViewDatas()
+                popupViewController.datas = examinatePopupViewDatas
+            }
+            
+            popupViewController.coordinator = self
+            popupViewController.completion = completion
+            popupViewController.modalPresentationStyle = .overFullScreen
+            popupViewController.modalTransitionStyle = .crossDissolve
+            
+            lastViewController?.present(popupViewController, animated: animated)
+        }
     }
     
     func hidePopup(animated: Bool = true) {
-        if let modalityWindow {
-            modalityWindow.rootViewController?.dismiss(animated: animated)
-        } else {
-            navigationController.viewControllers.last?.dismiss(animated: animated)
-        }
+        lastViewController?.dismiss(animated: animated)
     }
 }
 
 // MARK: modality
 extension NavigationCoordinator {
-    func showModal(reviews: [ReviewModel]? = nil) {
+    func showModal(reviews: [ReviewEntity]) {
         if let modalityWindow {
             if let viewController = modalityWindow.rootViewController as? ModalityViewController {
-                viewController.viewModel.setReviews(reviews)
-                viewController.updateView()
+                viewController.updateReviewsAction(reviews: reviews)
             }
         } else {
             let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
@@ -130,7 +129,7 @@ extension NavigationCoordinator {
             let modalityViewController = ModalityViewController()
             
             modalityViewController.coordinator = self
-            modalityViewController.viewModel.setReviews(reviews)
+            modalityViewController.datas = ExaminateViewDatas(reviews: reviews)
             window.frame = UIScreen.main.bounds
             window.rootViewController = modalityViewController
             window.windowLevel = .alert + 1
@@ -146,6 +145,33 @@ extension NavigationCoordinator {
     }
 }
 
+// MARK: error
+extension NavigationCoordinator {
+    func showErrorView(completion: @escaping () -> Void) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            if let errorViewController = navigationController.presentedViewController as? ErrorViewController {
+                errorViewController.completions.append(completion)
+            } else {
+                let errorViewController = ErrorViewController()
+                
+                errorViewController.coordinator = self
+                errorViewController.completions.append(completion)
+                errorViewController.modalPresentationStyle = .overFullScreen
+                errorViewController.modalTransitionStyle = .crossDissolve
+                
+                navigationController.present(errorViewController, animated: true)
+            }
+        }
+    }
+    
+    func dismissErrorView(completion: @escaping () -> Void) {
+        updateViewController = nil
+
+        navigationController.presentedViewController?.dismiss(animated: true) { completion() }
+    }
+}
+
 // MARK: about push notice
 extension NavigationCoordinator: NotificationHandler {
     func handleNotification(userInfo: [AnyHashable: Any]) {
@@ -157,21 +183,26 @@ extension NavigationCoordinator: NotificationHandler {
             Task { [weak self] in
                 guard let self else { return }
                 let repository = DIManager.shared.getTodoCertificationsRepository()
-                let response = try await repository.getReviews()
-                let reviews = response.dailyTodoCertifications
+                let reviews = try await repository.getReviews()
                 
                 if reviews.isEmpty { return }
                 await MainActor.run { self.showModal(reviews: reviews) }
             }
             
         case .review:
-            guard let currentViewController = navigationController.viewControllers.last,
-                  let _ = currentViewController as? MainViewController else { return }
+            updateIfNeeded(
+                MainViewController.self,
+                RankingViewController.self,
+                StatsViewController.self
+            )
             
-            updateViewController?()
-            
-        default:
-            return
+        case .join:
+            updateIfNeeded(
+                MainViewController.self,
+                RankingViewController.self,
+                StatsViewController.self,
+                GroupManagementViewController.self
+            )
         }
     }
     

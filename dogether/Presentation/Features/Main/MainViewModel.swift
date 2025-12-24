@@ -46,14 +46,14 @@ extension MainViewModel {
         return try await challengeGroupsUseCase.getMyTodos(groupId: groupId, date: date)
     }
     
-    func getReviews() async throws -> [ReviewModel] {
+    func getReviews() async throws -> [ReviewEntity] {
         return try await todoCertificationsUseCase.getReviews()
     }
 }
 
 // MARK: - set
 extension MainViewModel {
-    func setSheetViewDatasForCurrentGroup(currentGroup: GroupEntity) async throws {
+    func setSheetViewDatasForCurrentGroup() async throws {
         if currentGroup.status == .ready {
             sheetViewDatas.update { $0.status = .timer }
             return

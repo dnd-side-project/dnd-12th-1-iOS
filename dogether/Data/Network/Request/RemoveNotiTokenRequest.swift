@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct RemoveNotiTokenRequest: TokenInfo, Encodable {
+struct RemoveNotiTokenRequest: Encodable {
     let token: String
 }

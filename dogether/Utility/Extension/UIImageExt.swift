@@ -8,6 +8,20 @@
 import UIKit
 
 extension UIImage {
+    func setDefaultImagePadding() -> UIImage {
+        self.imageWithPadding(
+            insets: UIEdgeInsets(
+                top: 41 * 4,
+                left: 62 * 4,
+                bottom: 83 * 4,
+                right: 62 * 4
+            ),
+            backgroundColor: .grey800
+        )
+    }
+}
+
+extension UIImage {
     func compressImage(maxSize: CGFloat = 1024, compressionQuality: CGFloat = 0.7) -> UIImage? {
         let newWidth = self.size.width > self.size.height ? maxSize : maxSize * self.size.width / self.size.height
         let newHeight = self.size.width > self.size.height ? maxSize * self.size.height / self.size.width : maxSize

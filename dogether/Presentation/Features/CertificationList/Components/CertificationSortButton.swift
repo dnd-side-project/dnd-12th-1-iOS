@@ -8,28 +8,8 @@
 import UIKit
 
 final class CertificationSortButton: BaseButton {
-    
-    let sortTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .white
-        return label
-    }()
-    
-    private let arrowButton: UIButton = {
-        let button = UIButton()
-        button.setImage(.chevronDownBlue, for: .normal)
-        button.imageView?.contentMode = .scaleAspectFit
-        return button
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private let sortTitleLabel = UILabel()
+    private let arrowImageView = UIImageView(image: .chevronDownBlue)  // FIXME: 추후 아이콘 통일
     
     override func configureView() {
         backgroundColor = .clear
@@ -37,11 +17,17 @@ final class CertificationSortButton: BaseButton {
         layer.borderWidth = 1
         layer.borderColor = UIColor.grey500.cgColor
         clipsToBounds = true
+        
+        sortTitleLabel.font = Fonts.body2S
+        sortTitleLabel.textColor = .white
+        
+        arrowImageView.contentMode = .scaleAspectFit
     }
     
+    override func configureAction() { }
+    
     override func configureHierarchy() {
-        addSubview(sortTitleLabel)
-        addSubview(arrowButton)
+        [sortTitleLabel, arrowImageView].forEach { addSubview($0) }
     }
     
     override func configureConstraints() {
@@ -51,18 +37,21 @@ final class CertificationSortButton: BaseButton {
         }
         
         sortTitleLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(10)
+            $0.leading.equalToSuperview().inset(12)
             $0.centerY.equalToSuperview()
         }
         
-        arrowButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(10)
+        arrowImageView.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(12)
             $0.centerY.equalToSuperview()
-            $0.width.height.equalTo(19)
+            $0.size.equalTo(16)
         }
     }
     
-    func updateSelectedOption(_ option: BottomSheetItem) {
-        sortTitleLabel.text = option.displayName
+    // MARK: - updateView
+    override func updateView(_ data: any BaseEntity) {
+        if let datas = data as? SortOptions {
+            sortTitleLabel.text = datas.displayName
+        }
     }
 }

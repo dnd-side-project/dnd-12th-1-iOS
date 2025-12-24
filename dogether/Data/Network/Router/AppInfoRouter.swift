@@ -27,9 +27,7 @@ enum AppInfoRouter: NetworkEndpoint {
     var parameters: [URLQueryItem]? {
         switch self {
         case .checkUpdate(let version):
-            return [
-                URLQueryItem(name: "app-version", value: version)
-            ]
+            return [.init(name: "app-version", value: version)]
         }
     }
     

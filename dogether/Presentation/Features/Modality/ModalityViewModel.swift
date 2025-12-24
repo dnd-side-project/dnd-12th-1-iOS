@@ -7,40 +7,60 @@
 
 import Foundation
 
+import RxRelay
+
 final class ModalityViewModel {
     private let todoCertificationsUseCase: TodoCertificationsUseCase
     
-    private(set) var reviews: [ReviewModel] = []
-    private(set) var current: Int = 0
-    private(set) var result: ReviewResults? = nil
-    private(set) var reviewFeedback: String = ""
+    private(set) var examinateViewDatas = BehaviorRelay<ExaminateViewDatas>(value: ExaminateViewDatas())
+    private(set) var examinateButtonViewDatas = BehaviorRelay<DogetherButtonViewDatas>(
+        value: DogetherButtonViewDatas(status: .disabled)
+    )
+    
+    // MARK: - Computed
+    var currentReview: ReviewEntity { examinateViewDatas.value.reviews[examinateViewDatas.value.index] }
     
     init() {
         let todoCertificationsRepository = DIManager.shared.getTodoCertificationsRepository()
         self.todoCertificationsUseCase = TodoCertificationsUseCase(repository: todoCertificationsRepository)
     }
     
-    func setReviews(_ reviews: [ReviewModel]?) {
-        guard let reviews else { return }
-        self.reviews = reviews
-        self.current = 0
+    func setIndex(direction: Directions) {
+        examinateViewDatas.update {
+            $0.index = examinateViewDatas.value.index + direction.tag
+        }
     }
     
-    func setCurrent(_ current: Int) {
-        self.current = current
+    func setReviews(reviews: [ReviewEntity]) {
+        examinateViewDatas.update {
+            $0.index = 0
+            $0.reviews = reviews
+        }
     }
     
-    func setResult(_ result: ReviewResults? = nil) {
-        self.result = result
+    func setResult(result: ReviewResults? = nil) {
+        examinateViewDatas.update {
+            $0.result = result
+        }
     }
     
-    func setReviewFeedback(_ reviewFeedback: String = "") {
-        self.reviewFeedback = reviewFeedback
+    func setFeedback(feedback: String = "") {
+        examinateViewDatas.update {
+            $0.feedback = feedback
+        }
+    }
+    
+    func setButtonStatus(status: ButtonStatus) {
+        examinateButtonViewDatas.update {
+            $0.status = status
+        }
     }
     
     func reviewTodo() async throws {
         try await todoCertificationsUseCase.reviewTodo(
-            todoId: String(reviews[current].id), result: result, reviewFeedback: reviewFeedback
+            todoId: String(currentReview.id),
+            result: examinateViewDatas.value.result,
+            reviewFeedback: examinateViewDatas.value.feedback
         )
     }
 }

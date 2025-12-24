@@ -8,7 +8,7 @@
 import Foundation
 
 struct ServerResponse<T: Decodable>: Decodable {
-    let code: String    // TODO: 추후 DogetherCodes로 수정
+    let code: String
     let message: String
     let data: T?
 }

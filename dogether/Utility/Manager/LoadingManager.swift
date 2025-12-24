@@ -10,8 +10,8 @@ import UIKit
 final class LoadingManager {
     static let shared = LoadingManager()
     
-    private(set) var loadingWindow: UIWindow? = nil
-    private(set) var loadingCount: Int = 0
+    private var loadingWindow: UIWindow?
+    private var loadingCount: Int = 0
     
     private init() { }
     

@@ -8,118 +8,71 @@
 import UIKit
 import SnapKit
 
-final class GroupManagementCell: BaseTableViewCell, ReusableProtocol {
-
-    private let containerView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .grey800
-        view.layer.cornerRadius = 12
-        return view
-    }()
-
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = Fonts.head2B
-        label.textColor = .grey100
-        return label
-    }()
-
-    private let memberTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "그룹원"
-        label.font = Fonts.smallR
-        label.textColor = .grey300
-        return label
-    }()
-
-    private let memberValueLabel: UILabel = {
-        let label = UILabel()
-        label.text = "" // 없애기
-        label.font = Fonts.smallR
-        label.textColor = .grey100
-        return label
-    }()
-
-    private let dateTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "종료일"
-        label.font = Fonts.smallR
-        label.textColor = .grey300
-        return label
-    }()
-
-    private let dateValueLabel: UILabel = {
-        let label = UILabel()
-        label.text = "" // 없애기
-        label.font = Fonts.smallR
-        label.textColor = .grey100
-        return label
-    }()
-
-    private let codeTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "초대코드"
-        label.font = Fonts.smallR
-        label.textColor = .grey300
-        return label
-    }()
-
-    private let codeValueLabel: UILabel = {
-        let label = UILabel()
-        label.text = "" // 없애기
-        label.font = Fonts.smallR
-        label.textColor = .grey100
-        return label
-    }()
-
-    private let leaveButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("탈퇴하기", for: .normal)
-        button.setTitleColor(.grey100, for: .normal)
-        button.backgroundColor = .grey700
-        button.titleLabel?.font = Fonts.body2S
-        button.layer.cornerRadius = 6
-        return button
-    }()
-
-    var onLeaveButtonTapped: (() -> Void)?
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+final class GroupManagementCell: BaseTableViewCell {
+    var delegate: GroupManagementDelegate? {
+        didSet {
+            leaveButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self, let currentGroup else { return }
+                    delegate?.leaveGroupAction(currentGroup)
+                },
+                for: .touchUpInside
+            )
+        }
     }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    
+    private let containerView = UIView()
+    private let titleLabel = UILabel()
+    private let memberTitleLabel = UILabel()
+    private let memberValueLabel = UILabel()
+    private let dateTitleLabel = UILabel()
+    private let dateValueLabel = UILabel()
+    private let codeTitleLabel = UILabel()
+    private let codeValueLabel = UILabel()
+    private let leaveButton = UIButton()
+    
+    private(set) var currentGroup: GroupEntity?
 
     override func configureView() {
         backgroundColor = .clear
         contentView.backgroundColor = .clear
         selectionStyle = .none
+        
+        containerView.backgroundColor = .grey800
+        containerView.layer.cornerRadius = 12
+        
+        titleLabel.font = Fonts.head2B
+        titleLabel.textColor = .grey0
+        
+        memberTitleLabel.text = "그룹원"
+        dateTitleLabel.text = "종료일"
+        codeTitleLabel.text = "초대코드"
+        
+        [memberTitleLabel, dateTitleLabel, codeTitleLabel].forEach { titleLabel in
+            titleLabel.font = Fonts.smallR
+            titleLabel.textColor = .grey200
+        }
+        
+        [memberValueLabel, dateValueLabel, codeValueLabel].forEach { valueLabel in
+            valueLabel.font = Fonts.smallR
+            valueLabel.textColor = .grey0
+        }
+        
+        leaveButton.setTitle("탈퇴하기", for: .normal)
+        leaveButton.setTitleColor(.grey0, for: .normal)
+        leaveButton.backgroundColor = .grey700
+        leaveButton.titleLabel?.font = Fonts.body2S
+        leaveButton.layer.cornerRadius = 6
     }
 
-    override func configureAction() {
-        leaveButton.addAction(
-            UIAction { [weak self] _ in
-                guard let self else { return }
-                onLeaveButtonTapped?()
-                print("탈퇴하기 버튼 Tapped")
-            },
-            for: .touchUpInside
-        )
-    }
+    override func configureAction() { }
 
     override func configureHierarchy() {
         contentView.addSubview(containerView)
 
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(memberTitleLabel)
-        containerView.addSubview(memberValueLabel)
-        containerView.addSubview(dateTitleLabel)
-        containerView.addSubview(dateValueLabel)
-        containerView.addSubview(leaveButton)
-        containerView.addSubview(codeTitleLabel)
-        containerView.addSubview(codeValueLabel)
+        [ titleLabel, leaveButton,
+          memberTitleLabel, memberValueLabel, dateTitleLabel, dateValueLabel,
+          codeTitleLabel, codeValueLabel].forEach { containerView.addSubview($0) }
     }
 
     override func configureConstraints() {
@@ -171,13 +124,19 @@ final class GroupManagementCell: BaseTableViewCell, ReusableProtocol {
             $0.leading.equalTo(codeTitleLabel.snp.trailing).offset(4)
         }
     }
-}
-
-extension GroupManagementCell {
-    func configure(with group: ChallengeGroupInfo) {
-        titleLabel.text = group.name
-        memberValueLabel.text = "\(group.currentMember)/\(group.maximumMember)"
-        dateValueLabel.text = group.endDate
-        codeValueLabel.text = group.joinCode
+    
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? GroupEntity {
+            if currentGroup != datas {
+                currentGroup = datas
+                
+                titleLabel.text = datas.name
+                memberValueLabel.text = "\(datas.currentMember)/\(datas.maximumMember)"
+                dateValueLabel.text = datas.endDate
+                codeValueLabel.text = datas.joinCode
+            }
+        }
     }
 }

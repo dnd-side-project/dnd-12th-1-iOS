@@ -63,14 +63,15 @@ final class CertificationListView: BaseView {
                 datas.todos
                     .map {
                         if let mediaUrl = $0.certificationMediaUrl {
-                            CertificationImageView(imageUrl: mediaUrl, certificationContent: $0.certificationContent)
-                        } else {
-                            CertificationImageView(
-                                image: .embarrassedDosik.imageWithPadding(
-                                    insets: UIEdgeInsets(top: 41 * 4, left: 62 * 4, bottom: 83 * 4, right: 62 * 4), backgroundColor: .grey800
-                                ),
-                                certificationContent: "아직 열심히 진행중이에요"
+                            let viewDatas = CertificationImageViewDatas(
+                                imageUrl: mediaUrl,
+                                content: $0.certificationContent
                             )
+                            let imageView = CertificationImageView(type: .embarrassed)
+                            imageView.updateView(viewDatas)
+                            return imageView
+                        } else {
+                            return CertificationImageView(type: .embarrassed)
                         }
                     }
                     .forEach {

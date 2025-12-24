@@ -14,36 +14,19 @@ final class DogetherTextView: BaseTextView {
     
     init(type: TextViewTypes) {
         self.type = type
+        
         super.init(frame: .zero, textContainer: nil)
     }
     required init?(coder: NSCoder) { fatalError() }
     
-    private let placeHolder = {
-        let label = UILabel()
-        label.textColor = .grey300
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        return label
-    }()
+    private let placeHolder = UILabel()
+    private let textCountLabel = UILabel()
+    private let maxLengthLabel = UILabel()
     
-    private let textCountLabel = {
-        let label = UILabel()
-        label.font = Fonts.smallS
-        return label
-    }()
-    
-    private let maxLengthLabel = {
-        let label = UILabel()
-        label.textColor = .grey400
-        label.font = Fonts.smallS
-        return label
-    }()
+    private(set) var currentText: String?
+    private(set) var currentIsShowKeyboard: Bool?
 
     override func configureView() {
-        updateTextInfo()
-        focusOn()
-        
-        text = ""
         textColor = .grey50
         font = Fonts.body1S
         
@@ -58,11 +41,18 @@ final class DogetherTextView: BaseTextView {
         layer.borderWidth = 1
         
         placeHolder.attributedText = NSAttributedString(
-            string: "팀원이 이해하기 쉽도록 인증에 대한\n설명을 입력하세요.",
+            string: type.placeHolder,
             attributes: Fonts.getAttributes(for: Fonts.body1S, textAlignment: .left)
         )
+        placeHolder.textColor = .grey300
+        placeHolder.numberOfLines = 0
+        placeHolder.lineBreakMode = .byWordWrapping
+        
+        textCountLabel.font = Fonts.smallS
         
         maxLengthLabel.text = "/\(type.maxLength)"
+        maxLengthLabel.textColor = .grey400
+        maxLengthLabel.font = Fonts.smallS
     }
     
     override func configureAction() { }
@@ -73,40 +63,47 @@ final class DogetherTextView: BaseTextView {
      
     override func configureConstraints() {
         placeHolder.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(8.5) // FIXME: 8.5 -> 16   // ???: 좀 떨어져있음 (border or cornerRadius 의심 중)
+            // FIXME: 8.5 -> 16
+            // ???: 좀 떨어져있음 (border or cornerRadius 의심 중)
+            $0.top.equalToSuperview().offset(8.5)
             $0.horizontalEdges.equalToSuperview().inset(16)
             $0.width.equalToSuperview().offset(-32)
         }
         
         textCountLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(type.tempTopInset) // FIXME: bottom.inset(16)  // ???: superview의 bottom이 top쪽으로 잡힘
+            // FIXME: bottom.inset(16)
+            // ???: superview의 bottom이 top쪽으로 잡힘
+            $0.top.equalToSuperview().inset(type.tempTopInset)
             $0.right.equalTo(maxLengthLabel.snp.left)
             $0.height.equalTo(18)
         }
         
         maxLengthLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(type.tempTopInset) // FIXME: bottom.inset(16)  // ???: superview의 bottom이 top쪽으로 잡힘
+            // FIXME: bottom.inset(16)
+            // ???: superview의 bottom이 top쪽으로 잡힘
+            $0.top.equalToSuperview().inset(type.tempTopInset)
             $0.right.equalToSuperview().inset(16)
             $0.height.equalTo(18)
         }
     }
-}
-
-// MARK: delegate func
-extension DogetherTextView {
-    func updateTextInfo() {
-        placeHolder.isHidden = text.count > 0
-        textCountLabel.text = String(text.count)
-    }
     
-    func focusOn() {
-        layer.borderColor = UIColor.blue300.cgColor
-        textCountLabel.textColor = .blue300
-    }
-    
-    func focusOff() {
-        layer.borderColor = UIColor.clear.cgColor
-        textCountLabel.textColor = .grey400
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? DogetherTextViewDatas {
+            if currentText != datas.text {
+                currentText = datas.text
+                
+                placeHolder.isHidden = datas.text.count > 0
+                textCountLabel.text = String(datas.text.count)
+            }
+            
+            if currentIsShowKeyboard != datas.isShowKeyboard {
+                currentIsShowKeyboard = datas.isShowKeyboard
+                
+                layer.borderColor = datas.isShowKeyboard ? UIColor.blue300.cgColor : UIColor.clear.cgColor
+                textCountLabel.textColor = datas.isShowKeyboard ? .blue300 : .grey400
+            }
+        }
     }
 }
 
@@ -114,14 +111,14 @@ extension DogetherTextView {
 extension DogetherTextView {
     enum TextViewTypes {
         case certification
-        case reviewFeedback
+        case examination
         
         var placeHolder: String {
             switch self {
             case .certification:
-                return "팀원이 이해하기 쉽도록 인증에 대한 설명을 입력하세요."
-            case .reviewFeedback:
-                return "노인정에 대한 피드백이 필요해요.\n어떤 부분이 부족한지 정확하게 적어주세요!"
+                return "팀원이 이해하기 쉽도록 인증에 대한\n설명을 입력하세요."
+            case .examination:
+                return "텍스트를 입력하세요"
             }
         }
         
@@ -129,7 +126,7 @@ extension DogetherTextView {
             switch self {
             case .certification:
                 return 40
-            case .reviewFeedback:
+            case .examination:
                 return 60
             }
         }
@@ -138,9 +135,20 @@ extension DogetherTextView {
             switch self {
             case .certification:
                 return 75
-            case .reviewFeedback:
-                return 130
+            case .examination:
+                return 105
             }
         }
+    }
+}
+
+// MARK: - ViewDatas
+struct DogetherTextViewDatas: BaseEntity {
+    var text: String
+    var isShowKeyboard: Bool
+    
+    init(text: String = "", isShowKeyboard: Bool = false) {
+        self.text = text
+        self.isShowKeyboard = isShowKeyboard
     }
 }

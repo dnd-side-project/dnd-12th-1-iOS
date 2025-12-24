@@ -38,15 +38,18 @@ final class GroupJoinPage: BasePage {
     
     private let codeMaxLength = 8
     
-    private var currentStatus: GroupJoinStatus?
-    private var currentKeyboardHeight: CGFloat?
-    private var currentIsFirstResponder: Bool?
-    private var isFirst: Bool = true
+    private(set) var currentKeyboardHeight: CGFloat?
+    private(set) var currentIsFirstResponder: Bool?
+    private(set) var isFirst: Bool = true
     
     override func configureView() {
         titleLabel.text = "초대코드 입력"
         titleLabel.textColor = .grey0
         titleLabel.font = Fonts.emphasis2B
+        
+        subTitleLabel.text = "초대받은 링크에서 초대코드를 확인할 수 있어요"
+        subTitleLabel.textColor = .grey200
+        subTitleLabel.font = Fonts.body1R
         
         codeTextField.attributedPlaceholder = NSAttributedString(
             string: "코드입력 (8자리)",
@@ -115,16 +118,6 @@ final class GroupJoinPage: BasePage {
     // MARK: - updateView
     override func updateView(_ data: (any BaseEntity)?) {
         if let datas = data as? GroupJoinViewDatas {
-            if currentStatus != datas.status {
-                currentStatus = datas.status
-                
-                subTitleLabel.text = datas.status.text
-                subTitleLabel.textColor = datas.status.textColor
-                subTitleLabel.font = datas.status.font
-                
-                codeTextField.layer.borderColor = datas.status.borderColor.cgColor
-            }
-            
             // MARK: subTitleLabel 등 일반 UI의 구성을 최초 진행, 이후 joinButton 애니메이션을 위해 위치 조정
             if isFirst {
                 isFirst = false
@@ -136,7 +129,7 @@ final class GroupJoinPage: BasePage {
                 currentKeyboardHeight = datas.keyboardHeight
                 
                 joinButton.snp.updateConstraints {
-                    $0.bottom.equalToSuperview().inset(datas.keyboardHeight)
+                    $0.bottom.equalToSuperview().inset(datas.keyboardHeight + 16)
                 }
                 UIView.animate(withDuration: 0.35) { [weak self] in
                     guard let self else { return }
@@ -177,11 +170,11 @@ extension GroupJoinPage {
     
     @objc func keyboardWillShow(_ notification: Notification) {
         guard let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-        delegate?.updateKeyboardHeightAction(height: frame.height - UIApplication.safeAreaOffset.bottom + 16)
+        delegate?.updateKeyboardHeightAction(height: frame.height - UIApplication.safeAreaOffset.bottom)
     }
 
     @objc func keyboardWillHide(_ notification: Notification) {
-        delegate?.updateKeyboardHeightAction(height: 16)
+        delegate?.updateKeyboardHeightAction(height: 0)
     }
 }
 

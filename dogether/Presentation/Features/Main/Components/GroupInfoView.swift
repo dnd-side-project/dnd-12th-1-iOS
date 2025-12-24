@@ -7,27 +7,48 @@
 
 import UIKit
 
+enum GroupInfoTypes {
+    case main
+    case stats
+    
+    var groupNameTopOffset: CGFloat {
+        switch self {
+        case .main:
+            6
+        case .stats:
+            0
+        }
+    }
+}
+
 final class GroupInfoView: BaseView {
-    var delegate: MainDelegate? {
+    var mainDelegate: MainDelegate? {
         didSet {
             groupNameStackView.addTapAction { [weak self] _ in
                 guard let self else { return }
-                delegate?.updateBottomSheetVisibleAction(isShowSheet: true)
+                mainDelegate?.updateBottomSheetVisibleAction(isShowSheet: true)
             }
             
             joinCodeStackView.addTapAction { [weak self] _ in
                 guard let self else { return }
-                delegate?.inviteAction()
+                mainDelegate?.inviteAction()
             }
         }
     }
     
-    private let hasCopyImage: Bool
-    private(set) var challengeGroupInfo: ChallengeGroupInfo
+    var statsDelegate: StatsDelegate? {
+        didSet {
+            groupNameStackView.addTapAction { [weak self] _ in
+                guard let self else { return }
+                statsDelegate?.updateBottomSheetVisibleAction(isShowSheet: true)
+            }
+        }
+    }
     
-    init(challengeGroupInfo: ChallengeGroupInfo = ChallengeGroupInfo(), hasCopyImage: Bool = true) {
-        self.challengeGroupInfo = challengeGroupInfo
-        self.hasCopyImage = hasCopyImage
+    private let type: GroupInfoTypes
+    
+    init(type: GroupInfoTypes) {
+        self.type = type
         
         super.init(frame: .zero)
     }
@@ -70,6 +91,9 @@ final class GroupInfoView: BaseView {
     private var isFirst: Bool = true
     
     override func configureView() {
+        // FIXME: 임시 처리, 추후 수정
+        dosikImageView.isHidden = type == .stats
+        
         nameLabel.textColor = .blue300
         nameLabel.font = Fonts.head1B
         
@@ -89,15 +113,8 @@ final class GroupInfoView: BaseView {
         joinCodeInfoStackView.spacing = 2
         joinCodeInfoStackView.alignment = .center
         
-        memberStackView.addArrangedSubview(memberInfoLabel)
-        if hasCopyImage { [joinCodeInfoLabel, joinCodeCopyImageView].forEach { joinCodeInfoStackView.addArrangedSubview($0) } }
-        joinCodeStackView.addArrangedSubview(hasCopyImage ? joinCodeInfoStackView : joinCodeInfoLabel)
-        endDateStackView.addArrangedSubview(endDateInfoLabel)
-        
         groupInfoStackView.axis = .horizontal
         groupInfoStackView.spacing = 16
-        
-        [memberStackView, joinCodeStackView, endDateStackView].forEach { groupInfoStackView.addArrangedSubview($0) }
         
         durationDescriptionLabel.text = "진행 현황"
         durationDescriptionLabel.textColor = .grey300
@@ -131,8 +148,20 @@ final class GroupInfoView: BaseView {
     override func configureAction() { }
     
     override func configureHierarchy() {
+        memberStackView.addArrangedSubview(memberInfoLabel)
+        
         [nameLabel, changeGroupImageView, nameSpacerView].forEach { groupNameStackView.addArrangedSubview($0) }
         
+        // FIXME: 임시 처리, 추후 수정
+        if type == .main {
+            [joinCodeInfoLabel, joinCodeCopyImageView].forEach { joinCodeInfoStackView.addArrangedSubview($0) }
+        }
+        joinCodeStackView.addArrangedSubview(type == .main ? joinCodeInfoStackView : joinCodeInfoLabel)
+        endDateStackView.addArrangedSubview(endDateInfoLabel)
+        
+        [memberStackView, joinCodeStackView, endDateStackView].forEach { groupInfoStackView.addArrangedSubview($0) }
+        
+        // FIXME: stats 상태 미처리, 추후 수정
         [durationDescriptionLabel, durationInfoLabel].forEach { durationInfoStackView.addArrangedSubview($0) }
         [durationInfoStackView, durationProgressView].forEach { durationStackView.addArrangedSubview($0) }
         
@@ -152,7 +181,7 @@ final class GroupInfoView: BaseView {
         }
         
         groupNameStackView.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(6)
+            $0.top.equalToSuperview().offset(type.groupNameTopOffset)
             $0.left.equalToSuperview()
             $0.right.equalTo(dosikImageView.snp.left).offset(-12)
             $0.height.equalTo(36)

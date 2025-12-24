@@ -7,68 +7,53 @@
 
 import UIKit
 
-protocol CertificationListContentViewDelegate: AnyObject {
-    func didTapFilter(selectedFilter: FilterTypes)
-    func didTapCertification(title: String, todos: [TodoEntity], index: Int)
-    func didScrollToBottom()
-}
-
 final class CertificationListContentView: BaseView {
-    weak var delegate: CertificationListContentViewDelegate?
-    private let viewModel: CertificationListViewModel
-    private var isPagingRequestInProgress = false
+    var delegate: CertificationListPageDelegate? {
+        didSet {
+            filterView.delegate = delegate
+        }
+    }
     
-    private let headerLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .grey0
-        label.font = Fonts.head1B
-        label.numberOfLines = 0
-        return label
-    }()
+    private let headerLabel = UILabel()
+    private let summaryView = CertificationSummaryView()
+    private let filterView = CertificationFilterView()
+    private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
-    private lazy var summaryView = CertificationSummaryView()
+    private(set) var currentStatsViewDatas: StatsViewDatas?
+    private(set) var currentSection: [SectionEntity]?
+    private(set) var currentFilter: FilterTypes?
+    private(set) var currentIsLastPage: Bool = false
     
-    let filterView = CertificationFilterView()
+    private(set) var sections: [SectionEntity] = []
+    private(set) var isPagingRequestInProgress: Bool = false
     
-    private let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
+    override func configureView() {
+        headerLabel.textColor = .grey0
+        headerLabel.font = Fonts.head1B
+        headerLabel.numberOfLines = 0
+        
+        guard let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else { return }
         layout.scrollDirection = .vertical
-        let spacing: CGFloat = 11
+        let spacing: CGFloat = 12
         let inset: CGFloat = 16
         let totalSpacing = spacing + inset * 2
         let itemWidth = (UIScreen.main.bounds.width - totalSpacing) / 2
         layout.itemSize = CGSize(width: itemWidth, height: 166)
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
-    }()
-    
-    init(viewModel: CertificationListViewModel) {
-        self.viewModel = viewModel
-        super.init(frame: .zero)
         
-        self.summaryView.configure(totalCertificatedCount: viewModel.totalCertificatedCount,
-                                   totalApprovedCount: viewModel.totalApprovedCount,
-                                   totalRejectedCount: viewModel.totalRejectedCount)
-    }
-    
-    required init?(coder: NSCoder) { fatalError() }
-    
-    override func configureView() {
-        collectionView.register(CertificationCell.self,
-                                forCellWithReuseIdentifier: CertificationCell.reuseIdentifier)
-        collectionView.register(CertificationSectionHeader.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: CertificationSectionHeader.reuseIdentifier)
+        collectionView.collectionViewLayout = layout
+        collectionView.register(
+            CertificationCell.self,
+            forCellWithReuseIdentifier: CertificationCell.reuseIdentifier
+        )
+        collectionView.register(
+            CertificationSectionHeader.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: CertificationSectionHeader.reuseIdentifier
+        )
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.backgroundColor = .clear
         collectionView.showsVerticalScrollIndicator = false
-        setupHeaderLabelText()
-    }
-    
-    override func configureAction() {
-        filterView.filterSelected = { [weak self] filter in
-            self?.delegate?.didTapFilter(selectedFilter: filter)
-        }
     }
     
     override func configureHierarchy() {
@@ -99,22 +84,50 @@ final class CertificationListContentView: BaseView {
         }
     }
     
-    func makeContentOffset() {
-        collectionView.contentOffset = .zero
-    }
-}
-
-extension CertificationListContentView {
-    func reloadData() {
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
+    override func updateView(_ data: any BaseEntity) {
+        if let datas = data as? SortViewDatas {
+            filterView.updateView(datas)
+        }
+        
+        if let datas = data as? StatsViewDatas {
+            if currentStatsViewDatas != datas {
+                currentStatsViewDatas = datas
+                
+                setupHeaderLabelText(count: datas.achievementCount)
+                summaryView.updateView(datas)
+            }
+        }
+        
+        if let datas = data as? CertificationListViewDatas {
+            if currentSection != datas.sections || currentFilter != datas.filter {
+                currentSection = datas.sections
+                
+                sections = datas.sections.compactMap { section in
+                    let filteredTodos = section.todos.filter {
+                        datas.filter == .all || datas.filter == FilterTypes(status: $0.status.rawValue)
+                    }
+                    return filteredTodos.isEmpty ? nil : SectionEntity(type: section.type, todos: filteredTodos)
+                }
+            }
+            
+            if currentFilter != datas.filter {
+                currentFilter = datas.filter
+                
+                filterView.updateView(datas)
+            }
+            
+            if currentIsLastPage != datas.isLastPage {
+                currentIsLastPage = datas.isLastPage
+            }
+            
+            collectionView.reloadData()
+            collectionView.contentOffset = .zero
         }
     }
 }
 
 extension CertificationListContentView {
-    func setupHeaderLabelText() {
-        let count = viewModel.totalCertificatedCount
+    private func setupHeaderLabelText(count: Int) {
         let fullText = "대단해요!\n총 \(count)개의 투두를 달성했어요"
         let attributedString = NSMutableAttributedString(string: fullText)
         let targetText = "\(count)개"
@@ -130,35 +143,43 @@ extension CertificationListContentView {
 
 extension CertificationListContentView: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return viewModel.sections.count
+        return sections.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.sections[section].certifications.count
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        return sections[section].todos.count
     }
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CertificationCell.reuseIdentifier, for: indexPath) as! CertificationCell
-        let certification = viewModel.sections[indexPath.section].certifications[indexPath.item]
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CertificationCell.reuseIdentifier,
+            for: indexPath) as? CertificationCell else {
+            return UICollectionViewCell()
+        }
+        
+        let certification = sections[indexPath.section].todos[indexPath.item]
         cell.configure(with: certification)
         return cell
     }
 }
-   
 
 extension CertificationListContentView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         viewForSupplementaryElementOfKind kind: String,
                         at indexPath: IndexPath) -> UICollectionReusableView {
-        guard kind == UICollectionView.elementKindSectionHeader else { return UICollectionReusableView() }
-        let header = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: CertificationSectionHeader.reuseIdentifier,
-            for: indexPath) as! CertificationSectionHeader
+        guard kind == UICollectionView.elementKindSectionHeader,
+              let header = collectionView.dequeueReusableSupplementaryView(
+                  ofKind: kind,
+                  withReuseIdentifier: CertificationSectionHeader.reuseIdentifier,
+                  for: indexPath
+              ) as? CertificationSectionHeader else {
+            return UICollectionReusableView()
+        }
+        let section = sections[indexPath.section]
         
-        let section = viewModel.sections[indexPath.section]
         let title: String
-        
         switch section.type {
         case .daily(let dateString):
             title = dateString
@@ -178,10 +199,11 @@ extension CertificationListContentView: UICollectionViewDelegateFlowLayout {
 }
 
 extension CertificationListContentView: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let section = viewModel.sections[indexPath.section]
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath) {
+        let section = sections[indexPath.section]
+
         let title: String
-        
         switch section.type {
         case .daily(let dateString):
             title = dateString
@@ -189,15 +211,13 @@ extension CertificationListContentView: UICollectionViewDelegate {
             title = groupName
         }
         
-        let todos = section.certifications.map { TodoEntity(from: $0) }
-        
-        delegate?.didTapCertification(title: title, todos: todos, index: indexPath.item)
+        delegate?.selectCertificationAction(title: title, todos: section.todos, index: indexPath.item)
     }
 }
 
 extension CertificationListContentView: UIScrollViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard !viewModel.isLastPage else {
+        if currentIsLastPage {
             isPagingRequestInProgress = false
             return
         }
@@ -205,7 +225,7 @@ extension CertificationListContentView: UIScrollViewDelegate {
         let offsetY = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let frameHeight = scrollView.frame.size.height
-
+        
         if offsetY > contentHeight - frameHeight - 100 {
             if !isPagingRequestInProgress {
                 isPagingRequestInProgress = true

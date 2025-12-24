@@ -14,9 +14,8 @@ final class TodoCertificationsUseCase {
         self.repository = repository
     }
     
-    func getReviews() async throws -> [ReviewModel] {
-        let response = try await repository.getReviews()
-        return response.dailyTodoCertifications
+    func getReviews() async throws -> [ReviewEntity] {
+        return try await repository.getReviews()
     }
     
     func reviewTodo(todoId: String, result: ReviewResults?, reviewFeedback: String) async throws {

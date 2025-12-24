@@ -32,19 +32,10 @@ final class ReviewFeedbackView: BaseView {
     }
     
     // MARK: - updateView
-    override func updateView(_ data: (any BaseEntity)?) {
-        if let datas = data as? CertificationViewDatas {
-            isHidden = !(datas.todos[datas.index].reviewFeedback?.isEmpty == false)
-            updateFeedback(feedback: datas.todos[datas.index].reviewFeedback ?? "")
-        }
-    }
-}
-
-// FIXME: 추후 삭제
-extension ReviewFeedbackView {
-    func updateFeedback(feedback: String) {
+    override func updateView(_ data: String) {
+        isHidden = data.isEmpty
         reviewFeedbackLabel.attributedText = NSAttributedString(
-            string: feedback,
+            string: data,
             attributes: Fonts.getAttributes(for: Fonts.body1S, textAlignment: .left)
         )
     }

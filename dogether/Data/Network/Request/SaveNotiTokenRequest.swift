@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct SaveNotiTokenRequest: TokenInfo, Encodable {
+struct SaveNotiTokenRequest: Encodable {
     let token: String
 }

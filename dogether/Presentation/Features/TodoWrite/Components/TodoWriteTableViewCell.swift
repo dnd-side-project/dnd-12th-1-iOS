@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class TodoWriteTableViewCell: BaseTableViewCell, ReusableProtocol {
+final class TodoWriteTableViewCell: BaseTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }

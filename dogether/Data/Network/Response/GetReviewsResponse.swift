@@ -8,5 +8,13 @@
 import Foundation
 
 struct GetReviewsResponse: Decodable {
-    let dailyTodoCertifications: [ReviewModel]
+    let dailyTodoCertifications: [dailyTodoCertification]
+}
+
+struct dailyTodoCertification: Decodable {
+    let id: Int
+    let content: String
+    let mediaUrl: String
+    let todoContent: String
+    let doer: String
 }

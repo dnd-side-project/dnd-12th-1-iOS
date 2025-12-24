@@ -15,6 +15,7 @@ struct TodoEntity: BaseEntity {
     var certificationContent: String?
     var certificationMediaUrl: String?
     var reviewFeedback: String?
+    var createdAt: String?
     
     init(
         id: Int,
@@ -23,7 +24,8 @@ struct TodoEntity: BaseEntity {
         thumbnailStatus: ThumbnailStatus = .yet,
         certificationContent: String? = nil,
         certificationMediaUrl: String? = nil,
-        reviewFeedback: String? = nil
+        reviewFeedback: String? = nil,
+        createdAt: String? = nil
     ) {
         self.id = id
         self.content = content
@@ -32,18 +34,6 @@ struct TodoEntity: BaseEntity {
         self.certificationContent = certificationContent
         self.certificationMediaUrl = certificationMediaUrl
         self.reviewFeedback = reviewFeedback
+        self.createdAt = createdAt
     }
 }
-
-extension TodoEntity {
-    init(from item: CertificationItem) {
-        self.id = item.id
-        self.content = item.content
-        self.status = TodoStatus(rawValue: item.status) ?? .waitCertification // FIXME: 추후 삭제
-        self.thumbnailStatus = .yet
-        self.certificationContent = item.certificationContent
-        self.certificationMediaUrl = item.certificationMediaUrl
-        self.reviewFeedback = item.reviewFeedback
-    }
-}
-

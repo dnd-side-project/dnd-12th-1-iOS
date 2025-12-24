@@ -8,41 +8,43 @@
 import UIKit
 
 final class GroupEmptyView: BaseView {
+    var statsDelegate: StatsDelegate? {
+        didSet {
+            createGroupButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    statsDelegate?.addGroupAction()
+                },
+                for: .touchUpInside
+            )
+        }
+    }
+    
+    var groupManagementDelegate: GroupManagementDelegate? {
+        didSet {
+            createGroupButton.addAction(
+                UIAction { [weak self] _ in
+                    guard let self else { return }
+                    groupManagementDelegate?.addGroupAction()
+                },
+                for: .touchUpInside
+            )
+        }
+    }
+    
     private let emptyStateView = EmptyStateView(
         title: "소속된 그룹이 없어요",
         description: "새로운 그룹을 만들어 함께 시작해보세요!"
     )
-    
-    private let createGroupButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .blue300
-        button.layer.cornerRadius = 12
-        button.setTitle("그룹 만들기", for: .normal)
-        button.setTitleColor(.grey800, for: .normal)
-        button.titleLabel?.font = Fonts.body1B
-        return button
-    }()
-    
-    var createButtonTapHandler: (() -> Void)?
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
+    private let createGroupButton = DogetherButton("그룹 만들기")
     
     override func configureView() {
-        backgroundColor = .clear
+        // FIXME: GroupManagementViewController Rx 도입 이후 수정
+        let dogetherButtonViewDatas = DogetherButtonViewDatas()
+        createGroupButton.updateView(dogetherButtonViewDatas)
     }
     
-    override func configureAction() {
-        createGroupButton.addAction(
-            UIAction { [weak self] _ in
-                self?.createButtonTapHandler?()
-            },
-            for: .touchUpInside
-        )
-    }
+    override func configureAction() { }
     
     override func configureHierarchy() {
         addSubview(emptyStateView)
@@ -58,8 +60,7 @@ final class GroupEmptyView: BaseView {
         createGroupButton.snp.makeConstraints {
             $0.top.equalTo(emptyStateView.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
-            $0.width.equalTo(160)
-            $0.height.equalTo(50)
+            $0.width.equalTo(169)
         }
     }
 }

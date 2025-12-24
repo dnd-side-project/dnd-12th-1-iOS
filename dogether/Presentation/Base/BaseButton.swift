@@ -32,4 +32,5 @@ class BaseButton: UIButton {
     
     /// 뷰의 가변 요소들을 업데이트하는 역할을 합니다
     func updateView(_ data: any BaseEntity) { }
+    func updateView(_ data: UIColor) { }
 }

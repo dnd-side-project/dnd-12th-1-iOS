@@ -7,23 +7,26 @@
 
 import UIKit
 
+import RxRelay
+
 final class PopupViewModel {
-    private let popupUseCase: PopupUseCase
-    
-    private(set) var stringContent: String?
-    
-    var popupType: PopupTypes?
-    var alertType: AlertTypes?
-    var todoInfo: TodoEntity?
-    
-    init() {
-        let popupRepository = DIManager.shared.getPopupRepository()
-        self.popupUseCase = PopupUseCase(repository: popupRepository)
-    }
+    private(set) var alertPopupViewDatas = BehaviorRelay<AlertPopupViewDatas?>(value: nil)
+    private(set) var examinatePopupViewDatas = BehaviorRelay<ExaminatePopupViewDatas?>(value: nil)
+    private(set) var examinateTextViewDatas = BehaviorRelay<DogetherTextViewDatas>(value: DogetherTextViewDatas())
+    private(set) var registerButtonViewDatas = BehaviorRelay<DogetherButtonViewDatas>(
+        value: DogetherButtonViewDatas(status: .disabled)
+    )
 }
 
 extension PopupViewModel {
-    func setStringContent(_ text: String) {
-        stringContent = text
+    func updateIsFirstResponder(isFirstResponder: Bool) {
+        examinatePopupViewDatas.update { $0?.isFirstResponder = isFirstResponder }
+        examinateTextViewDatas.update { $0.isShowKeyboard = isFirstResponder }
+    }
+    
+    func updateFeedback(feedback: String) {
+        examinatePopupViewDatas.update { $0?.feedback = feedback }
+        examinateTextViewDatas.update { $0.text = feedback }
+        registerButtonViewDatas.update { $0.status = feedback.count > 0 ? .enabled : .disabled }
     }
 }

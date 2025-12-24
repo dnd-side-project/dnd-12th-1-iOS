@@ -14,9 +14,12 @@ final class CertificationSectionHeader: UICollectionReusableView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
         titleLabel.font = .boldSystemFont(ofSize: 18)
         titleLabel.textColor = .white
+        
         addSubview(titleLabel)
+        
         titleLabel.snp.makeConstraints {
             $0.edges.equalToSuperview().inset(8)
         }

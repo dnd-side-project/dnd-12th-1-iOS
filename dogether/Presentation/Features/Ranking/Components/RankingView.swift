@@ -38,7 +38,9 @@ final class RankingView: BaseView {
     override func configureAction() { }
     
     override func configureHierarchy() {
-        [rankingLabel, profileImageView, nameLabel, certificationImageView, certificationLabel].forEach { self.addSubview($0) }
+        [ rankingLabel, profileImageView, nameLabel,
+          certificationImageView, certificationLabel
+        ].forEach { self.addSubview($0) }
     }
     
     override func configureConstraints() {

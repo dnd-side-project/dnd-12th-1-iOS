@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct CreateTodosRequest: Todos, Encodable {
+struct CreateTodosRequest: Encodable {
     let todos: [String]
 }

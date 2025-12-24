@@ -8,15 +8,16 @@
 import UIKit
 
 final class CertificationImageView: BaseImageView {
-    private let certificationContent: String?
-    private(set) var certificator: String?
+    private let type: DefaultImageTypes
     
-    init(image: UIImage? = nil, imageUrl: String? = nil, certificationContent: String? = nil) {
-        self.certificationContent = certificationContent
+    private(set) var currentImageUrl: String?
+    private(set) var currentContent: String?
+    private(set) var currentCertificator: String?
+    
+    init(type: DefaultImageTypes) {
+        self.type = type
         
-        super.init(image: image)
-        
-        loadImage(url: imageUrl, successAction: updateCertificationContentLabelConstraints)
+        super.init()
     }
     required init?(coder: NSCoder) { fatalError() }
     
@@ -28,10 +29,12 @@ final class CertificationImageView: BaseImageView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        
         gradientView.layer.sublayers?.first?.frame = gradientView.bounds
     }
     
     override func configureView() {
+        image = type.image
         contentMode = .scaleAspectFit
         backgroundColor = .grey900
         clipsToBounds = true
@@ -51,19 +54,22 @@ final class CertificationImageView: BaseImageView {
         gradientView.layer.borderColor = UIColor.grey700.cgColor
         gradientView.layer.borderWidth = 1
         
+        certificationContentLabel.attributedText = NSAttributedString(
+            string: type.content ?? "",
+            attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .center)
+        )
         certificationContentLabel.textColor = .grey0
         certificationContentLabel.numberOfLines = 0
         
         certificatorLabel.textColor = .grey100
         certificatorLabel.font = Fonts.head2B
-        
-        updateCertificationContent(certificationContent: certificationContent, updateConstraints: false)
     }
     
     override func configureAction() { }
     
     override func configureHierarchy() {
         gradientView.layer.addSublayer(gradientLayer)
+        
         [gradientView, certificationContentLabel, certificatorLabel].forEach { addSubview($0) }
     }
     
@@ -84,32 +90,50 @@ final class CertificationImageView: BaseImageView {
             $0.height.equalTo(0)
         }
     }
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        if let datas = data as? CertificationImageViewDatas {
+            if image != datas.image {
+                image = datas.image
+            }
+            
+            if currentImageUrl != datas.imageUrl {
+                currentImageUrl = datas.imageUrl
+                
+                loadImage(url: datas.imageUrl, successAction: updateCertificationContentLabelConstraints)
+            }
+            
+            if currentContent != datas.content {
+                currentContent = datas.content
+                
+                certificationContentLabel.attributedText = NSAttributedString(
+                    string: datas.content ?? "",
+                    attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .center)
+                )
+            }
+            
+            if currentCertificator != datas.certificator {
+                currentCertificator = datas.certificator
+                
+                certificatorLabel.text = datas.certificator
+                
+                certificatorLabel.snp.updateConstraints {
+                    $0.height.equalTo(datas.certificator == nil ? 0 : 28)
+                }
+            }
+            
+            updateCertificationContentLabelConstraints()
+        }
+    }
 }
 
 extension CertificationImageView {
-    func updateCertificator(certificator: String? = nil) {
-        self.certificator = certificator
-        certificatorLabel.text = certificator
-        
-        certificatorLabel.snp.updateConstraints {
-            $0.height.equalTo(certificator == nil ? 0 : 28)
-        }
-    }
-    
-    func updateCertificationContent(certificationContent: String? = nil, updateConstraints: Bool = true) {
-        certificationContentLabel.attributedText = NSAttributedString(
-            string: certificationContent ?? "",
-            attributes: Fonts.getAttributes(for: Fonts.body1R, textAlignment: .center)
-        )
-        
-        if updateConstraints { updateCertificationContentLabelConstraints() }
-    }
-    
     private func updateCertificationContentLabelConstraints() {
         certificationContentLabel.snp.remakeConstraints {
             $0.centerX.equalToSuperview()
             $0.horizontalEdges.equalToSuperview().inset(16)
-            if certificator == nil {
+            if currentCertificator == nil {
                 $0.bottom.equalToSuperview().inset(16)
             } else {
                 $0.bottom.equalTo(certificatorLabel.snp.top).inset(4)

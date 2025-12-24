@@ -11,9 +11,9 @@ import SnapKit
 final class MainPage: BasePage {
     var delegate: MainDelegate? {
         didSet {
-            bottomSheetView.delegate = delegate
+            bottomSheetView.mainDelegate = delegate
             
-            groupInfoView.delegate = delegate
+            groupInfoView.mainDelegate = delegate
             rankingButton.delegate = delegate
             
             sheetHeaderView.delegate = delegate
@@ -28,7 +28,7 @@ final class MainPage: BasePage {
     private let dosikCommentButton = DosikCommentButton()
     private let bottomSheetView = BottomSheetView()
     
-    private let groupInfoView = GroupInfoView()
+    private let groupInfoView = GroupInfoView(type: .main)
     private let rankingButton = RankingButton()
     
     private let dogetherSheet = UIView()

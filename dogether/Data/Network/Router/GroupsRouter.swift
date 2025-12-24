@@ -26,9 +26,9 @@ enum GroupsRouter: NetworkEndpoint {
         case .checkParticipating:
             return Path.api + Path.v1 + Path.groups + "/participating"
         case .getGroups:
-            return Path.api + Path.v1 + Path.groups + "/my"
+            return Path.api + Path.v1 + Path.groups + Path.my
         case .getMySummary:
-            return Path.api + Path.v1 + Path.groups + Path.summary + "/my"
+            return Path.api + Path.v1 + Path.groups + Path.summary + Path.my
         case .saveLastSelectedGroup:
             return Path.api + Path.v1 + Path.groups + "/last-selected"
         case .getRanking(let groupId):

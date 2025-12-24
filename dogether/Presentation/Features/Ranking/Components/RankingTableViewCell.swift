@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class RankingTableViewCell: BaseTableViewCell, ReusableProtocol {
+final class RankingTableViewCell: BaseTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }

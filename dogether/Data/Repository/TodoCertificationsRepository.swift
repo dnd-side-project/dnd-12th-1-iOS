@@ -14,8 +14,17 @@ final class TodoCertificationsRepository: TodoCertificationsProtocol {
         self.todoCertificationsDataSource = todoCertificationsDataSource
     }
     
-    func getReviews() async throws -> GetReviewsResponse {
-        try await todoCertificationsDataSource.getReviews()
+    func getReviews() async throws -> [ReviewEntity] {
+        let response = try await todoCertificationsDataSource.getReviews()
+        return response.dailyTodoCertifications.map {
+            ReviewEntity(
+                id: $0.id,
+                content: $0.content,
+                mediaUrl: $0.mediaUrl,
+                todoContent: $0.todoContent,
+                doer: $0.doer
+            )
+        }
     }
     
     func reviewTodo(todoId: String, reviewTodoRequest: ReviewTodoRequest) async throws {

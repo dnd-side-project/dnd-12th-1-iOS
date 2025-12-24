@@ -18,10 +18,10 @@ final class GroupUseCase {
         try await repository.createGroup(groupCreateViewDatas: groupCreateViewDatas)
     }
     
-    func joinGroup(joinCode: String) async throws -> ChallengeGroupInfo {
+    func joinGroup(joinCode: String) async throws -> GroupEntity {
         let joinGroupRequest = JoinGroupRequest(joinCode: joinCode)
         let response = try await repository.joinGroup(joinGroupRequest: joinGroupRequest)
-        return ChallengeGroupInfo(
+        return GroupEntity(
             name: response.groupName,
             maximumMember: response.maximumMemberCount,
             startDate: response.startAt,
@@ -44,10 +44,10 @@ final class GroupUseCase {
     }
     
     // FIXME: 추후 삭제
-    func getChallengeGroupInfos() async throws -> (groupIndex: Int?, challengeGroupInfos: [ChallengeGroupInfo]) {
+    func getGroups() async throws -> (groupIndex: Int?, groups: [GroupEntity]) {
         let response = try await repository.getGroupsBefore()
         return (response.lastSelectedGroupIndex , response.joiningChallengeGroups.map {
-            ChallengeGroupInfo(
+            GroupEntity(
                 id: $0.groupId,
                 name: $0.groupName,
                 currentMember: $0.currentMemberCount,

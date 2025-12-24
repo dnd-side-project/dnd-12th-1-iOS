@@ -23,6 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         coordinator = NavigationCoordinator(navigationController: navigationController)
         coordinator?.setNavigationController(SplashViewController())
         
+        NetworkManager.shared.coordinator = coordinator
         PushNoticeManager.shared.delegate = coordinator
         
         window = UIWindow(windowScene: scene)

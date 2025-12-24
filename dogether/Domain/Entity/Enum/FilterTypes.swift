@@ -50,19 +50,6 @@ enum FilterTypes: String, CaseIterable, BaseEntity {
         }
     }
     
-    var width: CGFloat {
-        switch self {
-        case .all:
-            return 48
-        case .wait:
-            return 89
-        case .reject:
-            return 74
-        case .approve:
-            return 62
-        }
-    }
-    
     var emptyTitle: String {
         switch self {
         case .wait:

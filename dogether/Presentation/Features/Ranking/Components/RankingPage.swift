@@ -18,7 +18,8 @@ final class RankingPage: BasePage {
         view.layer.borderColor = UIColor.grey600.cgColor
         view.layer.borderWidth = 1
         
-        let imageView = UIImageView(image: .notice)
+        let imageView = UIImageView(image: .notice.withRenderingMode(.alwaysTemplate))
+        imageView.tintColor = .grey400
         
         let label = UILabel()
         label.text = "달성률은 인증, 인정, 참여 기간을 기준으로 계산돼요."
@@ -28,11 +29,12 @@ final class RankingPage: BasePage {
         let stackView = UIStackView(arrangedSubviews: [imageView, label])
         stackView.axis = .horizontal
         stackView.spacing = 8
+        stackView.alignment = .center
         
         [stackView].forEach { view.addSubview($0) }
         
         imageView.snp.makeConstraints {
-            $0.width.height.equalTo(24)
+            $0.size.equalTo(16)
         }
         
         stackView.snp.makeConstraints {

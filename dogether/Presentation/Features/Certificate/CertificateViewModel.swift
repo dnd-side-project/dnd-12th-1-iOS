@@ -7,10 +7,16 @@
 
 import UIKit
 
+import RxRelay
+
 final class CertificateViewModel {
     private let challengeGroupUseCase: ChallengeGroupUseCase
     
-    var todoInfo = TodoEntity(id: 0, content: "", status: .waitCertification)
+    private(set) var certificateViewDatas = BehaviorRelay<CertificateViewDatas>(value: CertificateViewDatas())
+    private(set) var certificateTextViewDatas = BehaviorRelay<DogetherTextViewDatas>(value: DogetherTextViewDatas())
+    private(set) var certificateButtonViewDatas = BehaviorRelay<DogetherButtonViewDatas>(
+        value: DogetherButtonViewDatas(status: .disabled)
+    )
 
     init() {
         let repository = DIManager.shared.getChallengeGroupsRepository()
@@ -19,18 +25,39 @@ final class CertificateViewModel {
 }
 
 extension CertificateViewModel {
-    func setText(_ text: String) {
-        todoInfo.certificationContent = text
+    func updateButtonStatus(status: ButtonStatus) {
+        certificateButtonViewDatas.update { $0.status = status }
+    }
+    
+    func updateIsFirstResponder(isFirstResponder: Bool) {
+        certificateViewDatas.update { $0.isFirstResponder = isFirstResponder }
+        certificateTextViewDatas.update { $0.isShowKeyboard = isFirstResponder }
+    }
+    
+    func updateKeyboardHeight(height: CGFloat) {
+        certificateViewDatas.update { $0.keyboardHeight = height }
+    }
+    
+    func updateContent(content: String) {
+        certificateViewDatas.update { $0.todo.certificationContent = content }
+        certificateTextViewDatas.update { $0.text = content }
+        certificateButtonViewDatas.update { $0.status = content.count > 0 ? .enabled : .disabled }
     }
 }
 
 extension CertificateViewModel {
-    func certifyTodo() async throws {
-        guard let content = todoInfo.certificationContent, let mediaUrl = todoInfo.certificationMediaUrl else { return }
-        try await challengeGroupUseCase.certifyTodo(todoId: todoInfo.id, content: content, mediaUrl: mediaUrl)
+    func uploadImage(image: UIImage) async throws{
+        let mediaUrl = try await S3Manager.shared.uploadImage(image: image)
+        
+        certificateViewDatas.update {
+            $0.todo.certificationMediaUrl = mediaUrl
+        }
     }
     
-    func uploadImage(image: UIImage) async throws{
-        todoInfo.certificationMediaUrl = try await S3Manager.shared.uploadImage(image: image)
+    func certifyTodo() async throws {
+        let todo = certificateViewDatas.value.todo
+        guard let content = todo.certificationContent,
+              let mediaUrl = todo.certificationMediaUrl else { return }
+        try await challengeGroupUseCase.certifyTodo(todoId: todo.id, content: content, mediaUrl: mediaUrl)
     }
 }

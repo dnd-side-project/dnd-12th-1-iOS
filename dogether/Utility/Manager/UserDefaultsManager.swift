@@ -52,3 +52,11 @@ final class UserDefaultsManager {
         set { userDefaults.set(newValue, forKey: UserDefaultsKey.lastAccessDate.rawValue) }
     }
 }
+
+extension UserDefaultsManager {
+    static func logout() {
+        UserDefaultsManager.shared.loginType = nil
+        UserDefaultsManager.shared.accessToken = nil
+        UserDefaultsManager.shared.userFullName = nil
+    }
+}

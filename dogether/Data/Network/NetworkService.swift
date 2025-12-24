@@ -44,54 +44,12 @@ class NetworkService {
     }
     
     func request<T: Decodable>(_ endpoint: NetworkEndpoint) async throws -> ServerResponse<T> {
-        guard let url = configureURL(endpoint) else {
-            throw NetworkError.invalidURL
-        }
+        guard let url = configureURL(endpoint) else { throw NetworkError.invalidURL }
         
         let request = configureRequest(url: url, endpoint)
         
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw NetworkError.unknown(NSError(domain: "", code: -1, userInfo: nil))
-            }
-            
-            let decoded = try JSONDecoder().decode(ServerResponse<T>.self, from: data)
-            
-            let statusCode = httpResponse.statusCode
-            switch statusCode {
-            case 200:
-                return decoded
-            case 400:
-                if let errorCode = DogetherCodes(rawValue: decoded.code) {
-                    throw NetworkError.dogetherError(code: errorCode, message: decoded.message)
-                } else {
-                    throw NetworkError.badRequest
-                }
-            case 401:
-                throw NetworkError.unauthorized
-            case 403:
-                throw NetworkError.forbidden
-            case 404:
-                throw NetworkError.notFound
-            case 500...599:
-                throw NetworkError.serverError(message: "서버 오류가 발생했습니다. (코드: \(statusCode))")
-            default:
-                throw NetworkError.unexpectedStatusCode(code: statusCode)
-            }
-        } catch let error as DecodingError {
-            throw NetworkError.decodingFailed
-        } catch let error as URLError {
-            if error.code == .secureConnectionFailed || error.code == .serverCertificateUntrusted || error.code == .serverCertificateHasBadDate || error.code == .serverCertificateHasUnknownRoot {
-                throw NetworkError.sslError(error)
-            } else {
-                throw NetworkError.connectionFailed(error)
-            }
-        } catch let error as NetworkError {
-            throw error
-        } catch {
-            throw NetworkError.unknown(error)
-        }
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let decoded = try JSONDecoder().decode(ServerResponse<T>.self, from: data)
+        return decoded
     }
 }

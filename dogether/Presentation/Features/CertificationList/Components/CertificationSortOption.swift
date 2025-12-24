@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CertificationSortOption: String, CaseIterable, BottomSheetItemRepresentable {
+enum SortOptions: String, CaseIterable, BaseEntity {
     case todoCompletionDate = "투두 완료일순"
     case groupCreationDate = "그룹 생성일순"
 
@@ -15,21 +15,12 @@ enum CertificationSortOption: String, CaseIterable, BottomSheetItemRepresentable
         return self.rawValue
     }
     
-    var bottomSheetItem: BottomSheetItem {
-        BottomSheetItem(displayName: displayName, value: self)
-    }
-    
-    var sortType: SortType {
+    var sortString: String {
         switch self {
         case .todoCompletionDate:
-            return .todoCompletedAt
+            return "TODO_COMPLETED_AT"
         case .groupCreationDate:
-            return .groupCreatedAt
+            return "GROUP_CREATED_AT"
         }
     }
-}
-
-enum SortType: String {
-    case todoCompletedAt = "TODO_COMPLETED_AT"
-    case groupCreatedAt = "GROUP_CREATED_AT"
 }

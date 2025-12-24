@@ -10,15 +10,15 @@ import Foundation
 struct CompleteViewDatas: BaseEntity {
     var groupType: GroupTypes
     var joinCode: String
-    var groupInfo: ChallengeGroupInfo
+    var groupEntity: GroupEntity
     
     init(
         groupType: GroupTypes = .create,
         joinCode: String = "",
-        groupInfo: ChallengeGroupInfo = ChallengeGroupInfo()
+        groupEntity: GroupEntity = GroupEntity()
     ) {
         self.groupType = groupType
         self.joinCode = joinCode
-        self.groupInfo = groupInfo
+        self.groupEntity = groupEntity
     }
 }

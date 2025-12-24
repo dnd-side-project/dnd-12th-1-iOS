@@ -9,9 +9,9 @@ import Foundation
 
 final class GroupRepositoryTest: GroupProtocol {
     func createGroup(groupCreateViewDatas: GroupCreateViewDatas) async throws -> String {
-        if groupCreateViewDatas.groupName == "1" {
-            throw NetworkError.badRequest
-        }
+//        if groupCreateViewDatas.groupName == "1" {
+//            throw NetworkError.badRequest
+//        }
         
         if groupCreateViewDatas.groupName == "2" {
             throw NetworkError.noData
@@ -48,7 +48,7 @@ final class GroupRepositoryTest: GroupProtocol {
         }
         
         if code == "55555555" {
-            throw NetworkError.decodingFailed
+            throw NetworkError.parse
         }
         
         if code == "66666666" {

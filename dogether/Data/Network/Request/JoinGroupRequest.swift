@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct JoinGroupRequest: JoinCode, Encodable {
+struct JoinGroupRequest: Encodable {
     let joinCode: String
 }

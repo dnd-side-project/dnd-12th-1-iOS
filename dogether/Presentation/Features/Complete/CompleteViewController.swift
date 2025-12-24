@@ -40,7 +40,7 @@ extension CompleteViewController: CompleteDelegate {
         let data = viewModel.completeViewDatas.value
         
         let invite = SystemManager.inviteGroup(
-            groupName: data.groupInfo.name,
+            groupName: data.groupEntity.name,
             joinCode: data.joinCode
         )
         present(UIActivityViewController(activityItems: invite, applicationActivities: nil), animated: true)

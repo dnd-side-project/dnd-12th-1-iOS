@@ -30,6 +30,15 @@ final class CertificationViewController: BaseViewController {
     }
 }
 
+extension CertificationViewController {
+    private func onAppear() {
+        Task { [weak self] in
+            guard let self else { return }
+            try await viewModel.readTodo()
+        }
+    }
+}
+
 // MARK: - delegate
 protocol CertificationDelegate {
     func thumbnailTapAction(_ stackView: UIStackView, _ gesture: UITapGestureRecognizer)
@@ -39,13 +48,6 @@ protocol CertificationDelegate {
 }
 
 extension CertificationViewController: CertificationDelegate {
-    private func onAppear() {
-        Task { [weak self] in
-            guard let self else { return }
-            try await viewModel.readTodo()
-        }
-    }
-    
     func thumbnailTapAction(_ stackView: UIStackView, _ gesture: UITapGestureRecognizer) {
         let location = gesture.location(in: stackView)
 
@@ -93,7 +95,7 @@ extension CertificationViewController: CertificationDelegate {
     
     func goCertificateViewAction(todo: TodoEntity) {
         let certificateImageViewController = CertificateImageViewController()
-        certificateImageViewController.viewModel.todoInfo = todo
-        coordinator?.pushViewController(certificateImageViewController)
+        let certificateViewDatas = CertificateViewDatas(todo: todo)
+        coordinator?.pushViewController(certificateImageViewController, datas: certificateViewDatas)
     }
 }

@@ -74,4 +74,15 @@ class BaseViewController: UIViewController, CoordinatorDelegate {
             })
             .disposed(by: disposeBag)
     }
+    // FIXME: 추후 병합
+    func bind<Entity: BaseEntity>(_ relay: BehaviorRelay<Entity?>) {
+        relay
+            .distinctUntilChanged()
+            .asDriver(onErrorJustReturn: relay.value)
+            .drive(onNext: { [weak self] datas in
+                guard let self, let pages, let datas else { return }
+                pages.forEach { $0.updateView(datas) }
+            })
+            .disposed(by: disposeBag)
+    }
 }

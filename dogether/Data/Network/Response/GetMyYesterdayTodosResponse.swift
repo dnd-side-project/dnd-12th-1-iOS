@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct GetMyYesterdayTodosResponse: Todos, Decodable {
+struct GetMyYesterdayTodosResponse: Decodable {
     let todos: [String]
 }

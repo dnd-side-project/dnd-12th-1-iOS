@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 extension UIImageView {
     func loadImage(url: String?, successAction: (() -> Void)? = nil) {

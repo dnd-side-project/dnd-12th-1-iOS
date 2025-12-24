@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct CreateGroupResponse: JoinCode, Decodable {
+struct CreateGroupResponse: Decodable {
     let joinCode: String
 }

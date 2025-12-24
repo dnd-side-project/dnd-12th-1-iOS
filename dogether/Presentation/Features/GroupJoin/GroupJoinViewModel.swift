@@ -24,7 +24,7 @@ final class GroupJoinViewModel {
 }
 
 extension GroupJoinViewModel {
-    func joinGroup() async throws -> ChallengeGroupInfo {
+    func joinGroup() async throws -> GroupEntity {
         try await groupUseCase.joinGroup(joinCode: groupJoinViewDatas.value.code)
     }
 }
@@ -43,12 +43,5 @@ extension GroupJoinViewModel {
         joinButtonViewDatas.update {
             $0.status = code.count < codeMaxLength ? .disabled : .enabled
         }
-        
-        // FIXME: 임시 구현 코드, 추후 기획에 따라 수정
-        if code.isEmpty { updateStatus(status: .normal) }
-    }
-    
-    func updateStatus(status: GroupJoinStatus) {
-        groupJoinViewDatas.update { $0.status = status }
     }
 }

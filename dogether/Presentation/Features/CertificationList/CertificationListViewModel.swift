@@ -5,96 +5,55 @@
 //  Created by yujaehong on 4/23/25.
 //
 
-import UIKit
-
-protocol CertificationListViewModelDelegate: AnyObject {
-    func updateContentView()
-    func didFetchFail(error: NetworkError)
-}
+import RxRelay
 
 final class CertificationListViewModel {
+    private let userUseCase: UserUseCase
     
-    private let useCase: CertificationListUseCase
-    weak var delegate: CertificationListViewModelDelegate?
+    private(set) var bottomSheetViewDatas = BehaviorRelay<BottomSheetViewDatas>(value: BottomSheetViewDatas())
+    private(set) var statsViewDatas = BehaviorRelay<StatsViewDatas>(value: StatsViewDatas())
+    private(set) var sortViewDatas = BehaviorRelay<SortViewDatas>(value: SortViewDatas())
+    private(set) var certificationListViewDatas = BehaviorRelay<CertificationListViewDatas>(
+        value: CertificationListViewDatas()
+    )
     
-    private var rawSections: [CertificationSection] = []
-    var sections: [CertificationSection] = []
-    
-    var viewStatus: CertificationListViewStatus = .empty
-    
-    var totalCertificatedCount: Int = 0
-    var totalApprovedCount: Int = 0
-    var totalRejectedCount: Int = 0
-    private var currentPage: Int = 0
-    var isLastPage: Bool = false
-    
-    var currentFilter: FilterTypes = .all {
-        didSet {
-            applyFilter()
-        }
-    }
-
-    var selectedGroup: CertificationSortOption? = CertificationSortOption.allCases.first
-
     init() {
-        let repository = DIManager.shared.getCertificationListRepository()
-        self.useCase = CertificationListUseCase(repository: repository)
+        let repository = DIManager.shared.getUserRepository()
+        self.userUseCase = UserUseCase(repository: repository)
     }
 }
 
 extension CertificationListViewModel {
-    func executeSort(option: CertificationSortOption) {
-        currentPage = 0
-        isLastPage = false
-        
-        Task {
-            do {
-                let result = try await useCase.fetchSortedList(option: option, page: currentPage)
-                rawSections = result.sections
-                totalCertificatedCount = result.stats.totalCertificatedCount
-                totalApprovedCount = result.stats.totalApprovedCount
-                totalRejectedCount = result.stats.totalRejectedCount
-                isLastPage = !result.hasNext
-                applyFilter()
-                viewStatus = sections.isEmpty ? .empty : .hasData
-            } catch let error as NetworkError {
-                delegate?.didFetchFail(error: error)
-            }
-        }
+    func updateSortIndex(index: Int) {
+        sortViewDatas.update { $0.index = index }
     }
     
-    private func applyFilter() {
-        sections = rawSections.compactMap { section in
-            let filtered = section.certifications.filter { cert in
-                guard let filterType = FilterTypes(status: cert.status) else { return false }
-                return currentFilter == .all || currentFilter == filterType
-            }
-            return filtered.isEmpty ? nil : CertificationSection(type: section.type, certifications: filtered)
-        }
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.delegate?.updateContentView()
-        }
+    func updateFilter(filter: FilterTypes) {
+        let filter: FilterTypes = (certificationListViewDatas.value.filter == filter) ? .all : filter
+        certificationListViewDatas.update { $0.filter = filter }
     }
-    
-    func loadNextPage() {
-        guard !isLastPage else { return }
-        guard let option = selectedGroup else { return }
-        currentPage += 1
+}
+
+extension CertificationListViewModel {
+    func loadCertificationList(page: Int) async throws {
+        if page > 0 && certificationListViewDatas.value.isLastPage { return }
+        try await fetchCertificationListViewDatas(page: page)
+    }
+}
+
+extension CertificationListViewModel {
+    private func fetchCertificationListViewDatas(page: Int) async throws {
+        let (statsViewDatas, certificationListViewDatas) = try await userUseCase.getCertificationListViewDatas(
+            option: sortViewDatas.value.options[sortViewDatas.value.index],
+            page: page
+        )
         
-        Task {
-            do {
-                let result = try await useCase.fetchSortedList(option: option, page: currentPage)
-                rawSections.append(contentsOf: result.sections)
-                totalCertificatedCount = result.stats.totalCertificatedCount
-                totalApprovedCount = result.stats.totalApprovedCount
-                totalRejectedCount = result.stats.totalRejectedCount
-                isLastPage = !result.hasNext
-                applyFilter()
-            } catch let error as NetworkError {
-                delegate?.didFetchFail(error: error)
-                currentPage -= 1
-            }
+        self.statsViewDatas.accept(statsViewDatas)
+        self.certificationListViewDatas.update {
+            let newSections = certificationListViewDatas.sections
+            $0.sections = page == 0 ? newSections : $0.sections + newSections
+            $0.currentPage = page
+            $0.isLastPage = certificationListViewDatas.isLastPage
         }
     }
 }

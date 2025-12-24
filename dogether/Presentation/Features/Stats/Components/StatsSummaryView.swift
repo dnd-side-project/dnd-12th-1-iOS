@@ -9,166 +9,48 @@ import UIKit
 import SnapKit
 
 final class StatsSummaryView: BaseView {
-    private let titleIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .summary
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
+    private let titleIconImageView = UIImageView(image: .summary)
+    private let titleLabel = UILabel()
+    private let titleStackView = UIStackView()
     
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "요약"
-        label.font = Fonts.body1S
-        label.textColor = .grey0
-        return label
-    }()
+    private let achievedStackView = StatsSummaryStackView(type: .achievement)
+    private let approveStackView = StatsSummaryStackView(type: .approve)
+    private let rejectStackView = StatsSummaryStackView(type: .reject)
     
-    private lazy var titleStackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [titleIconImageView, titleLabel])
-        stack.axis = .horizontal
-        stack.spacing = 4
-        stack.alignment = .center
-        return stack
-    }()
-    
-    // 달성 Row
-    private let achievedIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .certificationGray
-        imageView.contentMode = .scaleAspectFit
-        imageView.snp.makeConstraints { $0.size.equalTo(24) }
-        return imageView
-    }()
-    
-    private let achievedTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "달성"
-        label.font = Fonts.body2S
-        label.textColor = .grey200
-        label.snp.makeConstraints { $0.width.equalTo(25) }
-        return label
-    }()
-    
-    private let certificatedCountLabel: UILabel = {
-        let label = UILabel()
-        label.font = Fonts.body2S
-        label.textColor = .grey0
-        return label
-    }()
-    
-    private lazy var achievedStackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [achievedIconImageView, achievedTitleLabel, certificatedCountLabel])
-        stack.axis = .horizontal
-        stack.spacing = 4
-        stack.setCustomSpacing(8, after: achievedTitleLabel)
-        stack.alignment = .center
-        return stack
-    }()
-    
-    // 인정 Row
-    private let acknowledgedIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .approve
-        imageView.contentMode = .scaleAspectFit
-        imageView.snp.makeConstraints { $0.size.equalTo(24) }
-        return imageView
-    }()
-    
-    private let acknowledgedTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "인정"
-        label.font = Fonts.body2S
-        label.textColor = .grey200
-        label.snp.makeConstraints { $0.width.equalTo(25) }
-        return label
-    }()
-    
-    private let approvedCountLabel: UILabel = {
-        let label = UILabel()
-        label.font = Fonts.body2S
-        label.textColor = .grey0
-        return label
-    }()
-    
-    private lazy var acknowledgedStackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [acknowledgedIconImageView, acknowledgedTitleLabel, approvedCountLabel])
-        stack.axis = .horizontal
-        stack.spacing = 4
-        stack.setCustomSpacing(8, after: acknowledgedTitleLabel)
-        stack.alignment = .center
-        return stack
-    }()
-    
-    // 노인정 Row
-    private let notAcknowledgedIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = .reject
-        imageView.contentMode = .scaleAspectFit
-        imageView.snp.makeConstraints { $0.size.equalTo(24) }
-        return imageView
-    }()
-    
-    private let notAcknowledgedTitleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "노인정"
-        label.font = Fonts.body2S
-        label.textColor = .grey200
-        label.snp.makeConstraints { $0.width.equalTo(37) }
-        return label
-    }()
-    
-    private let rejectedCountLabel: UILabel = {
-        let label = UILabel()
-        label.font = Fonts.body2S
-        label.textColor = .grey0
-        return label
-    }()
-    
-    private lazy var notAcknowledgedStackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [notAcknowledgedIconImageView, notAcknowledgedTitleLabel, rejectedCountLabel])
-        stack.axis = .horizontal
-        stack.spacing = 4
-        stack.setCustomSpacing(8, after: notAcknowledgedTitleLabel)
-        stack.alignment = .center
-        return stack
-    }()
-    
-    private lazy var summaryStackView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [
-            achievedStackView,
-            acknowledgedStackView,
-            notAcknowledgedStackView
-        ])
-        stack.axis = .vertical
-        stack.spacing = 8
-        return stack
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private let summaryStackView = UIStackView()
     
     override func configureView() {
         backgroundColor = .grey800
         layer.cornerRadius = 12
         layer.masksToBounds = true
+        
+        titleIconImageView.image = .summary
+        titleIconImageView.contentMode = .scaleAspectFit
+        
+        titleLabel.text = "요약"
+        titleLabel.font = Fonts.body1S
+        titleLabel.textColor = .grey0
+        
+        titleStackView.axis = .horizontal
+        titleStackView.spacing = 4
+        titleStackView.alignment = .center
+        
+        summaryStackView.axis = .vertical
+        summaryStackView.spacing = 8
     }
     
     override func configureAction() { }
     
     override func configureHierarchy() {
-        addSubview(titleStackView)
-        addSubview(summaryStackView)
+        [titleIconImageView, titleLabel].forEach { titleStackView.addArrangedSubview($0) }
+        [achievedStackView, approveStackView, rejectStackView].forEach { summaryStackView.addArrangedSubview($0) }
+        
+        [titleStackView, summaryStackView].forEach { addSubview($0) }
     }
     
     override func configureConstraints() {
         titleIconImageView.snp.makeConstraints {
-            $0.width.height.equalTo(20)
+            $0.width.height.equalTo(24)
         }
         
         titleStackView.snp.makeConstraints {
@@ -184,12 +66,13 @@ final class StatsSummaryView: BaseView {
             $0.height.equalTo(88)
         }
     }
-}
-
-extension StatsSummaryView {
-    func configure(certificatedCount: Int, approvedCount: Int, rejectedCount: Int) {
-        certificatedCountLabel.text = "\(certificatedCount)개"
-        approvedCountLabel.text = "\(approvedCount)개"
-        rejectedCountLabel.text = "\(rejectedCount)개"
+    
+    // MARK: - updateView
+    override func updateView(_ data: (any BaseEntity)?) {
+        guard let datas = data as? StatsSummaryViewDatas else { return }
+        
+        achievedStackView.updateView("\(datas.certificatedCount)개")
+        approveStackView.updateView("\(datas.approvedCount)개")
+        rejectStackView.updateView("\(datas.rejectedCount)개")
     }
 }

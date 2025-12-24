@@ -8,33 +8,21 @@
 import UIKit
 
 final class TodoStatusButton: BaseButton {
-    let type: TodoStatus
-    
-    init(type: TodoStatus) {
-        self.type = type
-        
-        super.init(frame: .zero)
-    }
-    required init?(coder: NSCoder) { fatalError() }
-    
     private let icon = UIImageView()
     private let label = UILabel()
-    
     private let stackView = UIStackView()
     
     override func configureView() {
-        backgroundColor = type.backgroundColor
         layer.cornerRadius = 16
         
-        icon.image = type.image?.withRenderingMode(.alwaysTemplate)
         icon.tintColor = .grey900
         
-        label.text = type.text
-        label.textColor = .grey900
+        label.textColor = .grey800
         label.font = Fonts.body2S
         
         stackView.axis = .horizontal
         stackView.spacing = 4
+        stackView.alignment = .center
         stackView.isUserInteractionEnabled = false
         
         let views = icon.image == nil ? [label] : [icon, label]
@@ -70,27 +58,6 @@ final class TodoStatusButton: BaseButton {
             
             let views = icon.image == nil ? [label] : [icon, label]
             views.forEach { stackView.addArrangedSubview($0) }
-            
-            icon.snp.updateConstraints {
-                $0.width.height.equalTo(16)
-            }
-        }
-    }
-}
-
-extension TodoStatusButton {
-    func update(type: TodoStatus) {
-        backgroundColor = type.backgroundColor
-        icon.image = type.image?.withRenderingMode(.alwaysTemplate)
-        label.text = type.text
-        
-        stackView.arrangedSubviews.forEach { stackView.removeArrangedSubview($0) }
-        
-        let views = icon.image == nil ? [label] : [icon, label]
-        views.forEach { stackView.addArrangedSubview($0) }
-        
-        icon.snp.updateConstraints {
-            $0.width.height.equalTo(16)
         }
     }
 }

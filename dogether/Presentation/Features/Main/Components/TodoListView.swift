@@ -10,7 +10,7 @@ import UIKit
 final class TodoListView: BaseView {
     var delegate: MainDelegate? {
         didSet {
-            [allButton, waitButton, approveButton, rejectButton].forEach { $0.delegate = delegate }
+            filterStackView.mainDelegate = delegate
             addTodoButton.addAction(
                 UIAction { [weak self] _ in
                     guard let self, let currentTodoList else { return }
@@ -23,11 +23,7 @@ final class TodoListView: BaseView {
     private(set) var currentFilter: FilterTypes?
     private(set) var currentTodoList: [TodoEntity]?
     
-    private let allButton = FilterButton(type: .all)
-    private let waitButton = FilterButton(type: .wait)
-    private let rejectButton = FilterButton(type: .reject)
-    private let approveButton = FilterButton(type: .approve)
-    private let filterStackView = UIStackView()
+    private let filterStackView = FilterStackView()
     
     private let todoScrollView = UIScrollView()
     private let todoListStackView = UIStackView()
@@ -40,9 +36,6 @@ final class TodoListView: BaseView {
     private let addTodoButton = AdditionalAddTodoButton()
     
     override func configureView() {
-        filterStackView.axis = .horizontal
-        filterStackView.spacing = 8
-        
         todoScrollView.bounces = false
         todoScrollView.showsVerticalScrollIndicator = false
         
@@ -60,11 +53,6 @@ final class TodoListView: BaseView {
         emptyListStackView.alignment = .center
         emptyListStackView.setCustomSpacing(16, after: emptyListImageView)
         emptyListStackView.setCustomSpacing(4, after: emptyListTitleLabel)
-        
-        [allButton, waitButton, approveButton, rejectButton].forEach { filterStackView.addArrangedSubview($0) }
-        [emptyListImageView, emptyListTitleLabel, emptyListDescriptionLabel].forEach {
-            emptyListStackView.addArrangedSubview($0)
-        }
     }
     
     override func configureAction() {
@@ -72,6 +60,10 @@ final class TodoListView: BaseView {
     }
     
     override func configureHierarchy() {
+        [emptyListImageView, emptyListTitleLabel, emptyListDescriptionLabel].forEach {
+            emptyListStackView.addArrangedSubview($0)
+        }
+        
         [todoScrollView, emptyListStackView, filterStackView].forEach { addSubview($0) }
         [todoListStackView].forEach { todoScrollView.addSubview($0) }
     }
@@ -123,7 +115,7 @@ final class TodoListView: BaseView {
             currentFilter = datas.filter
             currentTodoList = datas.todoList
             
-            [allButton, waitButton, rejectButton, approveButton].forEach { $0.updateView(datas.filter) }
+            filterStackView.updateView(datas.filter)
             
             let isToday = datas.dateOffset == 0
             

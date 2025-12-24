@@ -8,6 +8,6 @@
 import Foundation
 
 protocol TodoCertificationsProtocol {
-    func getReviews() async throws -> GetReviewsResponse
+    func getReviews() async throws -> [ReviewEntity]
     func reviewTodo(todoId: String, reviewTodoRequest: ReviewTodoRequest) async throws
 }
