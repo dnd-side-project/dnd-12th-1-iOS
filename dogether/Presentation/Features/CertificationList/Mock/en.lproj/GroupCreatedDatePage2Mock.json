@@ -1,0 +1,95 @@
+{
+    "dailyTodoStats": {
+        "totalCertificatedCount": 200,
+        "totalApprovedCount": 100,
+        "totalRejectedCount": 50
+    },
+    "certificationsGroupedByGroupCreatedAt": [
+        {
+            "groupName": "챌린지 그룹 6",
+            "createdAt": "2025.08.06",
+            "certificationInfo": [
+                { "id": 51, "content": "운동 하기 11", "status": "APPROVE", "certificationContent": "열심히 운동했어요", "certificationMediaUrl": "https://picsum.photos/id/51/200/300", "reviewFeedback": null },
+                { "id": 52, "content": "운동 하기 12", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/52/200/300", "reviewFeedback": "더 노력해주세요" },
+                { "id": 53, "content": "운동 하기 13", "status": "APPROVE", "certificationContent": "운동 성공!", "certificationMediaUrl": "https://picsum.photos/id/53/200/300", "reviewFeedback": null },
+                { "id": 54, "content": "운동 하기 14", "status": "REVIEW_PENDING", "certificationContent": "도전 중", "certificationMediaUrl": "https://picsum.photos/id/54/200/300", "reviewFeedback": null },
+                { "id": 55, "content": "운동 하기 15", "status": "APPROVE", "certificationContent": "꾸준히 운동해요", "certificationMediaUrl": "https://picsum.photos/id/55/200/300", "reviewFeedback": null },
+                { "id": 56, "content": "운동 하기 16", "status": "APPROVE", "certificationContent": "오늘도 운동!", "certificationMediaUrl": "https://picsum.photos/id/56/200/300", "reviewFeedback": null },
+                { "id": 57, "content": "운동 하기 17", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/57/200/300", "reviewFeedback": "더 힘내요" },
+                { "id": 58, "content": "운동 하기 18", "status": "APPROVE", "certificationContent": "운동 중", "certificationMediaUrl": "https://picsum.photos/id/58/200/300", "reviewFeedback": null },
+                { "id": 59, "content": "운동 하기 19", "status": "REVIEW_PENDING", "certificationContent": "노력중", "certificationMediaUrl": "https://picsum.photos/id/59/200/300", "reviewFeedback": null },
+                { "id": 60, "content": "운동 하기 20", "status": "APPROVE", "certificationContent": "성공!", "certificationMediaUrl": "https://picsum.photos/id/60/200/300", "reviewFeedback": null }
+            ]
+        },
+        {
+            "groupName": "챌린지 그룹 7",
+            "createdAt": "2025.08.07",
+            "certificationInfo": [
+                { "id": 61, "content": "책 읽기 11", "status": "APPROVE", "certificationContent": "10페이지 읽었어요", "certificationMediaUrl": "https://picsum.photos/id/61/200/300", "reviewFeedback": null },
+                { "id": 62, "content": "책 읽기 12", "status": "REJECT", "certificationContent": "못 읽었어요", "certificationMediaUrl": "https://picsum.photos/id/62/200/300", "reviewFeedback": "다음엔 꼭!" },
+                { "id": 63, "content": "책 읽기 13", "status": "APPROVE", "certificationContent": "열심히 읽었어요", "certificationMediaUrl": "https://picsum.photos/id/63/200/300", "reviewFeedback": null },
+                { "id": 64, "content": "책 읽기 14", "status": "REVIEW_PENDING", "certificationContent": "도전 중", "certificationMediaUrl": "https://picsum.photos/id/64/200/300", "reviewFeedback": null },
+                { "id": 65, "content": "책 읽기 15", "status": "APPROVE", "certificationContent": "꾸준히 읽어요", "certificationMediaUrl": "https://picsum.photos/id/65/200/300", "reviewFeedback": null },
+                { "id": 66, "content": "책 읽기 16", "status": "APPROVE", "certificationContent": "매일 독서!", "certificationMediaUrl": "https://picsum.photos/id/66/200/300", "reviewFeedback": null },
+                { "id": 67, "content": "책 읽기 17", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/67/200/300", "reviewFeedback": "노력하세요" },
+                { "id": 68, "content": "책 읽기 18", "status": "APPROVE", "certificationContent": "읽고 있어요", "certificationMediaUrl": "https://picsum.photos/id/68/200/300", "reviewFeedback": null },
+                { "id": 69, "content": "책 읽기 19", "status": "REVIEW_PENDING", "certificationContent": "노력 중", "certificationMediaUrl": "https://picsum.photos/id/69/200/300", "reviewFeedback": null },
+                { "id": 70, "content": "책 읽기 20", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/70/200/300", "reviewFeedback": null }
+            ]
+        },
+        {
+            "groupName": "챌린지 그룹 8",
+            "createdAt": "2025.08.08",
+            "certificationInfo": [
+                { "id": 71, "content": "물 2L 마시기 11", "status": "APPROVE", "certificationContent": "열심히 마셨어요", "certificationMediaUrl": "https://picsum.photos/id/71/200/300", "reviewFeedback": null },
+                { "id": 72, "content": "물 2L 마시기 12", "status": "REJECT", "certificationContent": "못 마셨어요", "certificationMediaUrl": "https://picsum.photos/id/72/200/300", "reviewFeedback": "더 노력해요" },
+                { "id": 73, "content": "물 2L 마시기 13", "status": "APPROVE", "certificationContent": "매일 마셔요", "certificationMediaUrl": "https://picsum.photos/id/73/200/300", "reviewFeedback": null },
+                { "id": 74, "content": "물 2L 마시기 14", "status": "REVIEW_PENDING", "certificationContent": "노력 중", "certificationMediaUrl": "https://picsum.photos/id/74/200/300", "reviewFeedback": null },
+                { "id": 75, "content": "물 2L 마시기 15", "status": "APPROVE", "certificationContent": "건강 챙겨요", "certificationMediaUrl": "https://picsum.photos/id/75/200/300", "reviewFeedback": null },
+                { "id": 76, "content": "물 2L 마시기 16", "status": "APPROVE", "certificationContent": "꾸준히 마셔요", "certificationMediaUrl": "https://picsum.photos/id/76/200/300", "reviewFeedback": null },
+                { "id": 77, "content": "물 2L 마시기 17", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/77/200/300", "reviewFeedback": "힘내요" },
+                { "id": 78, "content": "물 2L 마시기 18", "status": "APPROVE", "certificationContent": "잘 마시고 있어요", "certificationMediaUrl": "https://picsum.photos/id/78/200/300", "reviewFeedback": null },
+                { "id": 79, "content": "물 2L 마시기 19", "status": "REVIEW_PENDING", "certificationContent": "노력중", "certificationMediaUrl": "https://picsum.photos/id/79/200/300", "reviewFeedback": null },
+                { "id": 80, "content": "물 2L 마시기 20", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/80/200/300", "reviewFeedback": null }
+            ]
+        },
+        {
+            "groupName": "챌린지 그룹 9",
+            "createdAt": "2025.08.09",
+            "certificationInfo": [
+                { "id": 81, "content": "걷기 11", "status": "APPROVE", "certificationContent": "매일 걷기", "certificationMediaUrl": "https://picsum.photos/id/81/200/300", "reviewFeedback": null },
+                { "id": 82, "content": "걷기 12", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/82/200/300", "reviewFeedback": "더 힘내요" },
+                { "id": 83, "content": "걷기 13", "status": "APPROVE", "certificationContent": "걷기 완료", "certificationMediaUrl": "https://picsum.photos/id/83/200/300", "reviewFeedback": null },
+                { "id": 84, "content": "걷기 14", "status": "REVIEW_PENDING", "certificationContent": "노력 중", "certificationMediaUrl": "https://picsum.photos/id/84/200/300", "reviewFeedback": null },
+                { "id": 85, "content": "걷기 15", "status": "APPROVE", "certificationContent": "건강 챙김", "certificationMediaUrl": "https://picsum.photos/id/85/200/300", "reviewFeedback": null },
+                { "id": 86, "content": "걷기 16", "status": "APPROVE", "certificationContent": "매일 걷기", "certificationMediaUrl": "https://picsum.photos/id/86/200/300", "reviewFeedback": null },
+                { "id": 87, "content": "걷기 17", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/87/200/300", "reviewFeedback": "조금 더 노력해요" },
+                { "id": 88, "content": "걷기 18", "status": "APPROVE", "certificationContent": "걷고 있어요", "certificationMediaUrl": "https://picsum.photos/id/88/200/300", "reviewFeedback": null },
+                { "id": 89, "content": "걷기 19", "status": "REVIEW_PENDING", "certificationContent": "노력중", "certificationMediaUrl": "https://picsum.photos/id/89/200/300", "reviewFeedback": null },
+                { "id": 90, "content": "걷기 20", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/90/200/300", "reviewFeedback": null }
+            ]
+        },
+        {
+            "groupName": "챌린지 그룹 10",
+            "createdAt": "2025.08.10",
+            "certificationInfo": [
+                { "id": 91, "content": "명상 11", "status": "APPROVE", "certificationContent": "명상했어요", "certificationMediaUrl": "https://picsum.photos/id/91/200/300", "reviewFeedback": null },
+                { "id": 92, "content": "명상 12", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/92/200/300", "reviewFeedback": "더 노력하세요" },
+                { "id": 93, "content": "명상 13", "status": "APPROVE", "certificationContent": "매일 명상", "certificationMediaUrl": "https://picsum.photos/id/93/200/300", "reviewFeedback": null },
+                { "id": 94, "content": "명상 14", "status": "REVIEW_PENDING", "certificationContent": "도전 중", "certificationMediaUrl": "https://picsum.photos/id/94/200/300", "reviewFeedback": null },
+                { "id": 95, "content": "명상 15", "status": "APPROVE", "certificationContent": "꾸준히 명상", "certificationMediaUrl": "https://picsum.photos/id/95/200/300", "reviewFeedback": null },
+                { "id": 96, "content": "명상 16", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/96/200/300", "reviewFeedback": null },
+                { "id": 97, "content": "명상 17", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/97/200/300", "reviewFeedback": "힘내요" },
+                { "id": 98, "content": "명상 18", "status": "APPROVE", "certificationContent": "명상 중", "certificationMediaUrl": "https://picsum.photos/id/98/200/300", "reviewFeedback": null },
+                { "id": 99, "content": "명상 19", "status": "REVIEW_PENDING", "certificationContent": "노력중", "certificationMediaUrl": "https://picsum.photos/id/99/200/300", "reviewFeedback": null },
+                { "id": 100, "content": "명상 20", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/100/200/300", "reviewFeedback": null }
+            ]
+        }
+    ],
+    "pageInfo": {
+        "totalPageCount": 4,
+        "recentPageNumber": 2,
+        "hasNext": true,
+        "pageSize": 50
+    }
+}

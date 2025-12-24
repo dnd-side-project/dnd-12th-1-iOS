@@ -1,0 +1,44 @@
+{
+  "groupInfo": {
+    "name": "그로밋과 함께하는 챌린지",
+    "maximumMemberCount": 10,
+    "currentMemberCount": 6,
+    "joinCode": "123456",
+    "endAt": "25.02.22"
+  },
+  "certificationPeriods": [
+    {
+      "day": 1,
+      "createdCount": 8,
+      "certificatedCount": 2,
+      "certificationRate": 25
+    },
+    {
+      "day": 2,
+      "createdCount": 6,
+      "certificatedCount": 3,
+      "certificationRate": 50
+    },
+    {
+      "day": 3,
+      "createdCount": 6,
+      "certificatedCount": 3,
+      "certificationRate": 50
+    },
+    {
+      "day": 4,
+      "createdCount": 2,
+      "certificatedCount": 1,
+      "certificationRate": 50
+    }
+  ],
+  "ranking": {
+    "totalMemberCount": 10,
+    "myRank": 3
+  },
+  "stats": {
+    "certificatedCount": 10,
+    "approvedCount": 7,
+    "rejectedCount": 3
+  }
+}

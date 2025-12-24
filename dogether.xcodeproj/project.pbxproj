@@ -1,0 +1,489 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D8706C22DDB61CE00B3E201 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1D8706C12DDB61CE00B3E201 /* Kingfisher */; };
+		1D8B64472E409D910023CC0C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 1D8B64462E409D910023CC0C /* Lottie */; };
+		C20172CC2D5AF2C6000B9099 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = C20172CB2D5AF2C6000B9099 /* SnapKit */; };
+		C20172D02D5AF37D000B9099 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C20172CF2D5AF37D000B9099 /* FirebaseCore */; };
+		C20172D22D5AF37D000B9099 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C20172D12D5AF37D000B9099 /* FirebaseMessaging */; };
+		C2E970AB2D586FEA00DE5363 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		F665809B2E38AC7100D0098B /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = F665809A2E38AC7100D0098B /* RxCocoa */; };
+		F665809D2E38AC7100D0098B /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = F665809C2E38AC7100D0098B /* RxRelay */; };
+		F665809F2E38AC7100D0098B /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = F665809E2E38AC7100D0098B /* RxSwift */; };
+		F6E85BE82D4E4403005A3B9B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = F6E85BE72D4E4403005A3B9B /* SnapKit */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F63EEEB32D3D51E600C9914F /* dogether.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = dogether.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C20172CD2D5AF304000B9099 /* Exceptions for "dogether" folder in "dogether" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config/Info.plist,
+			);
+			target = F63EEEB22D3D51E600C9914F /* dogether */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F63EEEB52D3D51E600C9914F /* dogether */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C20172CD2D5AF304000B9099 /* Exceptions for "dogether" folder in "dogether" target */,
+			);
+			path = dogether;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F63EEEB02D3D51E600C9914F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F665809F2E38AC7100D0098B /* RxSwift in Frameworks */,
+				1D8706C22DDB61CE00B3E201 /* Kingfisher in Frameworks */,
+				1D8B64472E409D910023CC0C /* Lottie in Frameworks */,
+				C20172CC2D5AF2C6000B9099 /* SnapKit in Frameworks */,
+				C2E970AB2D586FEA00DE5363 /* (null) in Frameworks */,
+				F665809B2E38AC7100D0098B /* RxCocoa in Frameworks */,
+				C20172D22D5AF37D000B9099 /* FirebaseMessaging in Frameworks */,
+				C20172D02D5AF37D000B9099 /* FirebaseCore in Frameworks */,
+				F665809D2E38AC7100D0098B /* RxRelay in Frameworks */,
+				F6E85BE82D4E4403005A3B9B /* SnapKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F63EEEAA2D3D51E600C9914F = {
+			isa = PBXGroup;
+			children = (
+				F63EEEB52D3D51E600C9914F /* dogether */,
+				F63EEEB42D3D51E600C9914F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F63EEEB42D3D51E600C9914F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F63EEEB32D3D51E600C9914F /* dogether.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F63EEEB22D3D51E600C9914F /* dogether */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F63EEEC62D3D51E700C9914F /* Build configuration list for PBXNativeTarget "dogether" */;
+			buildPhases = (
+				F63EEEAF2D3D51E600C9914F /* Sources */,
+				F63EEEB02D3D51E600C9914F /* Frameworks */,
+				F63EEEB12D3D51E600C9914F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F63EEEB52D3D51E600C9914F /* dogether */,
+			);
+			name = dogether;
+			packageProductDependencies = (
+				F6E85BE72D4E4403005A3B9B /* SnapKit */,
+				C20172CB2D5AF2C6000B9099 /* SnapKit */,
+				C20172CF2D5AF37D000B9099 /* FirebaseCore */,
+				C20172D12D5AF37D000B9099 /* FirebaseMessaging */,
+				1D8706C12DDB61CE00B3E201 /* Kingfisher */,
+				1D8B64462E409D910023CC0C /* Lottie */,
+				F665809A2E38AC7100D0098B /* RxCocoa */,
+				F665809C2E38AC7100D0098B /* RxRelay */,
+				F665809E2E38AC7100D0098B /* RxSwift */,
+			);
+			productName = dogether;
+			productReference = F63EEEB32D3D51E600C9914F /* dogether.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F63EEEAB2D3D51E600C9914F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1610;
+				LastUpgradeCheck = 1610;
+				TargetAttributes = {
+					F63EEEB22D3D51E600C9914F = {
+						CreatedOnToolsVersion = 16.1;
+					};
+				};
+			};
+			buildConfigurationList = F63EEEAE2D3D51E600C9914F /* Build configuration list for PBXProject "dogether" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F63EEEAA2D3D51E600C9914F;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C20172CA2D5AF2C6000B9099 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				C20172CE2D5AF37D000B9099 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				1D8706C02DDB61CE00B3E201 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				1D8B64452E409D910023CC0C /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F63EEEB42D3D51E600C9914F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F63EEEB22D3D51E600C9914F /* dogether */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F63EEEB12D3D51E600C9914F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F63EEEAF2D3D51E600C9914F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F63EEEC72D3D51E700C9914F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = dogether/dogether.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3NLDZW4Z5J;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dogether/Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dogether;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.dogether;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = dogether_provisioning_develop;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		F63EEEC82D3D51E700C9914F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = dogether/dogether.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3NLDZW4Z5J;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = dogether/Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = dogether;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = site.dogether;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = dogether_provisioning_develop;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		F63EEEC92D3D51E700C9914F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F63EEECA2D3D51E700C9914F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F63EEEAE2D3D51E600C9914F /* Build configuration list for PBXProject "dogether" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F63EEEC92D3D51E700C9914F /* Debug */,
+				F63EEECA2D3D51E700C9914F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F63EEEC62D3D51E700C9914F /* Build configuration list for PBXNativeTarget "dogether" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F63EEEC72D3D51E700C9914F /* Debug */,
+				F63EEEC82D3D51E700C9914F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1D8706C02DDB61CE00B3E201 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
+		1D8B64452E409D910023CC0C /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		C20172CA2D5AF2C6000B9099 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = exactVersion;
+				version = 5.7.1;
+			};
+		};
+		C20172CE2D5AF37D000B9099 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = exactVersion;
+				version = 11.7.0;
+			};
+		};
+		F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 6.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1D8706C12DDB61CE00B3E201 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D8706C02DDB61CE00B3E201 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		1D8B64462E409D910023CC0C /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D8B64452E409D910023CC0C /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+		C20172CB2D5AF2C6000B9099 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C20172CA2D5AF2C6000B9099 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		C20172CF2D5AF37D000B9099 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C20172CE2D5AF37D000B9099 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		C20172D12D5AF37D000B9099 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C20172CE2D5AF37D000B9099 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		F665809A2E38AC7100D0098B /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		F665809C2E38AC7100D0098B /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		F665809E2E38AC7100D0098B /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		F6E85BE72D4E4403005A3B9B /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F63EEEAB2D3D51E600C9914F /* Project object */;
+}
