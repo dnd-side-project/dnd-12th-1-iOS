@@ -20,17 +20,41 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let navigationController = UINavigationController()
         navigationController.isNavigationBarHidden = true
-        coordinator = NavigationCoordinator(navigationController: navigationController)
-        coordinator?.setNavigationController(SplashViewController())
-        
-        NetworkManager.shared.coordinator = coordinator
-        PushNoticeManager.shared.delegate = coordinator
         
         window = UIWindow(windowScene: scene)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
+        
+        coordinator = NavigationCoordinator(navigationController: navigationController)
+        NetworkManager.shared.coordinator = coordinator
+        PushNoticeManager.shared.delegate = coordinator
+        
+        Task { @MainActor in
+            if let userActivity = connectionOptions.userActivities.first {
+                try await DeepLinkManager.shared.resolveUrl(userActivity: userActivity)
+            }
+            
+            coordinator?.setNavigationController(SplashViewController())
+        }
     }
     
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        Task { @MainActor in
+            try await DeepLinkManager.shared.resolveUrl(userActivity: userActivity)
+            
+            if let coordinator, coordinator.checkCurrentViewController(
+                SplashViewController.self,
+                UpdateViewController.self,
+                OnboardingViewController.self
+            ) { return }
+            
+            if let code = DeepLinkManager.shared.consumeInviteCode() {
+                let groupJoinViewController = GroupJoinViewController()
+                let groupJoinViewDatas = GroupJoinViewDatas(code: code)
+                coordinator?.pushViewController(groupJoinViewController, datas: groupJoinViewDatas)
+            }
+        }
+    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

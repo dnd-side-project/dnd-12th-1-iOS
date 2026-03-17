@@ -11,7 +11,6 @@ struct GetMyGroupActivityResponse: Decodable {
 //    let group: GroupEntityInGetMyGroupActivity  // MARK: 사용 안함
     let certificationPeriods: [CertificationPeriodEntityInGetMyGroupActivity]
     let ranking: RankingEntityInGetMyGroupActivity
-    let stats: StatsEntityInGetMyGroupActivity
 }
 
 // MARK: 사용 안함
@@ -33,10 +32,4 @@ struct CertificationPeriodEntityInGetMyGroupActivity: Decodable {
 struct RankingEntityInGetMyGroupActivity: Decodable {
     let totalMemberCount: Int
     let myRank: Int
-}
-
-struct StatsEntityInGetMyGroupActivity: Decodable {
-    let certificatedCount: Int
-    let approvedCount: Int
-    let rejectedCount: Int
 }

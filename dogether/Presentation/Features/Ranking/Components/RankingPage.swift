@@ -45,8 +45,6 @@ final class RankingPage: BasePage {
     }()
     private let rankingTableView = UITableView()
     
-//    private var errorView: ErrorView?
-    
     private(set) var currentRankings: [RankingEntity]?
     
     override func configureView() {

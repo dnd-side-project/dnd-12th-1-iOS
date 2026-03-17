@@ -23,10 +23,11 @@ final class NavigationCoordinator: NSObject {
     
     // MARK: 날짜 이동, pushNotice에 반응하여 viewController 자체를 update하는 임시 함수
     var updateViewController: (() -> Void)? = nil
-    private func updateIfNeeded(_ types: UIViewController.Type...) {
-        guard let lastViewController, types.contains(where: { lastViewController.isKind(of: $0) }) else { return }
-
-        updateViewController?()
+    
+    func checkCurrentViewController(_ types: UIViewController.Type...) -> Bool {
+        guard let currentViewController = navigationController.viewControllers.last else { return false }
+        
+        return types.contains { currentViewController.isKind(of: $0) }
     }
     
     init(navigationController: UINavigationController) {
@@ -34,7 +35,9 @@ final class NavigationCoordinator: NSObject {
         super.init()
         
         NotificationCenter.default.addObserver(
-            self, selector: #selector(updateLastAccessDate), name: .NSCalendarDayChanged, object: nil
+            self,
+            selector: #selector(updateLastAccessDate),
+            name: .NSCalendarDayChanged, object: nil
         )
     }
     
@@ -45,16 +48,31 @@ final class NavigationCoordinator: NSObject {
 
 // MARK: view
 extension NavigationCoordinator {
-    func setNavigationController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
-        viewController.coordinator = self
-        viewController.datas = datas
+    func setNavigationController(
+        _ viewControllers: BaseViewController...,
+        datas: (any BaseEntity)? = nil,
+        animated: Bool = true
+    ) {
+        // MARK: 하나 이상의 viewController 확인
+        if viewControllers.isEmpty { return }
+        
+        // MARK: 마지막 viewController에만 datas 연동
+        viewControllers.forEach { $0.coordinator = self }
+        viewControllers.last?.datas = datas
         updateViewController = nil
         
-        navigationController.setViewControllers([viewController], animated: animated)
+        navigationController.setViewControllers(viewControllers, animated: animated)
         navigationController.interactivePopGestureRecognizer?.delegate = self
     }
     
     func pushViewController(_ viewController: BaseViewController, datas: (any BaseEntity)? = nil, animated: Bool = true) {
+        // MARK: 새로 넣으려는 viewController와 현재 viewController가 같을 때는 page update
+        if let currentViewController = navigationController.viewControllers.last as? BaseViewController,
+           let datas, type(of: viewController) == type(of: currentViewController) {
+            currentViewController.pages?.forEach { $0.updateView(datas) }
+            return
+        }
+        
         viewController.coordinator = self
         viewController.datas = datas
         updateViewController = nil
@@ -190,19 +208,23 @@ extension NavigationCoordinator: NotificationHandler {
             }
             
         case .review:
-            updateIfNeeded(
+            if checkCurrentViewController(
                 MainViewController.self,
                 RankingViewController.self,
                 StatsViewController.self
-            )
+            ) {
+                updateViewController?()
+            }
             
         case .join:
-            updateIfNeeded(
+            if checkCurrentViewController(
                 MainViewController.self,
                 RankingViewController.self,
                 StatsViewController.self,
                 GroupManagementViewController.self
-            )
+            ) {
+                updateViewController?()
+            }
         }
     }
     

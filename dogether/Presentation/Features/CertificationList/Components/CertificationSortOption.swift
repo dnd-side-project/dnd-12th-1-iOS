@@ -18,7 +18,7 @@ enum SortOptions: String, CaseIterable, BaseEntity {
     var sortString: String {
         switch self {
         case .todoCompletionDate:
-            return "TODO_COMPLETED_AT"
+            return "CERTIFICATED_AT"
         case .groupCreationDate:
             return "GROUP_CREATED_AT"
         }

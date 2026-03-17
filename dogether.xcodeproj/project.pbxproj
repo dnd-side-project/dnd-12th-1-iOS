@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D8706C22DDB61CE00B3E201 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 1D8706C12DDB61CE00B3E201 /* Kingfisher */; };
 		1D8B64472E409D910023CC0C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 1D8B64462E409D910023CC0C /* Lottie */; };
+		1D9C25312EF9146700F8166F /* ChottuLinkSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 1D9C25302EF9146700F8166F /* ChottuLinkSDK */; };
 		C20172CC2D5AF2C6000B9099 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = C20172CB2D5AF2C6000B9099 /* SnapKit */; };
 		C20172D02D5AF37D000B9099 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C20172CF2D5AF37D000B9099 /* FirebaseCore */; };
 		C20172D22D5AF37D000B9099 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = C20172D12D5AF37D000B9099 /* FirebaseMessaging */; };
@@ -50,6 +51,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F665809F2E38AC7100D0098B /* RxSwift in Frameworks */,
+				1D9C25312EF9146700F8166F /* ChottuLinkSDK in Frameworks */,
 				1D8706C22DDB61CE00B3E201 /* Kingfisher in Frameworks */,
 				1D8B64472E409D910023CC0C /* Lottie in Frameworks */,
 				C20172CC2D5AF2C6000B9099 /* SnapKit in Frameworks */,
@@ -110,6 +112,7 @@
 				F665809A2E38AC7100D0098B /* RxCocoa */,
 				F665809C2E38AC7100D0098B /* RxRelay */,
 				F665809E2E38AC7100D0098B /* RxSwift */,
+				1D9C25302EF9146700F8166F /* ChottuLinkSDK */,
 			);
 			productName = dogether;
 			productReference = F63EEEB32D3D51E600C9914F /* dogether.app */;
@@ -145,6 +148,7 @@
 				1D8706C02DDB61CE00B3E201 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				1D8B64452E409D910023CC0C /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				F66580992E38AC7100D0098B /* XCRemoteSwiftPackageReference "RxSwift" */,
+				1D9C252F2EF9146700F8166F /* XCRemoteSwiftPackageReference "chottulink-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F63EEEB42D3D51E600C9914F /* Products */;
@@ -200,7 +204,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = site.dogether;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -238,7 +242,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.0;
+				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = site.dogether;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -412,6 +416,14 @@
 				minimumVersion = 4.5.2;
 			};
 		};
+		1D9C252F2EF9146700F8166F /* XCRemoteSwiftPackageReference "chottulink-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ConnectingDotsInfotech/chottulink-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.8;
+			};
+		};
 		C20172CA2D5AF2C6000B9099 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -448,6 +460,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1D8B64452E409D910023CC0C /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		1D9C25302EF9146700F8166F /* ChottuLinkSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1D9C252F2EF9146700F8166F /* XCRemoteSwiftPackageReference "chottulink-ios-sdk" */;
+			productName = ChottuLinkSDK;
 		};
 		C20172CB2D5AF2C6000B9099 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

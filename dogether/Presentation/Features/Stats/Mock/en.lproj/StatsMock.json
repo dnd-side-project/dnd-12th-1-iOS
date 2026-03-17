@@ -35,10 +35,5 @@
   "ranking": {
     "totalMemberCount": 10,
     "myRank": 3
-  },
-  "stats": {
-    "certificatedCount": 10,
-    "approvedCount": 7,
-    "rejectedCount": 3
   }
 }

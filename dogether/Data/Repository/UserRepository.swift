@@ -19,10 +19,13 @@ final class UserRepository: UserProtocol {
         rankViewDatas: StatsRankViewDatas,
         summaryViewDatas: StatsSummaryViewDatas
     ) {
-        let response = try await userDataSource.getMyGroupActivity(groupId: groupId)
-        
+        async let activityResponse = userDataSource.getMyGroupActivity(groupId: groupId)
+        async let statsResponse = userDataSource.getMyCertificationStats(groupId: groupId)
+
+        let (activity, stats) = try await (activityResponse, statsResponse)
+
         let achievementViewDatas = AchievementViewDatas(
-            achievements: response.certificationPeriods.map {
+            achievements: activity.certificationPeriods.map {
                 AchievementEntity(
                     day: $0.day,
                     createdCount: $0.createdCount,
@@ -30,18 +33,18 @@ final class UserRepository: UserProtocol {
                 )
             }
         )
-        
+
         let rankViewDatas = StatsRankViewDatas(
-            totalMembers: response.ranking.totalMemberCount,
-            myRank: response.ranking.myRank
+            totalMembers: activity.ranking.totalMemberCount,
+            myRank: activity.ranking.myRank
         )
-        
+
         let summaryViewDatas = StatsSummaryViewDatas(
-            certificatedCount: response.stats.certificatedCount,
-            approvedCount: response.stats.approvedCount,
-            rejectedCount: response.stats.rejectedCount
+            certificatedCount: stats.certificatedCount,
+            approvedCount: stats.approvedCount,
+            rejectedCount: stats.rejectedCount
         )
-        
+
         return (achievementViewDatas, rankViewDatas, summaryViewDatas)
     }
     
@@ -49,52 +52,43 @@ final class UserRepository: UserProtocol {
         statsViewDatas: StatsViewDatas,
         certificationListViewDatas: CertificationListViewDatas
     ) {
-        let response = try await userDataSource.getMyActivity(sort: option.sortString, page: String(page))
-        
+        async let activityResponse = userDataSource.getMyActivity(sort: option.sortString, page: String(page))
+        async let statsResponse = userDataSource.getMyCertificationStats()
+
+        let (activity, stats) = try await (activityResponse, statsResponse)
+
         let statsViewDatas = StatsViewDatas(
-            achievementCount: response.dailyTodoStats.totalCertificatedCount,
-            approveCount: response.dailyTodoStats.totalApprovedCount,
-            rejectCount: response.dailyTodoStats.totalRejectedCount
+            achievementCount: stats.certificatedCount,
+            approveCount: stats.approvedCount,
+            rejectCount: stats.rejectedCount
         )
-        
-        let sections: [SectionEntity]
-        if let certificationsGroupedByTodoCompletedAt = response.certificationsGroupedByTodoCompletedAt {
-            sections = certificationsGroupedByTodoCompletedAt.map { daily in
-                let todos = daily.certificationInfo.map { info in
-                    TodoEntity(
-                        id: info.id,
-                        content: info.content,
-                        status: TodoStatus(rawValue: info.status) ?? .waitCertification,
-                        certificationContent: info.certificationContent,
-                        certificationMediaUrl: info.certificationMediaUrl,
-                        reviewFeedback: info.reviewFeedback,
-                        createdAt: daily.createdAt
-                    )
-                }
-                return SectionEntity(type: .daily(dateString: daily.createdAt), todos: todos)
+
+        let sections: [SectionEntity] = activity.certifications.map { certification in
+            let todos = certification.certificationInfo.map { info in
+                TodoEntity(
+                    id: info.id,
+                    content: info.content,
+                    status: TodoStatus(rawValue: info.status) ?? .waitCertification,
+                    certificationContent: info.certificationContent,
+                    certificationMediaUrl: info.certificationMediaUrl,
+                    reviewFeedback: info.reviewFeedback,
+                    createdAt: option == .todoCompletionDate ? certification.groupedBy : nil
+                )
             }
-        } else if let certificationsGroupedByGroupCreatedAt = response.certificationsGroupedByGroupCreatedAt {
-            sections = certificationsGroupedByGroupCreatedAt.map { group in
-                let todos = group.certificationInfo.map { info in
-                    TodoEntity(
-                        id: info.id,
-                        content: info.content,
-                        status: TodoStatus(rawValue: info.status) ?? .waitCertification,
-                        certificationContent: info.certificationContent,
-                        certificationMediaUrl: info.certificationMediaUrl,
-                        reviewFeedback: info.reviewFeedback
-                    )
-                }
-                
-                return SectionEntity(type: .group(groupName: group.groupName), todos: todos)
+
+            switch option {
+            case .todoCompletionDate:
+                return SectionEntity(type: .daily(dateString: certification.groupedBy), todos: todos)
+            case .groupCreationDate:
+                return SectionEntity(type: .group(groupName: certification.groupedBy), todos: todos)
             }
-        } else { sections = [] }
-        
+        }
+
         let certificationListViewDatas = CertificationListViewDatas(
             sections: sections,
-            isLastPage: !response.pageInfo.hasNext
+            isLastPage: !activity.pageInfo.hasNext
         )
-        
+
         return (statsViewDatas, certificationListViewDatas)
     }
     

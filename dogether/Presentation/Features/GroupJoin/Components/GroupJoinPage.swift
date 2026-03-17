@@ -16,7 +16,8 @@ final class GroupJoinPage: BasePage {
                     guard let self else { return }
                     let code = String((codeTextField.text ?? "").prefix(codeMaxLength))
                     codeTextField.text = code
-                    delegate?.updateCodeAction(code: code, codeMaxLength: codeMaxLength)
+                    delegate?.updateCodeAction(code: code)
+                    delegate?.updateButtonStatusAction(status: code.count < codeMaxLength ? .disabled : .enabled)
                 },
                 for: .editingChanged
             )
@@ -118,6 +119,13 @@ final class GroupJoinPage: BasePage {
     // MARK: - updateView
     override func updateView(_ data: (any BaseEntity)?) {
         if let datas = data as? GroupJoinViewDatas {
+            if codeTextField.text != datas.code {
+                codeTextField.text = datas.code
+                
+                delegate?.updateCodeAction(code: datas.code)
+                delegate?.updateButtonStatusAction(status: datas.code.count < codeMaxLength ? .disabled : .enabled)
+            }
+            
             // MARK: subTitleLabel 등 일반 UI의 구성을 최초 진행, 이후 joinButton 애니메이션을 위해 위치 조정
             if isFirst {
                 isFirst = false

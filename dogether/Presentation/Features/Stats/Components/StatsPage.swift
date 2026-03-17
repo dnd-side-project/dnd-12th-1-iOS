@@ -33,8 +33,6 @@ final class StatsPage: BasePage {
     
     private let bottomSheetView = BottomSheetView(hasAddButton: false)
     
-//    private var errorView: ErrorView?
-    
     override func configureView() {
         dosikImageView.contentMode = .scaleAspectFit
         dosikArmView.contentMode = .scaleAspectFit
@@ -51,8 +49,8 @@ final class StatsPage: BasePage {
         addSubview(scrollView)
         scrollView.addSubview(scrollContentView)
         
-        [ groupInfoView, dosikImageView, dosikArmView,
-          achievementView, statsRankView, statsSummaryView
+        [ groupInfoView, dosikImageView, achievementView,
+          dosikArmView, statsRankView, statsSummaryView
         ].forEach { scrollContentView.addSubview($0) }
         
         addSubview(bottomSheetView)

@@ -21,29 +21,11 @@ class BaseViewController: UIViewController, CoordinatorDelegate {
         super.viewDidLoad()
         view.backgroundColor = .grey900
         
-        // FIXME: 추후 삭제
-        configureView()
-        configureAction()
-        configureHierarchy()
-        configureConstraints()
-        
         guard let pages else { return }
         configurePages(pages)
         
         setViewDatas()
     }
-    
-    /// 뷰의 시각적인 속성을 설정하는 역할을 합니다
-    func configureView() { }
-    
-    /// 뷰의 동작 및 이벤트 처리를 설정하는 역할을 합니다
-    func configureAction() { }
-    
-    /// 뷰 계층을 구성하는 역할을 합니다
-    func configureHierarchy() { }
-    
-    /// SnapKit을 이용해 레이아웃을 설정하는 역할을 합니다
-    func configureConstraints() { }
     
     /// UI를 구성할 페이지들을 설정하는 역할을 합니다
     func configurePages(_ pages: [BasePage]) {

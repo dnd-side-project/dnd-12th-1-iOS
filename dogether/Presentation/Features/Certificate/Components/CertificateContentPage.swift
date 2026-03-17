@@ -195,10 +195,6 @@ extension CertificateContentPage: UITextViewDelegate {
         let updatedText = currentText.replacingCharacters(in: textRange, with: text)
         
         return updatedText.count <= textView.type.maxLength
-        
-//        let content = String((textView.text ?? "").prefix(textView.type.maxLength))
-//        textView.text = content
-//        delegate?.updateContentAction(content: content)
     }
     
     func textViewDidChange(_ textView: UITextView) {

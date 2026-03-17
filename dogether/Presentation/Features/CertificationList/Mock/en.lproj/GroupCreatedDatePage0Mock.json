@@ -1,13 +1,7 @@
 {
-    "dailyTodoStats": {
-        "totalCertificatedCount": 200,
-        "totalApprovedCount": 100,
-        "totalRejectedCount": 50
-    },
-    "certificationsGroupedByGroupCreatedAt": [
+    "certifications": [
         {
-            "groupName": "챌린지 그룹 16",
-            "createdAt": "2025.08.16",
+            "groupedBy": "챌린지 그룹 16",
             "certificationInfo": [
                 { "id": 151, "content": "운동 하기 31", "status": "APPROVE", "certificationContent": "운동 완료!", "certificationMediaUrl": "https://picsum.photos/id/151/200/300", "reviewFeedback": null },
                 { "id": 152, "content": "운동 하기 32", "status": "REJECT", "certificationContent": "실패했어요", "certificationMediaUrl": "https://picsum.photos/id/152/200/300", "reviewFeedback": "다음엔 꼭!" },
@@ -22,8 +16,7 @@
             ]
         },
         {
-            "groupName": "챌린지 그룹 17",
-            "createdAt": "2025.08.17",
+            "groupedBy": "챌린지 그룹 17",
             "certificationInfo": [
                 { "id": 161, "content": "책 읽기 31", "status": "APPROVE", "certificationContent": "읽었어요", "certificationMediaUrl": "https://picsum.photos/id/161/200/300", "reviewFeedback": null },
                 { "id": 162, "content": "책 읽기 32", "status": "REJECT", "certificationContent": "못 읽었어요", "certificationMediaUrl": "https://picsum.photos/id/162/200/300", "reviewFeedback": "더 힘내요" },
@@ -38,8 +31,7 @@
             ]
         },
         {
-            "groupName": "챌린지 그룹 18",
-            "createdAt": "2025.08.18",
+            "groupedBy": "챌린지 그룹 18",
             "certificationInfo": [
                 { "id": 171, "content": "물 2L 마시기 31", "status": "APPROVE", "certificationContent": "마셨습니다", "certificationMediaUrl": "https://picsum.photos/id/171/200/300", "reviewFeedback": null },
                 { "id": 172, "content": "물 2L 마시기 32", "status": "REJECT", "certificationContent": "못 마셨어요", "certificationMediaUrl": "https://picsum.photos/id/172/200/300", "reviewFeedback": "내일은 꼭!" },
@@ -54,8 +46,7 @@
             ]
         },
         {
-            "groupName": "챌린지 그룹 19",
-            "createdAt": "2025.08.19",
+            "groupedBy": "챌린지 그룹 19",
             "certificationInfo": [
                 { "id": 181, "content": "걷기 31", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/181/200/300", "reviewFeedback": null },
                 { "id": 182, "content": "걷기 32", "status": "REJECT", "certificationContent": "실패했어요", "certificationMediaUrl": "https://picsum.photos/id/182/200/300", "reviewFeedback": "조금만 더" },
@@ -70,8 +61,7 @@
             ]
         },
         {
-            "groupName": "챌린지 그룹 20",
-            "createdAt": "2025.08.20",
+            "groupedBy": "챌린지 그룹 20",
             "certificationInfo": [
                 { "id": 191, "content": "명상 31", "status": "APPROVE", "certificationContent": "완료!", "certificationMediaUrl": "https://picsum.photos/id/191/200/300", "reviewFeedback": null },
                 { "id": 192, "content": "명상 32", "status": "REJECT", "certificationContent": "못했어요", "certificationMediaUrl": "https://picsum.photos/id/192/200/300", "reviewFeedback": "힘내세요" },
@@ -87,9 +77,7 @@
         }
     ],
     "pageInfo": {
-        "totalPageCount": 4,
         "recentPageNumber": 0,
-        "hasNext": true,
-        "pageSize": 50
+        "hasNext": true
     }
 }

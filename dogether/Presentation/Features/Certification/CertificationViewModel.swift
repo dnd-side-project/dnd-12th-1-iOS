@@ -31,6 +31,7 @@ extension CertificationViewModel {
     }
     
     func readTodo(index: Int? = nil) async throws {
+        if certificationViewDatas.value.rankingEntity == nil { return }
         try await challengeGroupsUseCase.readTodo(
             todo: certificationViewDatas.value.todos[index ?? certificationViewDatas.value.index]
         )

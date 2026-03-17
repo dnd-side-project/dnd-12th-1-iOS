@@ -19,7 +19,11 @@ final class UserDataSource {
     func getMyActivity(sort: String, page: String) async throws -> GetMyActivityResponse {
         try await NetworkManager.shared.request(UserRouter.getMyActivity(sort: sort, page: page))
     }
-    
+
+    func getMyCertificationStats(groupId: Int? = nil) async throws -> GetMyCertificationStatsResponse {
+        try await NetworkManager.shared.request(UserRouter.getMyCertificationStats(groupId: groupId))
+    }
+
     func getMyProfile() async throws -> GetMyProfileResponse {
         try await NetworkManager.shared.request(UserRouter.getMyProfile)
     }

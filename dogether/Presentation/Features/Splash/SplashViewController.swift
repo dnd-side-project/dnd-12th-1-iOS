@@ -35,11 +35,7 @@ extension SplashViewController {
             
             if try await viewModel.checkParticipating() {
                 coordinator?.setNavigationController(StartViewController())
-                return
-            }
-            
-            await MainActor.run { [weak self] in
-                guard let self else { return }
+            } else {
                 coordinator?.setNavigationController(MainViewController())
             }
         }

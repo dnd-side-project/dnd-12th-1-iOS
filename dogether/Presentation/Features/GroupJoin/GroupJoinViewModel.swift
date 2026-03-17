@@ -38,10 +38,11 @@ extension GroupJoinViewModel {
         groupJoinViewDatas.update { $0.keyboardHeight = height }
     }
     
-    func updateCode(code: String, codeMaxLength: Int) {
+    func updateCode(code: String) {
         groupJoinViewDatas.update { $0.code = code }
-        joinButtonViewDatas.update {
-            $0.status = code.count < codeMaxLength ? .disabled : .enabled
-        }
+    }
+    
+    func updateButtonStatus(status: ButtonStatus) {
+        joinButtonViewDatas.update { $0.status = status }
     }
 }

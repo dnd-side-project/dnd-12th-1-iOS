@@ -1,12 +1,7 @@
 {
-    "dailyTodoStats": {
-        "totalCertificatedCount": 150,
-        "totalApprovedCount": 25,
-        "totalRejectedCount": 15
-    },
-    "certificationsGroupedByTodoCompletedAt": [
+    "certifications": [
         {
-            "createdAt": "2025.08.21",
+            "groupedBy": "2025.08.21",
             "certificationInfo": [
                 { "id": 101, "content": "운동 하기 101", "status": "APPROVE", "certificationContent": "운동 완료 101", "certificationMediaUrl": "https://picsum.photos/id/101/200/300", "reviewFeedback": null },
                 { "id": 102, "content": "운동 하기 102", "status": "REJECT", "certificationContent": "실패 102", "certificationMediaUrl": "https://picsum.photos/id/102/200/300", "reviewFeedback": "다음엔 꼭!" },
@@ -16,7 +11,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.22",
+            "groupedBy": "2025.08.22",
             "certificationInfo": [
                 { "id": 106, "content": "책 읽기 106", "status": "APPROVE", "certificationContent": "읽었어요 106", "certificationMediaUrl": "https://picsum.photos/id/106/200/300", "reviewFeedback": null },
                 { "id": 107, "content": "책 읽기 107", "status": "REJECT", "certificationContent": "못 읽었어요 107", "certificationMediaUrl": "https://picsum.photos/id/107/200/300", "reviewFeedback": "더 힘내요" },
@@ -26,7 +21,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.23",
+            "groupedBy": "2025.08.23",
             "certificationInfo": [
                 { "id": 111, "content": "명상하기 111", "status": "APPROVE", "certificationContent": "명상 완료 111", "certificationMediaUrl": "https://picsum.photos/id/111/200/300", "reviewFeedback": null },
                 { "id": 112, "content": "명상하기 112", "status": "REJECT", "certificationContent": "명상 실패 112", "certificationMediaUrl": "https://picsum.photos/id/112/200/300", "reviewFeedback": "조금 더 노력해요" },
@@ -36,7 +31,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.24",
+            "groupedBy": "2025.08.24",
             "certificationInfo": [
                 { "id": 116, "content": "요리하기 116", "status": "APPROVE", "certificationContent": "파스타 만들었음 116", "certificationMediaUrl": "https://picsum.photos/id/116/200/300", "reviewFeedback": null },
                 { "id": 117, "content": "요리하기 117", "status": "REJECT", "certificationContent": "요리 실패 117", "certificationMediaUrl": "https://picsum.photos/id/117/200/300", "reviewFeedback": "다음엔 더 잘해요!" },
@@ -46,7 +41,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.25",
+            "groupedBy": "2025.08.25",
             "certificationInfo": [
                 { "id": 121, "content": "걷기 121", "status": "APPROVE", "certificationContent": "완료! 121", "certificationMediaUrl": "https://picsum.photos/id/121/200/300", "reviewFeedback": null },
                 { "id": 122, "content": "걷기 122", "status": "REJECT", "certificationContent": "실패했어요 122", "certificationMediaUrl": "https://picsum.photos/id/122/200/300", "reviewFeedback": "조금만 더" },
@@ -56,7 +51,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.26",
+            "groupedBy": "2025.08.26",
             "certificationInfo": [
                 { "id": 126, "content": "명상 126", "status": "APPROVE", "certificationContent": "완료! 126", "certificationMediaUrl": "https://picsum.photos/id/126/200/300", "reviewFeedback": null },
                 { "id": 127, "content": "명상 127", "status": "REJECT", "certificationContent": "못했어요 127", "certificationMediaUrl": "https://picsum.photos/id/127/200/300", "reviewFeedback": "힘내요" },
@@ -66,7 +61,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.27",
+            "groupedBy": "2025.08.27",
             "certificationInfo": [
                 { "id": 131, "content": "물 마시기 131", "status": "APPROVE", "certificationContent": "마셨습니다 131", "certificationMediaUrl": "https://picsum.photos/id/131/200/300", "reviewFeedback": null },
                 { "id": 132, "content": "물 마시기 132", "status": "REJECT", "certificationContent": "못 마셨어요 132", "certificationMediaUrl": "https://picsum.photos/id/132/200/300", "reviewFeedback": "내일은 꼭!" },
@@ -76,7 +71,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.28",
+            "groupedBy": "2025.08.28",
             "certificationInfo": [
                 { "id": 136, "content": "책 읽기 136", "status": "APPROVE", "certificationContent": "읽었어요 136", "certificationMediaUrl": "https://picsum.photos/id/136/200/300", "reviewFeedback": null },
                 { "id": 137, "content": "책 읽기 137", "status": "REJECT", "certificationContent": "못 읽었어요 137", "certificationMediaUrl": "https://picsum.photos/id/137/200/300", "reviewFeedback": "더 힘내요" },
@@ -86,7 +81,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.29",
+            "groupedBy": "2025.08.29",
             "certificationInfo": [
                 { "id": 141, "content": "청소하기 141", "status": "APPROVE", "certificationContent": "깨끗해짐 141", "certificationMediaUrl": "https://picsum.photos/id/141/200/300", "reviewFeedback": null },
                 { "id": 142, "content": "청소하기 142", "status": "REJECT", "certificationContent": "못 했음 142", "certificationMediaUrl": "https://picsum.photos/id/142/200/300", "reviewFeedback": "조금 더 노력해요" },
@@ -96,7 +91,7 @@
             ]
         },
         {
-            "createdAt": "2025.08.30",
+            "groupedBy": "2025.08.30",
             "certificationInfo": [
                 { "id": 146, "content": "글쓰기 146", "status": "APPROVE", "certificationContent": "일기 썼어요 146", "certificationMediaUrl": "https://picsum.photos/id/146/200/300", "reviewFeedback": null },
                 { "id": 147, "content": "글쓰기 147", "status": "REJECT", "certificationContent": "내용 부족 147", "certificationMediaUrl": "https://picsum.photos/id/147/200/300", "reviewFeedback": "더 써봐요" },
@@ -107,9 +102,7 @@
         }
     ],
     "pageInfo": {
-        "totalPageCount": 3,
         "recentPageNumber": 0,
-        "hasNext": true,
-        "pageSize": 50
+        "hasNext": true
     }
 }

@@ -58,9 +58,6 @@ extension CertificateImageViewController: CertificateImageDelegate {
         Task {
             viewModel.updateButtonStatus(status: .disabled)
             
-            LoadingManager.shared.showLoading()
-            defer { LoadingManager.shared.hideLoading() }
-            
             do {
                 try await viewModel.uploadImage(image: image)
                 viewModel.updateButtonStatus(status: .enabled)

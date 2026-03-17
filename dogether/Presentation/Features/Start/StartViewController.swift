@@ -15,6 +15,8 @@ final class StartViewController: BaseViewController {
         pages = [startPage]
         
         super.viewDidLoad()
+        
+        onAppear()
     }
     
     override func setViewDatas() {
@@ -23,6 +25,16 @@ final class StartViewController: BaseViewController {
         }
         
         bind(viewModel.startViewDatas)
+    }
+}
+
+extension StartViewController {
+    private func onAppear() {
+        if let code = DeepLinkManager.shared.consumeInviteCode() {
+            let groupJoinViewController = GroupJoinViewController()
+            let groupJoinViewDatas = GroupJoinViewDatas(code: code)
+            coordinator?.pushViewController(groupJoinViewController, datas: groupJoinViewDatas)
+        }
     }
 }
 

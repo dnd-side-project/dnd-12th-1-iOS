@@ -41,6 +41,12 @@ extension MainViewController {
     private func onAppear() {
         checkAuthorization()
         getReviews()
+        
+        if let code = DeepLinkManager.shared.consumeInviteCode() {
+            let groupJoinViewController = GroupJoinViewController()
+            let groupJoinViewDatas = GroupJoinViewDatas(code: code)
+            coordinator?.pushViewController(groupJoinViewController, datas: groupJoinViewDatas)
+        }
     }
     
     private func checkAuthorization() {
@@ -157,8 +163,26 @@ extension MainViewController: MainDelegate {
     }
     
     func inviteAction() {
-        let inviteGroup = SystemManager.inviteGroup(groupName: viewModel.currentGroup.name, joinCode: viewModel.currentGroup.joinCode)
-        present(UIActivityViewController(activityItems: inviteGroup, applicationActivities: nil), animated: true)
+        let group = viewModel.currentGroup
+
+        Task {
+            do {
+                let inviteItems = try await SystemManager.inviteGroup(
+                    groupName: group.name,
+                    joinCode: group.joinCode
+                )
+
+                await MainActor.run {
+                    let activityVC = UIActivityViewController(
+                        activityItems: inviteItems,
+                        applicationActivities: nil
+                    )
+                    present(activityVC, animated: true)
+                }
+            } catch {
+                // FIXME: 초대 링크 생성 실패 처리
+            }
+        }
     }
     
     func goPastAction() {

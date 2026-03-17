@@ -25,6 +25,7 @@ enum NetworkMethod: String {
 enum Path {
     static let api = "/api"
     static let v1 = "/v1"
+    static let v2 = "/v2"
     
     static let auth = "/auth"
     static let groups = "/groups"
